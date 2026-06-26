@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/*
+ * VERA Operations Dashboard — design tokens.
+ *
+ * This is a real-time ops tool for monitoring an AI engagement bot, not a
+ * consumer marketing page. The palette and signature motif both reflect
+ * that: deep navy/near-black background (serious, low-glare for long
+ * monitoring sessions), electric blue for "live/active" state, and a
+ * heartbeat-style pulse line as the one bold gesture — because VERA is
+ * literally the heartbeat of magicpin's merchant engagement.
+ */
+
+:root {
+  --vera-bg: #0a0d14;
+  --vera-surface: #12172b;
+  --vera-surface-raised: #161d38;
+  --vera-border: #1e2a45;
+  --vera-accent: #3b82f6;
+  --vera-accent-soft: #1d4ed8;
+  --vera-success: #10b981;
+  --vera-warn: #f59e0b;
+  --vera-danger: #ef4444;
+  --vera-text: #e2e8f0;
+  --vera-text-bright: #f8fafc;
+  --vera-muted: #64748b;
+  --vera-muted-dim: #475569;
+
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+}
+
+@theme inline {
+  --color-vera-bg: var(--vera-bg);
+  --color-vera-surface: var(--vera-surface);
+  --color-vera-surface-raised: var(--vera-surface-raised);
+  --color-vera-border: var(--vera-border);
+  --color-vera-accent: var(--vera-accent);
+  --color-vera-accent-soft: var(--vera-accent-soft);
+  --color-vera-success: var(--vera-success);
+  --color-vera-warn: var(--vera-warn);
+  --color-vera-danger: var(--vera-danger);
+  --color-vera-text: var(--vera-text);
+  --color-vera-text-bright: var(--vera-text-bright);
+  --color-vera-muted: var(--vera-muted);
+  --color-vera-muted-dim: var(--vera-muted-dim);
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+html, body {
+  background: var(--vera-bg);
+  color: var(--vera-text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--vera-accent-soft);
+  color: var(--vera-text-bright);
+}
+
+/* Subtle scrollbar that matches the ops-tool aesthetic instead of the
+   default OS scrollbar, which clashes with a near-black canvas. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--vera-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vera-border);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vera-muted-dim);
+}
+
+/* Visible keyboard focus everywhere — accessibility floor, not optional. */
+:focus-visible {
+  outline: 2px solid var(--vera-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Heartbeat pulse — the signature element ──────────────────────────
+   A literal ECG-style pulse line used in the live ops header to represent
+   "messages firing/sec". Drawn as an SVG path animated with stroke-dashoffset
+   so it reads as a continuous heartbeat trace rather than a generic loader. */
+@keyframes vera-pulse-trace {
+  from { stroke-dashoffset: 240; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.vera-pulse-path {
+  stroke-dasharray: 240;
+  animation: vera-pulse-trace 2.2s linear infinite;
+}
+
+@keyframes vera-pulse-dot {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+.vera-pulse-dot {
+  animation: vera-pulse-dot 1.6s ease-in-out infinite;
+}
+
