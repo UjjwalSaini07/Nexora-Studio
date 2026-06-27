@@ -1,4 +1,4 @@
-﻿# backend/main.py
+# backend/main.py
 import os
 from contextlib import asynccontextmanager
 
@@ -33,8 +33,10 @@ async def lifespan(app: FastAPI):
 
     try:
         await load_dataset_to_mongo(app.state.mongo, app.state.redis)
+        from dataset.demo_generator import ensure_demo_data
+        await ensure_demo_data(app.state.mongo, app.state.redis)
     except Exception as exc:
-        logger.error("Dataset preload failed (continuing anyway)", extra={"ctx": {"error": str(exc)}})
+        logger.error("Dataset preload or demo seeding failed (continuing anyway)", extra={"ctx": {"error": str(exc)}})
 
     try:
         await app.state.redis.get_start_time()

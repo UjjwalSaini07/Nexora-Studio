@@ -1,4 +1,4 @@
-﻿# backend/composer/llm_client.py
+# backend/composer/llm_client.py
 """
 LLMClient: talks to Groq's OpenAI-compatible Chat Completions API.
 
@@ -96,9 +96,12 @@ class LLMClient:
         headers = self._headers()
         body = self._body(prompt, model, json_mode=json_mode)
 
+        import time
+        t0 = time.perf_counter()
         try:
             async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
                 resp = await client.post(self.endpoint, headers=headers, json=body)
+                latency = time.perf_counter() - t0
                 if resp.status_code in RETRYABLE_STATUS_CODES:
                     logger.warning(
                         "LLM call got retryable status",
@@ -108,7 +111,11 @@ class LLMClient:
                 resp.raise_for_status()
                 data = resp.json()
                 raw_text = data["choices"][0]["message"]["content"].strip()
-                return self._extract_json(raw_text)
+                res = self._extract_json(raw_text)
+                if isinstance(res, dict):
+                    res["_usage"] = data.get("usage", {})
+                    res["_latency"] = round(latency, 3)
+                return res
         except httpx.TimeoutException:
             logger.warning("LLM call timed out", extra={"ctx": {"model": model}})
             return None

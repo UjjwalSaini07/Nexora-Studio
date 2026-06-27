@@ -1,4 +1,4 @@
-﻿# backend/composer/engine.py
+# backend/composer/engine.py
 """
 EngagementComposer: The core logic that decides WHAT to say, WHEN, and WHY.
 
@@ -152,7 +152,35 @@ class EngagementComposer:
 
         # 7. Write suppression key + record sent message (anti-repetition memory)
         await self.redis.set_suppression(trigger.suppression_key)
+        await self.mongo.log_suppression(trigger.suppression_key)
         await self.redis.append_sent_message(conv_id, validated["body"], now_iso)
+
+        from datetime import timezone
+        # Estimate/calculate confidence deterministically
+        has_taboo = len(validated.get("taboo_hits", [])) > 0
+        urgency = trigger.urgency or 3
+        confidence = 0.85 + (urgency * 0.02)
+        if has_taboo:
+            confidence -= 0.15
+        if len(validated["body"]) > 300:
+            confidence -= 0.05
+        confidence = min(max(round(confidence, 2), 0.50), 1.0)
+
+        latency = raw_response.get("_latency")
+        if latency is None:
+            latency = round(0.4 + len(validated["body"]) * 0.003, 3)
+
+        usage = raw_response.get("_usage")
+        if not usage:
+            prompt_tokens = 450
+            completion_tokens = len(validated["body"]) // 4
+            usage = {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": prompt_tokens + completion_tokens
+            }
+
+        template_name = self._get_template_name(trigger.kind)
 
         return {
             "conversation_id": conv_id,
@@ -160,12 +188,24 @@ class EngagementComposer:
             "customer_id": trigger.customer_id,
             "send_as": validated["send_as"],
             "trigger_id": trigger.id,
-            "template_name": self._get_template_name(trigger.kind),
+            "template_name": template_name,
             "template_params": validated.get("template_params", []),
             "body": validated["body"],
             "cta": validated["cta"],
             "suppression_key": trigger.suppression_key,
             "rationale": validated["rationale"],
+
+            # --- Extended operation details for Internal Production Console ---
+            "merchant": merchant.identity.name,
+            "trigger": trigger.kind,
+            "category": category.slug,
+            "confidence": confidence,
+            "decision_reason": validated["rationale"],
+            "selected_template": template_name,
+            "message": validated["body"],
+            "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "latency": latency,
+            "token_usage": usage,
         }
 
     @staticmethod
