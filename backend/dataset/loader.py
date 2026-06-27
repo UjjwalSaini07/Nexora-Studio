@@ -54,6 +54,8 @@ async def _load_scope(mongo, redis, scope: str, dir_path: Path, id_field: str):
         context_id = data.get(id_field, f.stem)
         existing = await mongo.get_context(scope, context_id)
         if existing:
+            # Re-sync context version to Redis if missing from cache
+            await redis.set_context_version_if_new(scope, context_id, existing.get("version", 1))
             continue
 
         await mongo.upsert_context(scope, context_id, 1, data, now)

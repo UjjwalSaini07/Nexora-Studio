@@ -15,6 +15,13 @@ function timeAgo(iso: string): string {
   const hr = Math.floor(min / 60);
   return `${hr}h ago`;
 }
+function formatUptime(sec: number): string {
+  if (sec < 60) return `${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ${sec % 60}s`;
+  const hr = Math.floor(min / 60);
+  return `${hr}h ${min % 60}m`;
+}
 
 export default function OverviewPage() {
   const healthz = usePolling(() => api.healthz(), 5000);
@@ -27,51 +34,68 @@ export default function OverviewPage() {
     <div className="flex flex-col gap-6">
       {/* Live ops header */}
       <Card>
-        <div className="flex flex-wrap items-center justify-between gap-6">
-          <PulseMonitor status={status} label="Bot status" />
-          {stats.data ? (
-            <div className="flex flex-wrap gap-8">
-              <MetricStat
-                label="Mongo"
-                value={stats.data.mongo_connected ? "connected" : "down"}
-                tone={stats.data.mongo_connected ? "success" : "danger"}
-              />
-              <MetricStat
-                label="Redis"
-                value={stats.data.redis_connected ? "connected" : "down"}
-                tone={stats.data.redis_connected ? "success" : "danger"}
-              />
-              <MetricStat
-                label="LLM (Groq)"
-                value={stats.data.llm_status}
-                tone="success"
-              />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+          {/* Health & Uptime */}
+          <div className="flex items-center gap-4.5 border-b md:border-b-0 md:border-r border-white/5 pb-4 md:pb-0 pr-0 md:pr-4 md:col-span-1">
+            <PulseMonitor status={status} label="System Status" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] text-nexora-muted uppercase font-bold tracking-wider">Uptime</span>
+              <span className="text-xs font-mono font-bold text-nexora-text-bright">
+                {healthz.data ? formatUptime(healthz.data.uptime_seconds) : "..."}
+              </span>
             </div>
-          ) : healthz.data ? (
-            <div className="flex gap-8">
-              <MetricStat
-                label="Mongo"
-                value={healthz.data.mongo_connected ? "connected" : "down"}
-                tone={healthz.data.mongo_connected ? "success" : "danger"}
-              />
-              <MetricStat
-                label="Redis"
-                value={healthz.data.redis_connected ? "connected" : "down"}
-                tone={healthz.data.redis_connected ? "success" : "danger"}
-              />
+          </div>
+
+          {/* Database Clusters */}
+          <div className="flex items-center justify-between border-b md:border-b-0 md:border-r border-white/5 pb-4 md:pb-0 px-0 md:px-4 md:col-span-1">
+            <div className="flex flex-col gap-2 w-full">
+              <span className="text-[10px] text-nexora-muted uppercase font-bold tracking-wider block">Data Infrastructure</span>
+              <div className="flex items-center gap-3 justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${stats.data?.mongo_connected ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-rose-500"}`} />
+                  <span className="text-xs font-semibold text-nexora-text-bright">MongoDB</span>
+                </div>
+                <Badge tone={stats.data?.mongo_connected ? "success" : "danger"}>
+                  {stats.data?.mongo_connected ? "Connected" : "Offline"}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-3 justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${stats.data?.redis_connected ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-rose-500"}`} />
+                  <span className="text-xs font-semibold text-nexora-text-bright">Redis</span>
+                </div>
+                <Badge tone={stats.data?.redis_connected ? "success" : "danger"}>
+                  {stats.data?.redis_connected ? "Active" : "Offline"}
+                </Badge>
+              </div>
             </div>
-          ) : (
-            <div className="flex gap-2">
-              <Skeleton className="w-20 h-10" />
-              <Skeleton className="w-20 h-10" />
+          </div>
+
+          {/* AI Cognitive Engine */}
+          <div className="flex flex-col gap-2 border-b md:border-b-0 md:border-r border-white/5 pb-4 md:pb-0 px-0 md:px-4 md:col-span-1">
+            <span className="text-[10px] text-nexora-muted uppercase font-bold tracking-wider block">AI Inference Core</span>
+            <div className="flex items-center gap-2 justify-between">
+              <span className="text-xs font-semibold text-nexora-text-bright">Groq LLM Engine</span>
+              <Badge tone="success">Active</Badge>
             </div>
-          )}
-          {metadata.data && (
-            <div className="flex flex-col text-right">
-              <span className="text-sm font-medium text-nexora-text-bright">{metadata.data.team_name}</span>
-              <span className="text-xs text-nexora-muted font-mono">{metadata.data.model}</span>
+            <div className="text-[10px] font-mono text-slate-400 bg-white/2 border border-white/5 py-1 px-2 rounded-lg truncate" title={metadata.data?.model}>
+              {metadata.data?.model ?? "loading model..."}
             </div>
-          )}
+          </div>
+
+          {/* Bot Instance Info */}
+          <div className="flex flex-col gap-1 pl-0 md:pl-4 md:col-span-1 text-left md:text-right">
+            <span className="text-sm font-semibold text-nexora-text-bright tracking-tight">
+              {metadata.data?.team_name ?? "Nexora Operations"}
+            </span>
+            <div className="flex justify-start md:justify-end items-center gap-2 mt-1">
+              <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold font-mono">Build Version:</span>
+              <Badge tone="accent">v{metadata.data?.version ?? "1.0.0"}</Badge>
+            </div>
+            <span className="text-[9px] text-nexora-muted font-mono mt-1 block">
+              Env: production-grade
+            </span>
+          </div>
         </div>
         {healthz.error && (
           <p className="text-xs text-nexora-danger font-mono mt-3">{healthz.error}</p>
