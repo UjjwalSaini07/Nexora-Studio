@@ -48,6 +48,8 @@ async def app_client():
             self.conversations = self.db["conversations"]
             self.actions_log = self.db["actions_log"]
             self.replies_log = self.db["replies_log"]
+            self.ticks_log = self.db["ticks_log"]
+            self.suppressions_log = self.db["suppressions_log"]
 
         async def ping(self):
             return True

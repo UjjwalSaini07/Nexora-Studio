@@ -1,4 +1,4 @@
-﻿# backend/tests/conftest.py
+# backend/tests/conftest.py
 """
 Pytest fixtures that swap real Mongo/Redis for in-memory equivalents so the
 full test suite runs anywhere (CI, this sandbox, a laptop) with zero
@@ -35,6 +35,8 @@ class FakeMongoStore(MongoStore):
         self.conversations = self.db["conversations"]
         self.actions_log = self.db["actions_log"]
         self.replies_log = self.db["replies_log"]
+        self.ticks_log = self.db["ticks_log"]
+        self.suppressions_log = self.db["suppressions_log"]
 
     async def ping(self) -> bool:
         return True
