@@ -1,4 +1,3 @@
-// frontend/components/NavBar.tsx
 "use client";
 
 import Link from "next/link";
@@ -19,12 +18,17 @@ export function NavBar() {
     <header className="glass-header sticky top-0 z-30">
       <div className="mx-auto max-w-7xl px-6 flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
-          <span className="font-mono text-sm font-bold tracking-wider text-white transition-all duration-300 group-hover:text-indigo-400 group-hover:[text-shadow:0_0_12px_rgba(99,102,241,0.5)]">
-            NEXORA
-          </span>
-          <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded px-1.5 py-0.5 shadow-[0_0_8px_rgba(99,102,241,0.1)]">
-            ops
-          </span>
+          <div className="flex items-center ">
+            <img src="/nexoraLogo.png" alt="NEXORA AI Logo" className="w-16 h-16 object-contain shrink-0" />
+            <div>
+              <span className="font-mono text-md font-bold tracking-wider text-white transition-all duration-300 group-hover:text-indigo-400 group-hover:[text-shadow:0_0_12px_rgba(99,102,241,0.5)]">
+                NEXORA AI
+              </span>
+              <span className="text-[9px] ml-2 uppercase tracking-widest font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded px-1.5 py-0.5 shadow-[0_0_8px_rgba(99,102,241,0.1)]">
+                ops
+              </span>
+            </div>
+          </div>
         </Link>
         <nav className="flex items-center gap-1.5">
           {LINKS.map((link) => {
