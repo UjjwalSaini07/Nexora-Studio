@@ -9,7 +9,7 @@ from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from composer.engine import EngagementComposer
 from composer.trigger_priority_engine import rank_triggers
-from config import TICK_MAX_ACTIONS, TICK_TIMEOUT_SECONDS
+from config import TICK_MAX_ACTIONS, TICK_TIMEOUT_SECONDS, DEMO_MODE
 from logging_config import get_logger
 
 logger = get_logger("nexora.routers.tick")
@@ -75,8 +75,29 @@ async def tick(
     )
 
     # ── Step 3: Compose actions concurrently in ranked order ─────────────
+    # Wrap each task in an individual timeout so that one slow LLM call
+    # does not abort the other concurrent completions.
+    async def _compose_with_timeout(trg_id: str):
+        try:
+            return await asyncio.wait_for(
+                composer.compose_for_trigger(trg_id, body.now),
+                timeout=max(1.0, TICK_TIMEOUT_SECONDS - 2.0),
+            )
+        except asyncio.TimeoutError:
+            logger.error(
+                "Trigger composition timed out",
+                extra={"ctx": {"trigger_id": trg_id}},
+            )
+            return None
+        except Exception as exc:
+            logger.error(
+                "Trigger composition raised an exception",
+                extra={"ctx": {"trigger_id": trg_id, "error": str(exc)}},
+            )
+            return None
+
     tasks = [
-        composer.compose_for_trigger(trg_id, body.now)
+        _compose_with_timeout(trg_id)
         for trg_id in triggers_to_process
     ]
 
@@ -110,7 +131,7 @@ async def tick(
         # or duplicate trigger_id targeting the same conversation), keep
         # only the first and skip the rest — a follow-up tick can send more.
         pair_key = (result.get("merchant_id"), result.get("conversation_id"))
-        if pair_key in seen_pairs:
+        if not DEMO_MODE and pair_key in seen_pairs:
             logger.warning(
                 "Skipping duplicate action for (merchant_id, conversation_id) pair in same tick",
                 extra={"ctx": {"trigger_id": trg_id, "pair_key": pair_key}},

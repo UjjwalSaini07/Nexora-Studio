@@ -21,6 +21,7 @@ from composer.output_validator import OutputValidator
 from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from logging_config import get_logger
+from config import DEMO_MODE
 
 logger = get_logger("nexora.engine")
 
@@ -96,39 +97,41 @@ class EngagementComposer:
 
         # Check wait state — skip if conversation is in active delay window,
         # unless bypassed by business override (urgency >= 5)
-        wait_until_iso = await self.redis.get_conversation_wait(conv_id)
-        if wait_until_iso:
-            try:
-                wait_until_dt = datetime.fromisoformat(wait_until_iso.replace("Z", "+00:00"))
-                now_dt = datetime.fromisoformat(now_iso.replace("Z", "+00:00"))
-                if now_dt < wait_until_dt:
-                    if (trigger.urgency or 3) < 5:
-                        logger.info(
-                            "Skipping trigger composition: conversation in wait state until " + wait_until_iso,
-                            extra={"ctx": {"trigger_id": trigger.id, "conv_id": conv_id}}
-                        )
-                        return None
-                    else:
-                        logger.info(
-                            "Bypassing wait state for high-urgency trigger",
-                            extra={"ctx": {"trigger_id": trigger.id, "urgency": trigger.urgency}}
-                        )
-            except Exception as exc:
-                logger.warning(
-                    "Error parsing wait_until or now_iso for wait state check",
-                    extra={"ctx": {"error": str(exc)}}
-                )
+        if not DEMO_MODE:
+            wait_until_iso = await self.redis.get_conversation_wait(conv_id)
+            if wait_until_iso:
+                try:
+                    wait_until_dt = datetime.fromisoformat(wait_until_iso.replace("Z", "+00:00"))
+                    now_dt = datetime.fromisoformat(now_iso.replace("Z", "+00:00"))
+                    if now_dt < wait_until_dt:
+                        if (trigger.urgency or 3) < 5:
+                            logger.info(
+                                "Skipping trigger composition: conversation in wait state until " + wait_until_iso,
+                                extra={"ctx": {"trigger_id": trigger.id, "conv_id": conv_id}}
+                            )
+                            return None
+                        else:
+                            logger.info(
+                                "Bypassing wait state for high-urgency trigger",
+                                extra={"ctx": {"trigger_id": trigger.id, "urgency": trigger.urgency}}
+                            )
+                except Exception as exc:
+                    logger.warning(
+                        "Error parsing wait_until or now_iso for wait state check",
+                        extra={"ctx": {"error": str(exc)}}
+                    )
 
         # 2. Check suppression — skip if already sent
-        if await self.redis.is_suppressed(trigger.suppression_key):
-            return None
+        if not DEMO_MODE:
+            if await self.redis.is_suppressed(trigger.suppression_key):
+                return None
 
         # 3. Check expiry — IMPORTANT: use the judge's simulated `now` from
         # the /v1/tick request (now_iso), never the real wall-clock time.
         # The judge harness operates on simulated time; trigger.expires_at
         # values are authored relative to that simulated timeline, which can
         # be (and in this dataset, is) far from the real current date.
-        if trigger.expires_at:
+        if not DEMO_MODE and trigger.expires_at:
             try:
                 expires = datetime.fromisoformat(trigger.expires_at.replace("Z", "+00:00"))
                 now = datetime.fromisoformat(now_iso.replace("Z", "+00:00"))

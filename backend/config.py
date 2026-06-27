@@ -1,14 +1,7 @@
-﻿# backend/config.py
-"""
-Central configuration for the NEXORA bot.
-All values are overridable via environment variables (.env in development,
-real env vars in production/Docker).
-"""
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 def _get_bool(name: str, default: bool) -> bool:
     val = os.getenv(name)
@@ -17,8 +10,6 @@ def _get_bool(name: str, default: bool) -> bool:
     return val.strip().lower() in {"1", "true", "yes", "on"}
 
 
-# ── LLM Provider: Groq ──────────────────────────────────────────────────────
-# Groq exposes an OpenAI-compatible Chat Completions API.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 GROQ_CHAT_ENDPOINT = f"{GROQ_BASE_URL}/chat/completions"
@@ -26,8 +17,6 @@ GROQ_CHAT_ENDPOINT = f"{GROQ_BASE_URL}/chat/completions"
 # Default model: fast + strong instruction following, comfortably fits the
 # 30s end-to-end budget required by /v1/reply and /v1/tick.
 LLM_MODEL = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
-# Fallback model used if the primary model errors out (e.g. decommissioned,
-# rate limited hard, or temporarily overloaded).
 LLM_FALLBACK_MODEL = os.getenv("LLM_FALLBACK_MODEL", "llama-3.1-8b-instant")
 
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "600"))   # Tight — WhatsApp messages, not essays
@@ -53,17 +42,14 @@ REPLY_TIMEOUT_SECONDS = float(os.getenv("REPLY_TIMEOUT_SECONDS", "28"))
 TICK_TIMEOUT_SECONDS = float(os.getenv("TICK_TIMEOUT_SECONDS", "25"))
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
-# Optional shared-secret auth for inbound judge-harness calls. If set, all
-# /v1/* routes (except /v1/healthz) require `Authorization: Bearer <token>`.
 API_AUTH_TOKEN = os.getenv("API_AUTH_TOKEN", "")
 ENABLE_AUTH = _get_bool("ENABLE_AUTH", False)
 
 # ── Rate limiting ────────────────────────────────────────────────────────────
-# The official testing brief specifies the judge harness sends at most
-# 10 requests/sec to the bot (= 600/min). During Phase 1 warmup it pushes
-# 255 context records in a short burst. Our limit must comfortably exceed
-# the judge's own ceiling, or we'd throttle legitimate warmup traffic.
 RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "1200"))
+
+# ── Demo Mode / Ignore Suppression ───────────────────────────────────────────
+DEMO_MODE = _get_bool("DEMO_MODE", True) or _get_bool("IGNORE_SUPPRESSION", True)  # For backwards compatibility with old env var name
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

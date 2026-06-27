@@ -19,6 +19,7 @@ from typing import Optional
 
 from models.context import TriggerContext, MerchantContext, CategoryContext
 from logging_config import get_logger
+from config import DEMO_MODE
 
 logger = get_logger("nexora.output_validator")
 
@@ -129,7 +130,7 @@ class OutputValidator:
 
         # Anti-repetition: reject (so the caller can retry/skip) rather than
         # silently send a duplicate body in the same conversation.
-        if previously_sent_bodies and body.strip() in {b.strip() for b in previously_sent_bodies}:
+        if not DEMO_MODE and previously_sent_bodies and body.strip() in {b.strip() for b in previously_sent_bodies}:
             logger.warning(
                 "LLM produced a body identical to a previously-sent message; rejecting",
                 extra={"ctx": {"trigger_id": trigger.id, "merchant_id": merchant.merchant_id}},
