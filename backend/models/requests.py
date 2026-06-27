@@ -1,4 +1,4 @@
-# backend/models/requests.py
+﻿# backend/models/requests.py
 """
 Request/response schemas for the 5 judge-facing endpoints.
 
@@ -68,7 +68,7 @@ class TickAction(BaseModel):
     conversation_id: str
     merchant_id: Optional[str] = None
     customer_id: Optional[str] = None
-    send_as: Literal["vera", "merchant_on_behalf"]
+    send_as: Literal["nexora", "merchant_on_behalf"]
     trigger_id: str
     template_name: str
     template_params: List[str] = []

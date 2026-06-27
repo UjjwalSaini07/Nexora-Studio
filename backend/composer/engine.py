@@ -1,4 +1,4 @@
-# backend/composer/engine.py
+﻿# backend/composer/engine.py
 """
 EngagementComposer: The core logic that decides WHAT to say, WHEN, and WHY.
 
@@ -22,14 +22,14 @@ from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from logging_config import get_logger
 
-logger = get_logger("vera.engine")
+logger = get_logger("nexora.engine")
 
 TEMPLATE_NAME_MAP = {
-    "research_digest": "vera_research_digest_v1",
-    "regulation_change": "vera_compliance_alert_v1",
-    "perf_spike": "vera_perf_spike_v1",
-    "perf_dip": "vera_perf_dip_v1",
-    "seasonal_perf_dip": "vera_seasonal_perf_dip_v1",
+    "research_digest": "nexora_research_digest_v1",
+    "regulation_change": "nexora_compliance_alert_v1",
+    "perf_spike": "nexora_perf_spike_v1",
+    "perf_dip": "nexora_perf_dip_v1",
+    "seasonal_perf_dip": "nexora_seasonal_perf_dip_v1",
     "recall_due": "merchant_recall_reminder_v1",
     "customer_lapsed_soft": "merchant_winback_soft_v1",
     "customer_lapsed_hard": "merchant_winback_hard_v1",
@@ -37,23 +37,23 @@ TEMPLATE_NAME_MAP = {
     "trial_followup": "merchant_trial_followup_v1",
     "wedding_package_followup": "merchant_wedding_followup_v1",
     "bridal_followup": "merchant_bridal_followup_v1",
-    "festival_upcoming": "vera_festival_campaign_v1",
-    "competitor_opened": "vera_competitive_nudge_v1",
-    "curious_ask_due": "vera_curious_ask_v1",
+    "festival_upcoming": "nexora_festival_campaign_v1",
+    "competitor_opened": "nexora_competitive_nudge_v1",
+    "curious_ask_due": "nexora_curious_ask_v1",
     "chronic_refill_due": "merchant_refill_reminder_v1",
-    "supply_alert": "vera_supply_alert_v1",
-    "ipl_match_today": "vera_ipl_match_v1",
-    "active_planning_intent": "vera_active_planning_v1",
-    "renewal_due": "vera_renewal_due_v1",
-    "dormant_with_vera": "vera_dormant_reengage_v1",
-    "milestone_reached": "vera_milestone_v1",
-    "review_theme_emerged": "vera_review_theme_v1",
-    "gbp_unverified": "vera_gbp_unverified_v1",
-    "cde_opportunity": "vera_cde_opportunity_v1",
-    "category_seasonal": "vera_category_seasonal_v1",
+    "supply_alert": "nexora_supply_alert_v1",
+    "ipl_match_today": "nexora_ipl_match_v1",
+    "active_planning_intent": "nexora_active_planning_v1",
+    "renewal_due": "nexora_renewal_due_v1",
+    "dormant_with_nexora": "nexora_dormant_reengage_v1",
+    "milestone_reached": "nexora_milestone_v1",
+    "review_theme_emerged": "nexora_review_theme_v1",
+    "gbp_unverified": "nexora_gbp_unverified_v1",
+    "cde_opportunity": "nexora_cde_opportunity_v1",
+    "category_seasonal": "nexora_category_seasonal_v1",
     "appointment_tomorrow": "merchant_appointment_reminder_v1",
 }
-DEFAULT_TEMPLATE_NAME = "vera_generic_v1"
+DEFAULT_TEMPLATE_NAME = "nexora_generic_v1"
 
 
 class EngagementComposer:

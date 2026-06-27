@@ -1,4 +1,4 @@
-# backend/routers/tick.py
+﻿# backend/routers/tick.py
 import asyncio
 
 from fastapi import APIRouter, Depends
@@ -11,7 +11,7 @@ from composer.engine import EngagementComposer
 from config import TICK_MAX_ACTIONS, TICK_TIMEOUT_SECONDS
 from logging_config import get_logger
 
-logger = get_logger("vera.routers.tick")
+logger = get_logger("nexora.routers.tick")
 
 router = APIRouter()
 

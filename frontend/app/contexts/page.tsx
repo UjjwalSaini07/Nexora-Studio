@@ -1,4 +1,4 @@
-// frontend/app/contexts/page.tsx
+﻿// frontend/app/contexts/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -25,8 +25,8 @@ export default function ContextsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold text-vera-text-bright">Context inspector</h1>
-        <p className="text-sm text-vera-muted mt-1">
+        <h1 className="text-lg font-semibold text-nexora-text-bright">Context inspector</h1>
+        <p className="text-sm text-nexora-muted mt-1">
           Every context currently loaded in the bot, by scope. Pulls live from /v1/dashboard/contexts.
         </p>
       </div>
@@ -41,8 +41,8 @@ export default function ContextsPage() {
             }}
             className={`px-3 py-1.5 rounded-md text-sm border transition-colors capitalize ${
               scope === s
-                ? "border-vera-accent bg-vera-accent/15 text-vera-accent font-medium"
-                : "border-vera-border text-vera-muted hover:text-vera-text"
+                ? "border-nexora-accent bg-nexora-accent/15 text-nexora-accent font-medium"
+                : "border-nexora-border text-nexora-muted hover:text-nexora-text"
             }`}
           >
             {s}
@@ -53,7 +53,7 @@ export default function ContextsPage() {
           placeholder="Search by context_id..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="ml-auto bg-vera-surface border border-vera-border rounded-md px-3 py-1.5 text-sm text-vera-text placeholder:text-vera-muted focus:outline-none focus:border-vera-accent w-64"
+          className="ml-auto bg-nexora-surface border border-nexora-border rounded-md px-3 py-1.5 text-sm text-nexora-text placeholder:text-nexora-muted focus:outline-none focus:border-nexora-accent w-64"
         />
       </div>
 
@@ -75,11 +75,11 @@ export default function ContextsPage() {
                   onClick={() => setSelected(ctx)}
                   className={`text-left px-3 py-2 rounded-lg border transition-colors flex items-center justify-between gap-2 ${
                     selected?.context_id === ctx.context_id
-                      ? "border-vera-accent bg-vera-accent/10"
-                      : "border-transparent hover:bg-vera-surface-raised"
+                      ? "border-nexora-accent bg-nexora-accent/10"
+                      : "border-transparent hover:bg-nexora-surface-raised"
                   }`}
                 >
-                  <span className="text-xs font-mono text-vera-text truncate">{ctx.context_id}</span>
+                  <span className="text-xs font-mono text-nexora-text truncate">{ctx.context_id}</span>
                   <Badge>v{ctx.version}</Badge>
                 </button>
               ))}
@@ -96,12 +96,12 @@ export default function ContextsPage() {
             <EmptyState title="No context selected" hint="Choose an item from the list to inspect its full payload." />
           ) : (
             <div className="flex flex-col gap-3">
-              <div className="flex flex-wrap gap-4 text-xs text-vera-muted">
+              <div className="flex flex-wrap gap-4 text-xs text-nexora-muted">
                 <span>
-                  Delivered: <span className="font-mono text-vera-text">{selected.delivered_at}</span>
+                  Delivered: <span className="font-mono text-nexora-text">{selected.delivered_at}</span>
                 </span>
                 <span>
-                  Stored: <span className="font-mono text-vera-text">{selected.stored_at}</span>
+                  Stored: <span className="font-mono text-nexora-text">{selected.stored_at}</span>
                 </span>
               </div>
               <CodeBlock>{JSON.stringify(selected.payload, null, 2)}</CodeBlock>

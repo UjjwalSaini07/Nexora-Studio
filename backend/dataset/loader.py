@@ -1,4 +1,4 @@
-# backend/dataset/loader.py
+﻿# backend/dataset/loader.py
 """
 Loads the expanded dataset (output of generate_dataset.py) into MongoDB at
 startup. This ensures the bot has all merchants, customers, categories, and
@@ -18,10 +18,10 @@ from datetime import datetime, timezone
 
 from logging_config import get_logger
 
-logger = get_logger("vera.dataset_loader")
+logger = get_logger("nexora.dataset_loader")
 
 BACKEND_DIR = Path(__file__).parent.parent  # backend/
-REPO_ROOT = BACKEND_DIR.parent              # vera-bot/
+REPO_ROOT = BACKEND_DIR.parent              # nexora-bot/
 
 
 def _resolve_dataset_dir() -> Path:

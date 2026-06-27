@@ -1,4 +1,4 @@
-# API Call Examples — Judge ↔ Candidate Bot
+﻿# API Call Examples — Judge ↔ Candidate Bot
 
 This file shows the exact HTTP calls the judge will make during testing, and what the bot is expected to return. Read this together with `challenge-testing-brief.md` (which defines the contract) and the dataset (which provides the payloads).
 
@@ -214,9 +214,9 @@ Content-Type: application/json
       "conversation_id": "conv_m_001_drmeera_research_W17",
       "merchant_id": "m_001_drmeera_dentist_delhi",
       "customer_id": null,
-      "send_as": "vera",
+      "send_as": "nexora",
       "trigger_id": "trg_001_research_digest_dentists",
-      "template_name": "vera_research_digest_v1",
+      "template_name": "nexora_research_digest_v1",
       "template_params": [
         "Dr. Meera",
         "JIDA Oct issue landed. One item relevant to your high-risk adult patients — 2,100-patient trial showed 3-month fluoride recall cuts caries recurrence 38% better than 6-month",
@@ -529,7 +529,7 @@ POST /v1/reply { "from_role": "merchant",
 **Acceptable alternative — short apology + exit**
 ```json
 { "action": "send",
-  "body": "Apologies — I won't message again. If anything changes, you can always restart with 'Hi Vera'. 🙏",
+  "body": "Apologies — I won't message again. If anything changes, you can always restart with 'Hi Nexora'. 🙏",
   "cta": "none",
   "rationale": "One-line acknowledgment + opt-out path; conversation will close after this send." }
 ```

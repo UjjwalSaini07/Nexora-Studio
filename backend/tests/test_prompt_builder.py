@@ -1,4 +1,4 @@
-# backend/tests/test_prompt_builder.py
+﻿# backend/tests/test_prompt_builder.py
 import sys
 from pathlib import Path
 
@@ -36,7 +36,7 @@ def make_merchant():
         performance=PerformanceSnapshot(window_days=30, views=1000, calls=20, directions=30, ctr=0.024),
         offers=[MerchantOffer(id="off_1", title="Dental Cleaning @ \u20b9299", status="active")],
         conversation_history=[
-            ConversationTurn(**{"ts": "2026-06-01T10:00:00Z", "from": "vera", "body": "Hi there"}),
+            ConversationTurn(**{"ts": "2026-06-01T10:00:00Z", "from": "nexora", "body": "Hi there"}),
         ],
         signals=["stale_posts:22d"],
     )

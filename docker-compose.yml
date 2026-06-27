@@ -1,4 +1,4 @@
-services:
+﻿services:
   mongo:
     image: mongo:7
     restart: unless-stopped
@@ -37,9 +37,9 @@ services:
       - LLM_MODEL=${LLM_MODEL:-llama-3.3-70b-versatile}
       - LLM_FALLBACK_MODEL=${LLM_FALLBACK_MODEL:-llama-3.1-8b-instant}
       - MONGO_URI=mongodb://mongo:27017
-      - MONGO_DB=${MONGO_DB:-vera_bot}
+      - MONGO_DB=${MONGO_DB:-nexora_bot}
       - REDIS_URL=redis://redis:6379
-      - TEAM_NAME=${TEAM_NAME:-VERA Engine}
+      - TEAM_NAME=${TEAM_NAME:-NEXORA Engine}
       - TEAM_MEMBERS=${TEAM_MEMBERS:-Ujjwal Saini}
       - CONTACT_EMAIL=${CONTACT_EMAIL:-you@example.com}
       - BOT_VERSION=${BOT_VERSION:-1.0.0}

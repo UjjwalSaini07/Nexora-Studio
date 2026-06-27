@@ -1,4 +1,4 @@
-# backend/tests/test_teardown_and_dedup.py
+﻿# backend/tests/test_teardown_and_dedup.py
 """
 Tests for two contract requirements from challenge-testing-brief.md:
 
@@ -36,7 +36,7 @@ async def app_client():
     class FakeMongoStore(MongoStore):
         def __init__(self):
             self.client = mongomock_motor.AsyncMongoMockClient()
-            self.db = self.client["vera_test_teardown"]
+            self.db = self.client["nexora_test_teardown"]
             self.contexts = self.db["contexts"]
             self.conversations = self.db["conversations"]
             self.actions_log = self.db["actions_log"]
@@ -144,7 +144,7 @@ class TestTickDedup:
 
         mock_response = {
             "body": "Distinct mock body for dedup test.",
-            "cta": "open_ended", "send_as": "vera",
+            "cta": "open_ended", "send_as": "nexora",
             "template_params": [], "rationale": "x",
         }
         with patch("composer.llm_client.LLMClient.complete", new=AsyncMock(return_value=mock_response)):

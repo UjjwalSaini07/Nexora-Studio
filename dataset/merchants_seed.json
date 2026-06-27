@@ -1,4 +1,4 @@
-{
+﻿{
   "_README": "10 representative MerchantContexts. The generator (generate_dataset.py) expands these to 50 total (10/category) by varying identity + perf numbers deterministically.",
   "merchants": [
     {
@@ -25,7 +25,7 @@
         { "id": "o_meera_002", "title": "Deep Cleaning @ ₹499", "status": "expired", "ended": "2026-02-28" }
       ],
       "conversation_history": [
-        { "ts": "2026-04-24T10:12:00Z", "from": "vera", "body": "Profile audit done — your photos are 8/10, description complete, but Google posts are stale (last post 22 days ago). Want me to draft 3 posts you can review?", "engagement": "merchant_replied" },
+        { "ts": "2026-04-24T10:12:00Z", "from": "nexora", "body": "Profile audit done — your photos are 8/10, description complete, but Google posts are stale (last post 22 days ago). Want me to draft 3 posts you can review?", "engagement": "merchant_replied" },
         { "ts": "2026-04-24T10:18:00Z", "from": "merchant", "body": "Yes please, focus on whitening and aligners", "engagement": "intent_action" }
       ],
       "customer_aggregate": { "total_unique_ytd": 540, "lapsed_180d_plus": 78, "retention_6mo_pct": 0.38, "high_risk_adult_count": 124 },
@@ -56,10 +56,10 @@
       },
       "offers": [],
       "conversation_history": [
-        { "ts": "2026-04-10T11:00:00Z", "from": "vera", "body": "Subscription expires in 16 days — Bharat Dental Care...", "engagement": "merchant_no_reply" }
+        { "ts": "2026-04-10T11:00:00Z", "from": "nexora", "body": "Subscription expires in 16 days — Bharat Dental Care...", "engagement": "merchant_no_reply" }
       ],
       "customer_aggregate": { "total_unique_ytd": 220, "lapsed_180d_plus": 95, "retention_6mo_pct": 0.18 },
-      "signals": ["renewal_due_soon:12d", "perf_dip_severe", "unverified_gbp", "dormant_with_vera_14d", "no_active_offers"],
+      "signals": ["renewal_due_soon:12d", "perf_dip_severe", "unverified_gbp", "dormant_with_nexora_14d", "no_active_offers"],
       "review_themes": []
     },
     {
@@ -86,7 +86,7 @@
         { "id": "o_studio11_002", "title": "Hair Spa @ ₹499", "status": "active", "started": "2026-03-15" }
       ],
       "conversation_history": [
-        { "ts": "2026-04-22T15:00:00Z", "from": "vera", "body": "Spotted: bridal-trial searches in Kapra +28% this week. Want me to push your bridal package as a GBP post?", "engagement": "merchant_no_reply" }
+        { "ts": "2026-04-22T15:00:00Z", "from": "nexora", "body": "Spotted: bridal-trial searches in Kapra +28% this week. Want me to push your bridal package as a GBP post?", "engagement": "merchant_no_reply" }
       ],
       "customer_aggregate": { "total_unique_ytd": 1150, "lapsed_90d_plus": 220, "retention_3mo_pct": 0.62 },
       "signals": ["high_engagement", "above_peer_median_calls", "growing_views_7d"],
@@ -116,10 +116,10 @@
       },
       "offers": [],
       "conversation_history": [
-        { "ts": "2026-03-19T14:00:00Z", "from": "vera", "body": "Subscription expired. Profile maintenance paused...", "engagement": "merchant_no_reply" }
+        { "ts": "2026-03-19T14:00:00Z", "from": "nexora", "body": "Subscription expired. Profile maintenance paused...", "engagement": "merchant_no_reply" }
       ],
       "customer_aggregate": { "total_unique_ytd": 380, "lapsed_90d_plus": 180, "retention_3mo_pct": 0.32 },
-      "signals": ["winback_eligible", "perf_dip_post_expiry", "dormant_with_vera_38d"],
+      "signals": ["winback_eligible", "perf_dip_post_expiry", "dormant_with_nexora_38d"],
       "review_themes": []
     },
     {
@@ -145,7 +145,7 @@
         { "id": "o_skpz_001", "title": "Buy 1 Pizza Get 1 Free (Tue-Thu)", "status": "active", "started": "2026-04-15" }
       ],
       "conversation_history": [
-        { "ts": "2026-04-25T18:00:00Z", "from": "vera", "body": "Quick check — IPL match nights driving any extra footfall?", "engagement": "merchant_no_reply" }
+        { "ts": "2026-04-25T18:00:00Z", "from": "nexora", "body": "Quick check — IPL match nights driving any extra footfall?", "engagement": "merchant_no_reply" }
       ],
       "customer_aggregate": { "total_unique_ytd": 0, "delivery_orders_30d": 180, "dine_in_orders_30d": 95 },
       "signals": ["new_merchant", "trial_ending_soon", "ipl_eligible_locality"],
@@ -177,7 +177,7 @@
         { "id": "o_mylari_001", "title": "Weekday Lunch Thali @ ₹149", "status": "active", "started": "2026-01-10" }
       ],
       "conversation_history": [
-        { "ts": "2026-04-25T11:00:00Z", "from": "vera", "body": "Your weekday thali is doing well — 18 orders/day avg. Want me to add a corporate-bulk version?", "engagement": "merchant_replied" },
+        { "ts": "2026-04-25T11:00:00Z", "from": "nexora", "body": "Your weekday thali is doing well — 18 orders/day avg. Want me to add a corporate-bulk version?", "engagement": "merchant_replied" },
         { "ts": "2026-04-25T11:30:00Z", "from": "merchant", "body": "Yes good idea, what would it look like", "engagement": "intent_question" }
       ],
       "customer_aggregate": { "total_unique_ytd": 4200, "repeat_customer_pct": 0.42, "delivery_share_pct": 0.45 },
@@ -242,7 +242,7 @@
       ],
       "conversation_history": [
         { "ts": "2026-04-23T09:00:00Z", "from": "merchant", "body": "Hi I want to add a kids yoga program — what should it look like?", "engagement": "intent_planning" },
-        { "ts": "2026-04-23T09:05:00Z", "from": "vera", "body": "Great idea — kids yoga summer camps are peaking now. Suggest 4-week program, 3 classes/week, age 7-12, ₹2,499. Want me to draft the GBP post + Insta carousel?", "engagement": "merchant_replied" }
+        { "ts": "2026-04-23T09:05:00Z", "from": "nexora", "body": "Great idea — kids yoga summer camps are peaking now. Suggest 4-week program, 3 classes/week, age 7-12, ₹2,499. Want me to draft the GBP post + Insta carousel?", "engagement": "merchant_replied" }
       ],
       "customer_aggregate": { "total_active_members": 95, "monthly_churn_pct": 0.05, "trial_to_paid_pct": 0.55 },
       "signals": ["high_retention", "active_planning", "boutique_segment"],
@@ -275,7 +275,7 @@
         { "id": "o_apollo_002", "title": "Senior Citizen 15% OFF", "status": "active", "started": "2026-01-01" }
       ],
       "conversation_history": [
-        { "ts": "2026-04-24T08:00:00Z", "from": "vera", "body": "Heads up: voluntary recall on atorvastatin batches X/Y by Mfr Z. Want the customer list filtered for that molecule?", "engagement": "merchant_replied" },
+        { "ts": "2026-04-24T08:00:00Z", "from": "nexora", "body": "Heads up: voluntary recall on atorvastatin batches X/Y by Mfr Z. Want the customer list filtered for that molecule?", "engagement": "merchant_replied" },
         { "ts": "2026-04-24T08:30:00Z", "from": "merchant", "body": "Yes send me the list please", "engagement": "intent_action" }
       ],
       "customer_aggregate": { "total_unique_ytd": 1820, "repeat_customer_pct": 0.68, "chronic_rx_count": 240 },

@@ -1,26 +1,26 @@
-# Vera Engagement Framework — Design
+﻿# Nexora Engagement Framework — Design
 
 **Status**: Draft proposal — not implemented.
 **Last updated**: 2026-04-26
-**Scope**: How Vera composes every outbound conversation, both merchant-facing and (on-behalf-of-merchant) customer-facing.
+**Scope**: How Nexora composes every outbound conversation, both merchant-facing and (on-behalf-of-merchant) customer-facing.
 
 
 ## Why this exists
 
-The current engagement loop (`agents/vera/followup/`) is a collection of ad-hoc nudges — campaign templates, performance reminders, conversation requeues. Each was built point-to-point, with hardcoded assumptions baked in. Adding a new nudge type means re-writing prompts, finding new data, and re-implementing send/dedup logic.
+The current engagement loop (`agents/nexora/followup/`) is a collection of ad-hoc nudges — campaign templates, performance reminders, conversation requeues. Each was built point-to-point, with hardcoded assumptions baked in. Adding a new nudge type means re-writing prompts, finding new data, and re-implementing send/dedup logic.
 
 Two problems this creates:
 
 1. **Functional nudges are inherently low-frequency.** A merchant only has a handful of "broken things" or "events" per month. To engage them 3-5×/week, we need a framework that supports curiosity-driven, knowledge-driven, and customer-driven conversations — not just "fix-this" reminders.
 
-2. **Same engine should drive merchant-facing AND customer-facing messages.** When Dr. Meera's clinic sends a recall reminder to her patient Priya, Vera does the work — but the framework for composing that message should be the same one that produces the research digest Vera sends to Dr. Meera herself.
+2. **Same engine should drive merchant-facing AND customer-facing messages.** When Dr. Meera's clinic sends a recall reminder to her patient Priya, Nexora does the work — but the framework for composing that message should be the same one that produces the research digest Nexora sends to Dr. Meera herself.
 
 This doc proposes a **4-context composition framework** that separates the slow-changing (category knowledge) from the fast-changing (per-merchant, per-customer state) and the event-driven (triggers).
 
 
 ## The 4 contexts
 
-Every Vera message = `compose(category, merchant, trigger, customer?)`.
+Every Nexora message = `compose(category, merchant, trigger, customer?)`.
 
 | Context | Question it answers | Refresh cadence | Owner | Shared across |
 |---|---|---|---|---|
@@ -50,7 +50,7 @@ Slow-changing knowledge pack per vertical. One per category (`dentists`, `salons
 Fields:
 
 - `slug` — `"dentists"`
-- `offer_catalog` — canonical service+price patterns from vera-mcp + category-specific extensions. Prefer `"Dental Cleaning @ ₹299"` over `"Flat 20% OFF"`. Service+price is more compelling than discount.
+- `offer_catalog` — canonical service+price patterns from nexora-mcp + category-specific extensions. Prefer `"Dental Cleaning @ ₹299"` over `"Flat 20% OFF"`. Service+price is more compelling than discount.
 - `voice` — tone, vocabulary, taboos. For dentists: technical terms welcome (`"fluoride varnish at 3-month recall"`), legal taboos (`"cure"`, `"guaranteed"`), peer tone not hype.
 - `peer_stats` — city-scoped benchmarks: avg rating, avg reviews, typical CTR, typical patient volume. Anchors comparative messages.
 - `digest` — this week's curated research / compliance / CDE / tech / peer-practice items, with source citations. Sourced from a per-category source list (PubMed dental RSS, JIDA, IDA Delhi calendar, DCI circulars, Dental Tribune India, Google Trends for dental queries, vendor press releases).
@@ -68,10 +68,10 @@ Fields:
 - `identity` — name, place_id, locality, city, verified, languages
 - `subscription` — status, days remaining, plan
 - `performance` — views/calls/CTR/leads/directions, 30d + 7d deltas
-- `offers` — active + paused, sourced from vera-mcp's offers collection (and eventually the as-yet-undefined "real" offer source-of-truth)
-- `conversation_history` — last N turns w/ Vera, with engagement tags (replied, ignored, unsubscribed-from-topic)
+- `offers` — active + paused, sourced from nexora-mcp's offers collection (and eventually the as-yet-undefined "real" offer source-of-truth)
+- `conversation_history` — last N turns w/ Nexora, with engagement tags (replied, ignored, unsubscribed-from-topic)
 - `customer_aggregate` — derived stats over the merchant's customer roster (active count, lapsed count, retention rate). Not individual customers — aggregates only.
-- `signals` — derived flags: `stale_posts`, `ctr_below_peer_median`, `customer_lapse_rate_high`, `dormant_with_vera`, ...
+- `signals` — derived flags: `stale_posts`, `ctr_below_peer_median`, `customer_lapse_rate_high`, `dormant_with_nexora`, ...
 
 ### TriggerContext
 
@@ -114,7 +114,7 @@ Single LLM-prompted module. Takes the 4 contexts as input. Produces:
 - `template_params` — params to fill an approved Kaleyra template (used only for the first touch in a session window)
 - `cta` — the binary or open-ended ask
 - `suppression_key` — for the trigger-level dedup
-- `send_as` — `"vera"` for merchant-facing, `"merchant_on_behalf"` for customer-facing
+- `send_as` — `"nexora"` for merchant-facing, `"merchant_on_behalf"` for customer-facing
 
 The composer prompt is the single point of failure. It must be:
 
@@ -135,7 +135,7 @@ Different `kind` values may use different prompt variants — e.g., `research_di
 | Context | Key values used |
 |---|---|
 | Category (dentists) | voice=peer/technical; digest_top_item="JIDA Oct trial: 3-mo fluoride recall cuts caries 38% better"; peer_stat="South-Delhi solo CTR median 3.0%" |
-| Merchant (Dr. Meera) | CTR 2.1% (below peer); ran "Deep Cleaning ₹499" 2mo ago; 78 lapsed patients; last Vera touch 2d ago (engaged) |
+| Merchant (Dr. Meera) | CTR 2.1% (below peer); ran "Deep Cleaning ₹499" 2mo ago; 78 lapsed patients; last Nexora touch 2d ago (engaged) |
 | Trigger | kind=`research_digest_release`, scope=merchant, urgency=2, source=external, suppression_key=`research:dentists:2026-W17` |
 | Customer | (not populated) |
 
@@ -147,7 +147,7 @@ Why it works:
 - **Category** drives voice (technical, source-cited, peer tone)
 - **Merchant** drives specificity ("your high-risk adult patients" — derived from her customer aggregate)
 - **Trigger** drives the hook (this week's digest, not a promo ask)
-- No customer context needed; this is merchant-to-Vera
+- No customer context needed; this is merchant-to-Nexora
 
 
 ## Worked example 2: customer-facing (same framework)
@@ -165,7 +165,7 @@ Why it works:
 | Trigger | kind=`recall_due`, scope=customer, urgency=3, source=internal, payload={patient_id: priya, last_visit: 2026-05, due_date: 2026-11} |
 | Customer (Priya) | name + phone; lapsed_soft state; preferred=weekday evening; consent active; language=Hindi-English mix |
 
-**Composed message** (sent from Dr. Meera's WhatsApp number, drafted by Vera):
+**Composed message** (sent from Dr. Meera's WhatsApp number, drafted by Nexora):
 
 > Hi Priya, Dr. Meera's clinic here 🦷 It's been 5 months since your last visit — your 6-month cleaning recall is due. Apke liye 2 slots ready hain: **Wed 6 Nov, 6pm** ya **Thu 7 Nov, 5pm**. ₹299 cleaning + complimentary fluoride. Reply 1 for Wed, 2 for Thu, or tell us a time that works.
 
@@ -184,7 +184,7 @@ Once the framework exists, every loop is just a small cron that emits `TriggerCo
 
 | Loop | Emits trigger kinds | Scope |
 |---|---|---|
-| News/weather scanner *(already built — see `agents/vera/followup/event_sources.py`)* | `external` (festival, heatwave, fuel, IPL, monsoon, news) | merchant |
+| News/weather scanner *(already built — see `agents/nexora/followup/event_sources.py`)* | `external` (festival, heatwave, fuel, IPL, monsoon, news) | merchant |
 | Weekly research digest per category | `research_digest_release` | merchant |
 | Performance monitor | `perf_spike`, `perf_dip`, `milestone_reached` | merchant |
 | Review-pattern detector | `review_theme_emerged` | merchant |
@@ -200,7 +200,7 @@ Adding a loop = define one new `kind`, implement the detector, add a composer pr
 ## Implementation shape
 
 ```python
-# agents/vera/engagement/contexts.py
+# agents/nexora/engagement/contexts.py
 
 @dataclass
 class CategoryContext:
@@ -247,7 +247,7 @@ class CustomerContext:
 ```
 
 ```python
-# agents/vera/engagement/composer.py
+# agents/nexora/engagement/composer.py
 
 class EngagementComposer:
     def compose(self,
@@ -266,7 +266,7 @@ Both engagement surfaces (merchant-facing, customer-on-behalf-of-merchant) call 
 
 ### Phase 1 — framework skeleton + dentistry vertical (≈ 2 weeks)
 
-1. Define the 4 dataclasses in `agents/vera/engagement/contexts.py`.
+1. Define the 4 dataclasses in `agents/nexora/engagement/contexts.py`.
 2. Build the `CategoryContext` for dentistry — offer catalog, voice profile, peer stats, one weekly research digest pipeline, patient-content seed.
 3. Build `MerchantContext` loader from the existing `merchant_snapshot_data` collection.
 4. Build the first `EngagementComposer` with a prompt that handles 2 trigger kinds (`research_digest_release` and one merchant-facing perf trigger).
@@ -275,8 +275,8 @@ Both engagement surfaces (merchant-facing, customer-on-behalf-of-merchant) call 
 ### Phase 2 — customer-on-behalf sends (≈ 2 weeks)
 
 6. **Resolve the customer-data source-of-truth.** This is the biggest unknown. Options: clinic SaaS integration (Practo, Dentcubate), merchant CSV upload, BOTOPS chat-derived patient list. Without this, customer engagement is theoretical.
-7. Define the consent model: customer opted in via merchant, not via Vera directly. Capture timestamp + scope.
-8. Stand up a send-as-merchant channel: WhatsApp Business API under the merchant's number, or Vera's shared number with attribution `"Dr. Meera's clinic via Vera"`.
+7. Define the consent model: customer opted in via merchant, not via Nexora directly. Capture timestamp + scope.
+8. Stand up a send-as-merchant channel: WhatsApp Business API under the merchant's number, or Nexora's shared number with attribution `"Dr. Meera's clinic via Nexora"`.
 9. Ship the first customer-facing trigger in production: `recall_due`. Lowest abuse risk, highest merchant intent.
 
 ### Phase 3 — multiply verticals (≈ 1 week per vertical)
@@ -290,24 +290,24 @@ Both engagement surfaces (merchant-facing, customer-on-behalf-of-merchant) call 
 These need answers before Phase 2 can ship:
 
 1. **Where does the merchant's customer list live?** No clean answer yet. Most likely: per-merchant clinic software with no standard integration. May need a self-serve CSV upload or a per-vertical SaaS adapter.
-2. **Consent architecture.** Can Vera message a patient directly, or must every outbound require merchant approval before send? Recommendation: templated auto-sends with merchant override available, switching to fully-auto after the merchant has approved N consecutive sends.
-3. **Attribution.** Does the patient see "Dr. Meera's clinic" or "Vera on behalf of Dr. Meera's clinic"? Trust + legal implications either way. Probably category-dependent (regulated verticals need clearer attribution).
+2. **Consent architecture.** Can Nexora message a patient directly, or must every outbound require merchant approval before send? Recommendation: templated auto-sends with merchant override available, switching to fully-auto after the merchant has approved N consecutive sends.
+3. **Attribution.** Does the patient see "Dr. Meera's clinic" or "Nexora on behalf of Dr. Meera's clinic"? Trust + legal implications either way. Probably category-dependent (regulated verticals need clearer attribution).
 4. **Composer prompt versioning.** Single point of failure. Versioned + A/B tested from day 1 — every send records the prompt version that produced it.
-5. **Offer source-of-truth.** Per the parallel discussion, the canonical merchant offer catalog likely lives outside vera-mcp (aryan `catalogoffer`, merchant-portal-api, or magicpin_jobs output). MerchantContext needs to read from that source — pending identification.
+5. **Offer source-of-truth.** Per the parallel discussion, the canonical merchant offer catalog likely lives outside nexora-mcp (aryan `catalogoffer`, merchant-portal-api, or magicpin_jobs output). MerchantContext needs to read from that source — pending identification.
 6. **Composer model choice.** Azure OpenAI primary, Deepseek fallback (matching `template_generator._call_llm`)? Or is there a case for a smaller faster model for high-volume per-customer sends?
 
 
 ## Why this is worth building
 
 - **Engagement frequency goes from "few times a month" to "few times a week"** — by adding curiosity-driven, knowledge-driven, and customer-driven loops on top of the existing functional ones.
-- **One framework, two products** — the same composition engine drives Vera-to-merchant *and* merchant-to-customer messaging. Build once, ship twice.
+- **One framework, two products** — the same composition engine drives Nexora-to-merchant *and* merchant-to-customer messaging. Build once, ship twice.
 - **Vertical scaling is data work, not code work** — adding a new category becomes "fill in a CategoryContext", not "write a new agent".
-- **Auditable + versioned** — every message has explicit inputs and a versioned composer; we can replay, A/B test, and answer "why did Vera send this?" for any past send.
+- **Auditable + versioned** — every message has explicit inputs and a versioned composer; we can replay, A/B test, and answer "why did Nexora send this?" for any past send.
 
 
 ## Appendix: relationship to existing code
 
-- `agents/vera/followup/event_sources.py` and `agents/vera/followup/event_extractor.py` *(branch `feature/vera-campaign-engagement`)* already produce external `TriggerContext`-shaped objects for the news/weather scanner. They become the first concrete trigger source feeding the new composer.
-- `agents/vera/followup/template_registry.py` will continue to host the Kaleyra-approved template names (used for the first-touch send before the 24h session window opens). The composer fills the template parameters.
-- `agents/vera/followup/snapshot_data.py` already provides most of the `MerchantContext` fields. Customer aggregate fields would be added as new sections on `MerchantSnapshotData`.
-- `services/vera-mcp/src/services/offer_suggester.py` is the leading candidate for `CategoryContext.offer_catalog` (pending the open offer source-of-truth question).
+- `agents/nexora/followup/event_sources.py` and `agents/nexora/followup/event_extractor.py` *(branch `feature/nexora-campaign-engagement`)* already produce external `TriggerContext`-shaped objects for the news/weather scanner. They become the first concrete trigger source feeding the new composer.
+- `agents/nexora/followup/template_registry.py` will continue to host the Kaleyra-approved template names (used for the first-touch send before the 24h session window opens). The composer fills the template parameters.
+- `agents/nexora/followup/snapshot_data.py` already provides most of the `MerchantContext` fields. Customer aggregate fields would be added as new sections on `MerchantSnapshotData`.
+- `services/nexora-mcp/src/services/offer_suggester.py` is the leading candidate for `CategoryContext.offer_catalog` (pending the open offer source-of-truth question).

@@ -1,4 +1,4 @@
-# backend/storage/mongo_store.py
+﻿# backend/storage/mongo_store.py
 """
 MongoStore: durable persistence for full context payloads and the
 actions/conversation audit trail. Redis is the hot path (versions,
@@ -14,7 +14,7 @@ from pymongo.errors import PyMongoError
 from config import MONGO_URI, MONGO_DB
 from logging_config import get_logger
 
-logger = get_logger("vera.mongo_store")
+logger = get_logger("nexora.mongo_store")
 
 
 class MongoStore:
@@ -109,7 +109,7 @@ class MongoStore:
 
     async def wipe_all(self) -> dict:
         """
-        Drops all VERA collections. Used by the optional POST /v1/teardown
+        Drops all NEXORA collections. Used by the optional POST /v1/teardown
         endpoint per challenge-testing-brief.md §11: bots must not persist
         context data after the test ends.
         """

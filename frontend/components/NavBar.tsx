@@ -1,4 +1,4 @@
-// frontend/components/NavBar.tsx
+﻿// frontend/components/NavBar.tsx
 "use client";
 
 import Link from "next/link";
@@ -16,11 +16,11 @@ export function NavBar() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-vera-border bg-vera-surface/80 backdrop-blur sticky top-0 z-30">
+    <header className="border-b border-nexora-border bg-nexora-surface/80 backdrop-blur sticky top-0 z-30">
       <div className="mx-auto max-w-7xl px-6 flex items-center gap-8 h-14">
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="font-mono text-sm font-bold tracking-tight text-vera-text-bright">VERA</span>
-          <span className="text-[10px] uppercase tracking-wider text-vera-muted border border-vera-border rounded px-1.5 py-0.5">
+          <span className="font-mono text-sm font-bold tracking-tight text-nexora-text-bright">NEXORA</span>
+          <span className="text-[10px] uppercase tracking-wider text-nexora-muted border border-nexora-border rounded px-1.5 py-0.5">
             ops
           </span>
         </Link>
@@ -33,8 +33,8 @@ export function NavBar() {
                 href={link.href}
                 className={`px-3 py-1.5 rounded-md transition-colors ${
                   active
-                    ? "bg-vera-accent/15 text-vera-accent font-medium"
-                    : "text-vera-muted hover:text-vera-text hover:bg-vera-surface-raised"
+                    ? "bg-nexora-accent/15 text-nexora-accent font-medium"
+                    : "text-nexora-muted hover:text-nexora-text hover:bg-nexora-surface-raised"
                 }`}
               >
                 {link.label}

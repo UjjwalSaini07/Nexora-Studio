@@ -1,4 +1,4 @@
-# backend/reply/language_detector.py
+﻿# backend/reply/language_detector.py
 """
 LanguageDetector: lightweight heuristic detector for mid-conversation
 language switches between English and Hindi/Hinglish (code-mixed).
@@ -47,7 +47,7 @@ class LanguageDetector:
 
     def has_switched(self, previous_language: str, message: str) -> bool:
         """True if the detected language of `message` differs from the
-        language used earlier in the conversation, signalling VERA should
+        language used earlier in the conversation, signalling NEXORA should
         adapt its reply language to match."""
         current = self.detect(message)
         if previous_language == current:

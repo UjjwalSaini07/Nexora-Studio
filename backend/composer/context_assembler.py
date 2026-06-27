@@ -1,4 +1,4 @@
-# backend/composer/context_assembler.py
+﻿# backend/composer/context_assembler.py
 """
 ContextAssembler: given a TriggerContext, resolves and validates the other
 3 contexts the composer needs (category, merchant, customer-if-applicable).
@@ -14,7 +14,7 @@ from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from logging_config import get_logger
 
-logger = get_logger("vera.context_assembler")
+logger = get_logger("nexora.context_assembler")
 
 
 class ContextAssembler:

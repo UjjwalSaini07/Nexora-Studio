@@ -1,4 +1,4 @@
-# backend/routers/reply.py
+﻿# backend/routers/reply.py
 import asyncio
 
 from fastapi import APIRouter, Depends
@@ -11,7 +11,7 @@ from reply.handler import ReplyHandler
 from config import REPLY_TIMEOUT_SECONDS
 from logging_config import get_logger
 
-logger = get_logger("vera.routers.reply")
+logger = get_logger("nexora.routers.reply")
 
 router = APIRouter()
 

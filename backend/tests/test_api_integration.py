@@ -1,4 +1,4 @@
-# backend/tests/test_api_integration.py
+﻿# backend/tests/test_api_integration.py
 """
 End-to-end integration tests against the real FastAPI app, using:
 - fakeredis / mongomock-motor in place of real Redis/Mongo (via dependency
@@ -43,7 +43,7 @@ async def app_client():
     class FakeMongoStore(MongoStore):
         def __init__(self):
             self.client = mongomock_motor.AsyncMongoMockClient()
-            self.db = self.client["vera_test"]
+            self.db = self.client["nexora_test"]
             self.contexts = self.db["contexts"]
             self.conversations = self.db["conversations"]
             self.actions_log = self.db["actions_log"]
@@ -217,7 +217,7 @@ class TestTickEndpoint:
         mock_llm_response = {
             "body": "Dr. Meera, JIDA's Oct issue landed. Worth a look. Want the abstract?",
             "cta": "open_ended",
-            "send_as": "vera",
+            "send_as": "nexora",
             "template_params": ["Meera", "JIDA", "open_ended"],
             "rationale": "Research digest anchored on high-risk-adult-relevant trial.",
         }
@@ -241,7 +241,7 @@ class TestTickEndpoint:
                       "suppression_key", "rationale"]:
             assert field in action
         assert action["trigger_id"] == trigger_payload["id"]
-        assert action["send_as"] == "vera"
+        assert action["send_as"] == "nexora"
         assert "http" not in action["body"]
 
     async def test_tick_suppresses_already_sent_trigger(self, app_client):
@@ -252,7 +252,7 @@ class TestTickEndpoint:
 
         mock_llm_response = {
             "body": "First message about the digest item.",
-            "cta": "open_ended", "send_as": "vera",
+            "cta": "open_ended", "send_as": "nexora",
             "template_params": [], "rationale": "x",
         }
         with patch("composer.llm_client.LLMClient.complete", new=AsyncMock(return_value=mock_llm_response)):
@@ -285,7 +285,7 @@ class TestTickEndpoint:
 
         mock_llm_response = {
             "body": "Hi! Your recall is due. Reply 1 for Wed or 2 for Thu.",
-            "cta": "multi_choice_slot", "send_as": "vera",  # intentionally wrong, validator should fix
+            "cta": "multi_choice_slot", "send_as": "nexora",  # intentionally wrong, validator should fix
             "template_params": [], "rationale": "x",
         }
         # Derive a "now" that is safely before this specific trigger's

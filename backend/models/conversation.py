@@ -1,4 +1,4 @@
-# backend/models/conversation.py
+﻿# backend/models/conversation.py
 """
 Typed representations of a conversation's turn-by-turn state.
 
@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 class TurnRole(str, Enum):
     MERCHANT = "merchant"
     CUSTOMER = "customer"
-    VERA = "vera"
+    NEXORA = "nexora"
     SYSTEM = "system"
 
 
@@ -43,7 +43,7 @@ class Turn(BaseModel):
 class ConversationState(BaseModel):
     """
     Aggregate, derived view of a conversation — built on demand from the
-    raw turn list stored in Redis (`vera:conv:{conv_id}`), not stored
+    raw turn list stored in Redis (`nexora:conv:{conv_id}`), not stored
     directly itself. Useful for the dashboard and for reasoning about
     state transitions in tests.
     """

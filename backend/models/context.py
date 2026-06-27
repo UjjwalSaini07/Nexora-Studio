@@ -1,6 +1,6 @@
-# backend/models/context.py
+﻿# backend/models/context.py
 """
-Core domain models for the 4 context types VERA receives:
+Core domain models for the 4 context types NEXORA receives:
 CategoryContext, MerchantContext, CustomerContext, TriggerContext.
 
 These are intentionally PERMISSIVE rather than strict. The real challenge

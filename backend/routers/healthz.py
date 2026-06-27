@@ -1,4 +1,4 @@
-# backend/routers/healthz.py
+﻿# backend/routers/healthz.py
 import time
 
 from fastapi import APIRouter, Depends
@@ -9,7 +9,7 @@ from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from logging_config import get_logger
 
-logger = get_logger("vera.routers.healthz")
+logger = get_logger("nexora.routers.healthz")
 
 router = APIRouter()
 _process_start_time = time.time()

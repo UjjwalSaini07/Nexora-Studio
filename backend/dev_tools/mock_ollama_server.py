@@ -1,4 +1,4 @@
-# backend/dev_tools/mock_ollama_server.py
+﻿# backend/dev_tools/mock_ollama_server.py
 """
 DEV-ONLY TOOL — not part of the production deliverable.
 

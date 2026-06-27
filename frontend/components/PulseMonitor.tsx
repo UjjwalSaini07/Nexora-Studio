@@ -1,8 +1,8 @@
-// frontend/components/PulseMonitor.tsx
+﻿// frontend/components/PulseMonitor.tsx
 "use client";
 
 /**
- * The signature element. VERA is described as the "living heartbeat" of
+ * The signature element. NEXORA is described as the "living heartbeat" of
  * merchant engagement, so the live-ops header doesn't get a generic spinner
  * or progress bar — it gets an actual ECG-style trace. The line redraws on
  * a loop via stroke-dashoffset animation, and the leading dot pulses in
@@ -21,7 +21,7 @@ export function PulseMonitor({
   label: string;
 }) {
   const color =
-    status === "ok" ? "var(--vera-accent)" : status === "degraded" ? "var(--vera-warn)" : "var(--vera-danger)";
+    status === "ok" ? "var(--nexora-accent)" : status === "degraded" ? "var(--nexora-warn)" : "var(--nexora-danger)";
 
   return (
     <div className="flex items-center gap-3">
@@ -33,15 +33,15 @@ export function PulseMonitor({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={status === "down" ? "" : "vera-pulse-path"}
+          className={status === "down" ? "" : "nexora-pulse-path"}
           style={status === "down" ? { strokeDasharray: "none" } : undefined}
         />
         {status !== "down" && (
-          <circle cx="60" cy="16" r="3" fill={color} className="vera-pulse-dot" />
+          <circle cx="60" cy="16" r="3" fill={color} className="nexora-pulse-dot" />
         )}
       </svg>
       <div className="flex flex-col leading-tight">
-        <span className="text-xs uppercase tracking-wider text-vera-muted">{label}</span>
+        <span className="text-xs uppercase tracking-wider text-nexora-muted">{label}</span>
         <span
           className="text-sm font-semibold capitalize"
           style={{ color }}

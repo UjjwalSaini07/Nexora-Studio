@@ -1,12 +1,12 @@
-# VERA — magicpin AI Challenge Submission
+﻿# NEXORA — magicpin AI Challenge Submission
 
-VERA is a production-grade merchant engagement bot built for the magicpin
+NEXORA is a production-grade merchant engagement bot built for the magicpin
 AI Challenge. It receives structured context about merchants, customers,
 and categories, decides what to say and when, and composes specific,
 on-brand WhatsApp messages via an LLM (Groq) — all behind a versioned,
 idempotent HTTP API that matches the official challenge contract exactly.
 
-**Team:** VERA Engine · **Stack:** FastAPI + MongoDB + Redis + Groq (Llama) + Next.js
+**Team:** NEXORA Engine · **Stack:** FastAPI + MongoDB + Redis + Groq (Llama) + Next.js
 
 ## Table of contents
 
@@ -34,7 +34,7 @@ idempotent HTTP API that matches the official challenge contract exactly.
                                                 │ HTTP/JSON
                                                 ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                         VERA Bot Server (FastAPI)                            │
+│                         NEXORA Bot Server (FastAPI)                            │
 │                                                                               │
 │  /v1/healthz  /v1/metadata  /v1/context  /v1/tick  /v1/reply  /v1/teardown  │
 │                                          │                  │                │
@@ -77,7 +77,7 @@ This is the fastest path to a fully running stack (Mongo + Redis + backend + fro
 
 ```bash
 git clone <this-repo>
-cd vera-bot
+cd nexora-bot
 cp .env.example .env
 # Edit .env and set GROQ_API_KEY (get one free at https://console.groq.com/keys)
 
@@ -335,7 +335,7 @@ case that artifact is also collected.
 ## Project structure
 
 ```
-vera-bot/
+nexora-bot/
 ├── backend/
 │   ├── main.py                 # FastAPI app, lifespan, middleware, exception handlers
 │   ├── bot.py                  # alias: `uvicorn bot:app` == `uvicorn main:app`

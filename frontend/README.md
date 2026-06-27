@@ -1,7 +1,7 @@
-# VERA Operations Dashboard (frontend)
+﻿# NEXORA Operations Dashboard (frontend)
 
 Next.js 16 (App Router) + TypeScript + Tailwind v4 dashboard for monitoring
-the VERA bot in real time. See the [repo-level README](../README.md) for
+the NEXORA bot in real time. See the [repo-level README](../README.md) for
 full project context, architecture, and the backend it talks to.
 
 ## Setup
@@ -49,8 +49,8 @@ If you rebuild against a different backend URL, you must rebuild the app
 ## Design
 
 Dark navy/electric-blue ops-tool palette (`app/globals.css`, CSS custom
-properties prefixed `--vera-*`), Inter for UI text, JetBrains Mono for
+properties prefixed `--nexora-*`), Inter for UI text, JetBrains Mono for
 JSON/context IDs/code. The signature visual is the `PulseMonitor` component
-— an animated ECG-style trace representing VERA's "the living heartbeat of
+— an animated ECG-style trace representing NEXORA's "the living heartbeat of
 merchant engagement" framing from the original design brief, rather than a
 generic spinner.

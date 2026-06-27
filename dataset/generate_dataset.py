@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Expand seed JSON files into the full challenge dataset.
 
@@ -210,7 +210,7 @@ def expand_triggers(seeds: list[dict], merchants: list[dict], customers: list[di
         ("perf_dip", "internal", "merchant", 3),
         ("perf_spike", "internal", "merchant", 1),
         ("milestone_reached", "internal", "merchant", 1),
-        ("dormant_with_vera", "internal", "merchant", 2),
+        ("dormant_with_nexora", "internal", "merchant", 2),
         ("review_theme_emerged", "internal", "merchant", 3),
         ("competitor_opened", "external", "merchant", 2),
         ("festival_upcoming", "external", "merchant", 1),

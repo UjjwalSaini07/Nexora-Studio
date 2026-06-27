@@ -1,4 +1,4 @@
-# magicpin AI Challenge — Testing & Evaluation Brief
+﻿# magicpin AI Challenge — Testing & Evaluation Brief
 
 **Status**: Companion to `challenge-brief.md`. Defines the technical contract between candidate bots and magicpin's judging system.
 **Last updated**: 2026-04-26
@@ -20,7 +20,7 @@
 
 Two information flows:
 
-1. **Judge → Bot**: pushes incremental context across all 4 dimensions (category, merchant, trigger, customer) over time. Mimics how production data updates flow into Vera.
+1. **Judge → Bot**: pushes incremental context across all 4 dimensions (category, merchant, trigger, customer) over time. Mimics how production data updates flow into Nexora.
 2. **Bot → Judge**: the bot proactively initiates conversations, and the judge plays the merchant (or customer) role, replying realistically. The bot must handle the full conversation.
 
 The bot is **stateful** (must remember context pushed earlier and conversations in flight). The judge is the source of truth for what's happened.
@@ -87,9 +87,9 @@ The judge calls this every **N seconds of simulated time** (default: every 5 sim
       "conversation_id": "conv_001",
       "merchant_id": "m_001_drmeera",
       "customer_id": null,
-      "send_as": "vera",
+      "send_as": "nexora",
       "trigger_id": "trg_2026_04_26_research_digest",
-      "template_name": "vera_research_digest_v1",
+      "template_name": "nexora_research_digest_v1",
       "template_params": ["Dr. Meera", "JIDA Oct issue", "..."],
       "body": "Dr. Meera, JIDA's Oct issue landed...",
       "cta": "open_ended",
@@ -213,7 +213,7 @@ Each `scope` has a fixed payload shape. These mirror the dataclasses defined in 
     { "id": "o_meera_002", "title": "Deep Cleaning @ ₹499", "status": "expired" }
   ],
   "conversation_history": [
-    { "ts": "2026-04-24T10:00:00Z", "from": "vera", "body": "...", "engagement": "merchant_replied" }
+    { "ts": "2026-04-24T10:00:00Z", "from": "nexora", "body": "...", "engagement": "merchant_replied" }
   ],
   "customer_aggregate": { "total_unique_ytd": 540, "lapsed_180d_plus": 78, "retention_6mo_pct": 0.38 },
   "signals": ["stale_posts:22d", "ctr_below_peer_median", "high_risk_adult_cohort"]
@@ -415,8 +415,8 @@ async def tick(body: TickBody):
         actions.append({
             "conversation_id": f"conv_{merchant_id}_{trg_id}",
             "merchant_id": merchant_id, "customer_id": None,
-            "send_as": "vera", "trigger_id": trg_id,
-            "template_name": "vera_generic_v1",
+            "send_as": "nexora", "trigger_id": trg_id,
+            "template_name": "nexora_generic_v1",
             "template_params": [merchant['identity']['name'], "...", "..."],
             "body": body_text, "cta": "open_ended",
             "suppression_key": trg.get("suppression_key", ""),
@@ -535,7 +535,7 @@ Yes — return `{"actions": []}` from `/v1/tick`. Restraint is rewarded; spam is
 Treat it as a normal new merchant. The bot should be ready for any context to arrive at any time.
 
 **Q: Is there a way to query the judge for clarification mid-test?**
-No. The bot has only the contexts it's been pushed. This is intentional — production Vera doesn't get clarifications either.
+No. The bot has only the contexts it's been pushed. This is intentional — production Nexora doesn't get clarifications either.
 
 
 ## End of testing brief

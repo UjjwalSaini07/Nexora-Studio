@@ -1,4 +1,4 @@
-# 10 Case Studies — What "Good" Looks Like
+﻿# 10 Case Studies — What "Good" Looks Like
 
 These case studies serve as anchor examples for the AI judge and as targets for candidates. Each shows:
 - The 4-context input
@@ -16,7 +16,7 @@ Two cases per category × 5 categories = 10 case studies. Mix of merchant-facing
 **Trigger**: `research_digest` — JIDA Oct 2026 paper: 3-month fluoride recall vs 6-month, 38% caries reduction in high-risk adults
 **Customer**: none
 
-**Composed message** (sent as Vera)
+**Composed message** (sent as Nexora)
 ```
 Dr. Meera, JIDA's Oct issue landed. One item relevant to your high-risk adult
 patients — 2,100-patient trial showed 3-month fluoride recall cuts caries
@@ -98,11 +98,11 @@ preferred Saturday 4pm slot for the first session next week?
 ## Case Study 4 — Salons / Curious Ask (merchant-facing)
 
 **Category**: `salons`
-**Merchant**: Studio11 Family Salon, growing strongly, last Vera touch 3 days ago
+**Merchant**: Studio11 Family Salon, growing strongly, last Nexora touch 3 days ago
 **Trigger**: `curious_ask_due` — weekly "what's in demand?" cadence
 **Customer**: none
 
-**Composed message** (sent as Vera)
+**Composed message** (sent as Nexora)
 ```
 Hi Lakshmi! Quick check — what service has been most asked-for this week
 at Studio11? I'll turn the answer into a Google post + a 4-line WhatsApp
@@ -128,7 +128,7 @@ reply you can use when customers ask about pricing. Takes 5 min.
 **Trigger**: `ipl_match_today` — DC vs MI at Arun Jaitley Stadium, 7:30pm match today (Sat — *not* a weeknight)
 **Customer**: none
 
-**Composed message** (sent as Vera)
+**Composed message** (sent as Nexora)
 ```
 Quick heads-up Suresh — DC vs MI at Arun Jaitley tonight, 7:30pm. Important:
 Saturday IPL matches usually shift -12% restaurant covers (people watch at
@@ -158,7 +158,7 @@ This case is illustrative because it shows the bot **adding value beyond the tri
 **Trigger**: `active_planning_intent` — merchant asked about a corporate-bulk thali package; explicitly said "yes good idea, what would it look like"
 **Customer**: none
 
-**Composed message** (sent as Vera, in direct conversation)
+**Composed message** (sent as Nexora, in direct conversation)
 ```
 Suresh, here's a starter version — you can edit:
 
@@ -192,7 +192,7 @@ managers?
 **Trigger**: `seasonal_perf_dip` — expected April-June low; flagged as not-a-problem
 **Customer**: none
 
-**Composed message** (sent as Vera)
+**Composed message** (sent as Nexora)
 ```
 Karthik, your views are down 30% this week — but I want to flag this is the
 normal April-June acquisition lull (every metro gym sees -25 to -35% in this
@@ -249,7 +249,7 @@ no auto-charge.
 **Trigger**: `supply_alert` — voluntary recall on atorvastatin batches AT2024-1102 + AT2024-1108 by Mfr Z
 **Customer**: none
 
-**Composed message** (sent as Vera)
+**Composed message** (sent as Nexora)
 ```
 Ramesh, urgent: voluntary recall on 2 atorvastatin batches (AT2024-1102,
 AT2024-1108) by Mfr Z — sub-potency, no safety risk, but customers should be

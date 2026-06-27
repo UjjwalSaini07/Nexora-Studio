@@ -1,4 +1,4 @@
-# magicpin AI Challenge — Build a Merchant AI Assistant ("Vera")
+﻿# magicpin AI Challenge — Build a Merchant AI Assistant ("Nexora")
 
 **Status**: Brief — designed to be loaded as standalone context in a fresh AI session.
 **Last updated**: 2026-04-26
@@ -9,19 +9,19 @@
 
 ## 1. The challenge in one sentence
 
-> Build an AI chatbot that engages and assists merchants on WhatsApp the way **Vera** (magicpin's merchant-AI assistant) does — but better. Same base dataset for every participant. AI judges the outcome.
+> Build an AI chatbot that engages and assists merchants on WhatsApp the way **Nexora** (magicpin's merchant-AI assistant) does — but better. Same base dataset for every participant. AI judges the outcome.
 
 
 ## 2. About magicpin (background, ~30 sec read)
 
 magicpin is one of India's largest local-commerce platforms — a network of ~100,000 merchant partners across 50+ Indian cities (restaurants, salons, gyms, dentists, retailers, car dealers, etc.). Customers discover merchants on the magicpin app/web, transact, and earn cashback. Merchants benefit from visibility, walk-ins, and online orders.
 
-magicpin runs a marketing-assistant product called **Vera** that talks to merchants over WhatsApp, helps them grow their Google Business Profile (GBP), runs campaigns for them, and answers customer questions on their behalf. Vera is the product you're rebuilding.
+magicpin runs a marketing-assistant product called **Nexora** that talks to merchants over WhatsApp, helps them grow their Google Business Profile (GBP), runs campaigns for them, and answers customer questions on their behalf. Nexora is the product you're rebuilding.
 
 
-## 3. About Vera (the product you're rebuilding)
+## 3. About Nexora (the product you're rebuilding)
 
-### What Vera does today
+### What Nexora does today
 - Talks to ~6,000-10,000 merchants per day over WhatsApp
 - Helps them improve their Google Business Profile (photos, hours, posts, reviews)
 - Runs marketing campaigns for them (festival, news, local events)
@@ -32,25 +32,25 @@ magicpin runs a marketing-assistant product called **Vera** that talks to mercha
 
 | Metric | Apr 23 | Apr 24 | Apr 25 |
 |---|---:|---:|---:|
-| Merchants who engaged with Vera | 6,917 | 10,158 | 5,181 |
-| Total messages mx ↔ Vera | 34,022 | 47,651 | 23,712 |
+| Merchants who engaged with Nexora | 6,917 | 10,158 | 5,181 |
+| Total messages mx ↔ Nexora | 34,022 | 47,651 | 23,712 |
 | Avg messages per engaged merchant | 4.9 | 4.7 | 4.6 |
-| Customers who engaged with Vera | 720 | 707 | 681 |
+| Customers who engaged with Nexora | 720 | 707 | 681 |
 | Unique merchants customers asked about | 580 | 514 | 466 |
-| Total messages cx ↔ Vera | 3,713 | 4,839 | 4,695 |
+| Total messages cx ↔ Nexora | 3,713 | 4,839 | 4,695 |
 | Avg messages per customer | 5.2 | 6.8 | 6.9 |
 
-### Today's biggest pain points (your opportunities to outperform Vera)
+### Today's biggest pain points (your opportunities to outperform Nexora)
 
-1. **Auto-reply pollution**: 40-70% of "merchant replies" are the merchant's own WhatsApp Business canned auto-reply ("Thank you for contacting…"). Production Vera detects this but burns 2-3 turns each time. **Better detection + faster routing wins**.
-2. **Intent-handoff failures**: When a merchant says "I want to join," production Vera often goes back to qualifying questions instead of starting the action. **Better intent detection wins**.
+1. **Auto-reply pollution**: 40-70% of "merchant replies" are the merchant's own WhatsApp Business canned auto-reply ("Thank you for contacting…"). Production Nexora detects this but burns 2-3 turns each time. **Better detection + faster routing wins**.
+2. **Intent-handoff failures**: When a merchant says "I want to join," production Nexora often goes back to qualifying questions instead of starting the action. **Better intent detection wins**.
 3. **Generic copy**: discount-style offers ("10% off") rarely engage Indian merchants. Service+price ("Haircut @ ₹99", "Dental Cleaning @ ₹299") works better. **Compelling, category-correct copy wins**.
 4. **Low engagement frequency**: Functional nudges (renewal due, profile incomplete) are inherently rare. To engage merchants 3-5×/week needs *curiosity-driven* and *knowledge-driven* conversations, not just reminder-style. **Diversified conversation portfolio wins**.
 
 
 ## 4. The 4-context framework (what your bot must work with)
 
-Every message Vera sends — whether to the merchant or the merchant's customer — is composed from **four context layers**. Your bot will receive these as structured input and must produce the next message.
+Every message Nexora sends — whether to the merchant or the merchant's customer — is composed from **four context layers**. Your bot will receive these as structured input and must produce the next message.
 
 ```
 your_bot.compose(category, merchant, trigger, customer?) → message
@@ -92,7 +92,7 @@ class MerchantContext:
     subscription: Subscription        # status, days_remaining, plan
     performance: PerformanceSnapshot  # views/calls/CTR/leads/directions, 30d + 7d deltas
     offers: list[MerchantOffer]       # active + paused offers from their catalog
-    conversation_history: ConversationHistory  # last N turns w/ Vera, w/ engagement tags
+    conversation_history: ConversationHistory  # last N turns w/ Nexora, w/ engagement tags
     customer_aggregate: CustomerAggregate  # active count, lapsed count, retention %
     signals: list[DerivedSignal]      # "stale_posts", "ctr_below_peer", "dormant", ...
 ```
@@ -135,7 +135,7 @@ class TriggerContext:
 - `perf_spike` (yesterday's views +28% vs avg)
 - `perf_dip` (calls dropped 40% week-over-week)
 - `milestone_reached` (crossed 100 reviews)
-- `dormant_with_vera` (no merchant message in 14 days)
+- `dormant_with_nexora` (no merchant message in 14 days)
 - `customer_lapsed_soft` (a customer's 6mo recall window opens)
 - `appointment_tomorrow` (booking exists for next day)
 - `review_theme_emerged` (3 reviews this week mention "wait time")
@@ -200,7 +200,7 @@ def compose(
     Returns:
         body              — the WhatsApp message body
         cta               — the call-to-action (binary YES/STOP, open-ended, none)
-        send_as           — "vera" (merchant-facing) or "merchant_on_behalf" (customer-facing)
+        send_as           — "nexora" (merchant-facing) or "merchant_on_behalf" (customer-facing)
         suppression_key   — for dedup
         rationale         — short explanation of why this message, what it should achieve
     """
@@ -276,7 +276,7 @@ def compose(category: dict, merchant: dict, trigger: dict, customer: dict | None
 ### 7.2 `submission.jsonl` (30 lines, one per test pair)
 
 ```json
-{"test_id": "T01", "body": "Hi Dr. Meera, JIDA's Oct issue ...", "cta": "open_ended", "send_as": "vera", "suppression_key": "...", "rationale": "..."}
+{"test_id": "T01", "body": "Hi Dr. Meera, JIDA's Oct issue ...", "cta": "open_ended", "send_as": "nexora", "suppression_key": "...", "rationale": "..."}
 ```
 
 ### 7.3 `README.md` (1 page max)
@@ -329,48 +329,48 @@ For the 10 highest-scoring submissions, the judge runs a **simulated multi-turn 
 - Judge scores how the conversation flows: did the bot detect auto-reply? Did it route action requests correctly? Did it know when to gracefully exit?
 
 
-## 9. Reference: real Vera conversation patterns (anonymized excerpts)
+## 9. Reference: real Nexora conversation patterns (anonymized excerpts)
 
-These are real conversations from production Vera — provided as reference, not as the bar to clear (you should aim higher).
+These are real conversations from production Nexora — provided as reference, not as the bar to clear (you should aim higher).
 
 ### Pattern A — Real intent, real value exchange (the gold standard)
 
 ```
-[USER]  Hi Vera. Please update my google profile.
-[VERA]  Hi! Priya, Vera se bol rahi hoon. Aapka Google profile abhi 62.5% complete hai
+[USER]  Hi Nexora. Please update my google profile.
+[NEXORA]  Hi! Priya, Nexora se bol rahi hoon. Aapka Google profile abhi 62.5% complete hai
         — description, website aur business hours missing hain. Kya aap yeh details
         share kar sakte hain taaki main sab update kar sakun?
 [USER]  Ok please check & update the profile.
-[VERA]  Done! Maine aapka Google profile update kar diya hai:
+[NEXORA]  Done! Maine aapka Google profile update kar diya hai:
         - Business hours — daily 9 AM se 10 PM
         - Description — restaurant description add kar diya
         - Google Post — ek welcome post bhi publish kar diya
 [USER]  I can't see my profile is updated yet. It is showing temporarily closed.
-[VERA]  Google ke changes mein 24-48 ghante lagte hain. Kyunki aapka profile abhi
+[NEXORA]  Google ke changes mein 24-48 ghante lagte hain. Kyunki aapka profile abhi
         unverified hai, Google har update review karta hai. Tab tak main aur
         cheezein add kar sakti hoon...
 ```
-**What's right**: Hindi-English mix, specific numbers (62.5%, 24-48 ghante), Vera does work + reports back, handles uncertainty honestly.
+**What's right**: Hindi-English mix, specific numbers (62.5%, 24-48 ghante), Nexora does work + reports back, handles uncertainty honestly.
 
 ### Pattern B — Auto-reply detection + graceful exit
 
 ```
-[VERA]     Studio11 Family Salon ka Google profile check kar rahi thi — aapki 4.9★
+[NEXORA]     Studio11 Family Salon ka Google profile check kar rahi thi — aapki 4.9★
            rating hai 298 reviews ke saath... business description missing hai.
 [MERCHANT] Aapki jaankari ke liye bahut-bahut shukriya. Main aapki yeh sabhi baatein
            aur sujhaav hamari team tak pahuncha deti hoon.   ← merchant's auto-reply
-[VERA]     Samajh gayi. Team tak pahunchane se pehle, kya aap khud dekhna chahingi
+[NEXORA]     Samajh gayi. Team tak pahunchane se pehle, kya aap khud dekhna chahingi
            ki exact kya missing hai Google pe? 2 minute ka kaam hai. Chalega?
 [MERCHANT] Aapki madad ke liye shukriya, lekin main ek automated assistant hoon...
-[VERA]     Koi baat nahi, samajh gayi. Main owner/manager se directly connect kar
+[NEXORA]     Koi baat nahi, samajh gayi. Main owner/manager se directly connect kar
            lungi. Aapka salon accha chal raha hai — best wishes! 🙂
 ```
-**What's right**: Vera tried once after detecting auto-reply, then stopped wasting turns. Polite exit.
+**What's right**: Nexora tried once after detecting auto-reply, then stopped wasting turns. Polite exit.
 
 ### Pattern C — Strong specificity hook
 
 ```
-[VERA] Quick nudge: your dashboard shows 6,777 missed searches in Sector 14
+[NEXORA] Quick nudge: your dashboard shows 6,777 missed searches in Sector 14
        for makeup services — people are looking but not finding you. Want me
        to show how your listing would appear?
 ```
@@ -380,10 +380,10 @@ These are real conversations from production Vera — provided as reference, not
 
 ```
 [MERCHANT] Mujhe magicpin judrna hai.   ← "I want to join magicpin" — clear intent
-[VERA]     Badhiya! Aapke liye simple rakhti hoon: agar aapko 10-15 naye customers
+[NEXORA]     Badhiya! Aapke liye simple rakhti hoon: agar aapko 10-15 naye customers
            regular milne lagen to helpful hoga na?   ← went back to qualifying
 ```
-**What's wrong**: Merchant said yes; Vera asked another qualification question. Lost momentum. Your bot should detect explicit intent and route to action immediately.
+**What's wrong**: Merchant said yes; Nexora asked another qualification question. Lost momentum. Your bot should detect explicit intent and route to action immediately.
 
 
 ## 10. Compulsion levers — what makes merchants reply
@@ -399,7 +399,7 @@ These are the levers that drive engagement. Use one or more per message:
 7. **Asking the merchant** — "what's your most-asked treatment this week?"
 8. **Single binary commitment** — Reply YES / STOP, not multi-choice
 
-Production Vera's biggest miss is **#3 social proof** and **#7 asking the merchant** — these families barely fire today and would unlock a lot of engagement.
+Production Nexora's biggest miss is **#3 social proof** and **#7 asking the merchant** — these families barely fire today and would unlock a lot of engagement.
 
 
 ## 11. Anti-patterns the judge will penalize
@@ -472,7 +472,7 @@ That's everything the judge needs. No prior context from this session is require
 
 **Inputs**:
 - Category: `dentists` (voice=peer/clinical, peer_stats.avg_ctr=0.030, digest top item="JIDA Oct trial: 3-mo fluoride recall cuts caries 38% better")
-- Merchant: Dr. Meera, Lajpat Nagar Delhi, CTR 2.1% (below peer), high-risk-adult patient cohort, last Vera touch 2 days ago (engaged)
+- Merchant: Dr. Meera, Lajpat Nagar Delhi, CTR 2.1% (below peer), high-risk-adult patient cohort, last Nexora touch 2 days ago (engaged)
 - Trigger: `research_digest_release` (urgency 2, external)
 - Customer: none
 
@@ -522,4 +522,4 @@ Wed, 2 for Thu, or tell us a time that works.
 
 This document is everything the next session needs. Save it as `challenge-brief.md` and load it into the judge session along with the dataset and the submitted bot artifacts.
 
-Good luck. Build something better than today's Vera.
+Good luck. Build something better than today's Nexora.

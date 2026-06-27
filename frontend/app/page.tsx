@@ -1,4 +1,4 @@
-// frontend/app/page.tsx
+﻿// frontend/app/page.tsx
 "use client";
 
 import { api } from "@/lib/api";
@@ -47,13 +47,13 @@ export default function OverviewPage() {
           )}
           {metadata.data && (
             <div className="flex flex-col text-right">
-              <span className="text-sm font-medium text-vera-text-bright">{metadata.data.team_name}</span>
-              <span className="text-xs text-vera-muted font-mono">{metadata.data.model}</span>
+              <span className="text-sm font-medium text-nexora-text-bright">{metadata.data.team_name}</span>
+              <span className="text-xs text-nexora-muted font-mono">{metadata.data.model}</span>
             </div>
           )}
         </div>
         {healthz.error && (
-          <p className="text-xs text-vera-danger font-mono mt-3">{healthz.error}</p>
+          <p className="text-xs text-nexora-danger font-mono mt-3">{healthz.error}</p>
         )}
       </Card>
 
@@ -87,16 +87,16 @@ export default function OverviewPage() {
                   const pct = max > 0 ? (count / max) * 100 : 0;
                   return (
                     <div key={name} className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-vera-muted w-44 truncate" title={name}>
+                      <span className="text-xs font-mono text-nexora-muted w-44 truncate" title={name}>
                         {name}
                       </span>
-                      <div className="flex-1 h-2 bg-vera-surface-raised rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-nexora-surface-raised rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-vera-accent rounded-full transition-all"
+                          className="h-full bg-nexora-accent rounded-full transition-all"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="text-xs font-mono text-vera-text-bright w-6 text-right">{count}</span>
+                      <span className="text-xs font-mono text-nexora-text-bright w-6 text-right">{count}</span>
                     </div>
                   );
                 })}
@@ -117,7 +117,7 @@ export default function OverviewPage() {
                 .sort((a, b) => b[1] - a[1])
                 .map(([cta, count]) => (
                   <Badge key={cta} tone="accent">
-                    {cta} <span className="ml-1.5 text-vera-text-bright">{count}</span>
+                    {cta} <span className="ml-1.5 text-nexora-text-bright">{count}</span>
                   </Badge>
                 ))}
             </div>
@@ -134,20 +134,20 @@ export default function OverviewPage() {
             {[0, 1, 2].map((i) => <Skeleton key={i} className="h-16" />)}
           </div>
         ) : recentActions.data && recentActions.data.actions.length > 0 ? (
-          <div className="flex flex-col divide-y divide-vera-border">
+          <div className="flex flex-col divide-y divide-nexora-border">
             {recentActions.data.actions.map((a, i) => (
               <div key={`${a.conversation_id}-${i}`} className="py-3 flex flex-col gap-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Badge tone="accent">{a.send_as}</Badge>
-                    <span className="text-xs font-mono text-vera-muted truncate">{a.merchant_id}</span>
+                    <span className="text-xs font-mono text-nexora-muted truncate">{a.merchant_id}</span>
                   </div>
-                  <span className="text-xs text-vera-muted shrink-0">{timeAgo(a.logged_at)}</span>
+                  <span className="text-xs text-nexora-muted shrink-0">{timeAgo(a.logged_at)}</span>
                 </div>
-                <p className="text-sm text-vera-text line-clamp-2">{a.body}</p>
+                <p className="text-sm text-nexora-text line-clamp-2">{a.body}</p>
                 <div className="flex items-center gap-2">
                   <Badge>{a.cta}</Badge>
-                  <span className="text-xs font-mono text-vera-muted truncate">{a.trigger_id}</span>
+                  <span className="text-xs font-mono text-nexora-muted truncate">{a.trigger_id}</span>
                 </div>
               </div>
             ))}

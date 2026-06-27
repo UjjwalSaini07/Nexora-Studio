@@ -1,4 +1,4 @@
-# backend/tests/test_storage_integration.py
+﻿# backend/tests/test_storage_integration.py
 import sys
 from pathlib import Path
 
@@ -41,7 +41,7 @@ class TestRedisStoreSuppression:
 class TestRedisStoreConversation:
     async def test_append_and_get_turns(self, redis_store):
         await redis_store.append_turn("conv_1", {"from": "merchant", "message": "hi", "turn_number": 1})
-        await redis_store.append_turn("conv_1", {"from": "vera", "message": "hello", "turn_number": 2})
+        await redis_store.append_turn("conv_1", {"from": "nexora", "message": "hello", "turn_number": 2})
         turns = await redis_store.get_conversation("conv_1")
         assert len(turns) == 2
         assert turns[0]["message"] == "hi"

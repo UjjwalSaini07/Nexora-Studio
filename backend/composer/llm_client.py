@@ -1,4 +1,4 @@
-# backend/composer/llm_client.py
+﻿# backend/composer/llm_client.py
 """
 LLMClient: talks to Groq's OpenAI-compatible Chat Completions API.
 
@@ -33,7 +33,7 @@ from config import (
 )
 from logging_config import get_logger
 
-logger = get_logger("vera.llm_client")
+logger = get_logger("nexora.llm_client")
 
 RETRYABLE_STATUS_CODES = {408, 409, 425, 429, 500, 502, 503, 504, 529}
 

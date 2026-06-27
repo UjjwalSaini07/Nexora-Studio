@@ -1,4 +1,4 @@
-# backend/tests/test_output_validator.py
+﻿# backend/tests/test_output_validator.py
 import sys
 from pathlib import Path
 
@@ -64,7 +64,7 @@ class TestOutputValidator:
         raw = {
             "body": "Dr. Ravi, your CTR is 2% vs 3% peer median. Want a fix drafted?",
             "cta": "binary_yes_no",
-            "send_as": "vera",
+            "send_as": "nexora",
             "template_params": ["Ravi", "ctr_gap", "binary_yes_no"],
             "rationale": "CTR gap signal used with effort-externalization lever.",
         }
@@ -72,10 +72,10 @@ class TestOutputValidator:
         assert result is not None
         assert result["body"] == raw["body"]
         assert result["cta"] == "binary_yes_no"
-        assert result["send_as"] == "vera"
+        assert result["send_as"] == "nexora"
 
     def test_empty_body_rejected(self):
-        raw = {"body": "", "cta": "open_ended", "send_as": "vera", "rationale": "x"}
+        raw = {"body": "", "cta": "open_ended", "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result is None
 
@@ -83,7 +83,7 @@ class TestOutputValidator:
         raw = {
             "body": "Check this out: https://magicpin.com/merchant/xyz for details",
             "cta": "open_ended",
-            "send_as": "vera",
+            "send_as": "nexora",
             "rationale": "x",
         }
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
@@ -91,13 +91,13 @@ class TestOutputValidator:
         assert "http" not in result["body"]
 
     def test_invalid_cta_defaults_to_open_ended(self):
-        raw = {"body": "Some message here", "cta": "not_a_real_cta", "send_as": "vera", "rationale": "x"}
+        raw = {"body": "Some message here", "cta": "not_a_real_cta", "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result["cta"] == "open_ended"
 
     def test_send_as_corrected_for_customer_scope(self):
         customer_trigger = make_trigger(scope="customer", kind="recall_due", customer_id="c_001")
-        raw = {"body": "Hi, your recall is due.", "cta": "multi_choice_slot", "send_as": "vera", "rationale": "x"}
+        raw = {"body": "Hi, your recall is due.", "cta": "multi_choice_slot", "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, customer_trigger, self.merchant, self.category)
         assert result["send_as"] == "merchant_on_behalf"
 
@@ -105,30 +105,30 @@ class TestOutputValidator:
         raw = {"body": "Hi merchant, here is an update.", "cta": "open_ended",
                "send_as": "merchant_on_behalf", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
-        assert result["send_as"] == "vera"
+        assert result["send_as"] == "nexora"
 
     def test_missing_template_params_backfilled(self):
-        raw = {"body": "Your CTR is below peer median.", "cta": "open_ended", "send_as": "vera", "rationale": "x"}
+        raw = {"body": "Your CTR is below peer median.", "cta": "open_ended", "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert len(result["template_params"]) == 3
         assert result["template_params"][0] == "Ravi"
 
     def test_missing_rationale_backfilled(self):
-        raw = {"body": "Message body here.", "cta": "open_ended", "send_as": "vera", "rationale": ""}
+        raw = {"body": "Message body here.", "cta": "open_ended", "send_as": "nexora", "rationale": ""}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result["rationale"] != ""
         assert "research_digest" in result["rationale"]
 
     def test_taboo_word_flagged_but_not_rejected(self):
         raw = {"body": "This treatment is guaranteed to work!", "cta": "open_ended",
-               "send_as": "vera", "rationale": "x"}
+               "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result is not None
         assert "guaranteed" in result["taboo_hits"]
 
     def test_repeated_body_in_conversation_is_rejected(self):
         raw = {"body": "We already sent this exact message before.", "cta": "open_ended",
-               "send_as": "vera", "rationale": "x"}
+               "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(
             raw, self.trigger, self.merchant, self.category,
             previously_sent_bodies=["We already sent this exact message before."],

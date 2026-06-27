@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 magicpin AI Challenge — LLM-Powered Judge Simulator
 ====================================================
@@ -525,7 +525,7 @@ Customer: {json.dumps(customer.get('identity', {})) if customer else 'None (merc
 === BOT'S MESSAGE ===
 Body ({len(body)} chars): "{body}"
 CTA: {action.get('cta', 'none')}
-Send As: {action.get('send_as', 'vera')}
+Send As: {action.get('send_as', 'nexora')}
 
 Score each dimension 0-10 with clear reasoning. Be STRICT."""
 

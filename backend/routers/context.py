@@ -1,4 +1,4 @@
-# backend/routers/context.py
+﻿# backend/routers/context.py
 """
 POST /v1/context — push category/merchant/customer/trigger data.
 
@@ -23,7 +23,7 @@ from config import CONTEXT_PAYLOAD_SIZE_CAP_KB
 from logging_config import get_logger
 import json
 
-logger = get_logger("vera.routers.context")
+logger = get_logger("nexora.routers.context")
 
 router = APIRouter()
 

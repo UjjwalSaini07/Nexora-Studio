@@ -1,4 +1,4 @@
-# VERA Backend
+﻿# NEXORA Backend
 
 FastAPI application implementing the full magicpin AI Challenge HTTP
 contract. See the [repo-level README](../README.md) for architecture,

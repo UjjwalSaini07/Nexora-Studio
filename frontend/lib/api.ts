@@ -1,6 +1,6 @@
-// frontend/lib/api.ts
+﻿// frontend/lib/api.ts
 /**
- * Typed client for the VERA backend's dashboard-support endpoints
+ * Typed client for the NEXORA backend's dashboard-support endpoints
  * (/v1/dashboard/*) plus the 5 judge-facing endpoints, used by the
  * Next.js operations dashboard.
  *
@@ -112,7 +112,7 @@ export interface ContextSummary {
 export interface ConversationDetail {
   conversation_id: string;
   turns: Array<{ from: string; message: string; received_at?: string; turn_number?: number }>;
-  sent_by_vera: Array<{ body: string; sent_at: string }>;
+  sent_by_nexora: Array<{ body: string; sent_at: string }>;
   ended: boolean;
   auto_reply_count: number;
   replies_log: ReplyLogEntry[];

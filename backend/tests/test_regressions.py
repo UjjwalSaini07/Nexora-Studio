@@ -1,4 +1,4 @@
-# backend/tests/test_regressions.py
+﻿# backend/tests/test_regressions.py
 """
 Regression tests for two real bugs found via live end-to-end testing against
 the official dataset (not caught by earlier unit-level mocks):
@@ -72,7 +72,7 @@ class TestSimulatedTimeExpiryRegression:
 
         mock_response = {
             "body": "Test message with concrete content.",
-            "cta": "open_ended", "send_as": "vera",
+            "cta": "open_ended", "send_as": "nexora",
             "template_params": [], "rationale": "x",
         }
         with patch("composer.llm_client.LLMClient.complete", new=AsyncMock(return_value=mock_response)):
@@ -119,7 +119,7 @@ class TestSimulatedTimeExpiryRegression:
         }, "2026-01-01T00:00:00Z")
 
         composer = EngagementComposer(redis_store, mongo_store)
-        mock_response = {"body": "x", "cta": "open_ended", "send_as": "vera", "template_params": [], "rationale": "x"}
+        mock_response = {"body": "x", "cta": "open_ended", "send_as": "nexora", "template_params": [], "rationale": "x"}
         with patch("composer.llm_client.LLMClient.complete", new=AsyncMock(return_value=mock_response)):
             result = await composer.compose_for_trigger(trigger_id, "2026-06-01T00:00:00Z")  # after expiry
 

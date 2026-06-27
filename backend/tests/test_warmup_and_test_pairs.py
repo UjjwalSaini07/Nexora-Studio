@@ -1,4 +1,4 @@
-# backend/tests/test_warmup_and_test_pairs.py
+﻿# backend/tests/test_warmup_and_test_pairs.py
 """
 Validates two specific contractual requirements from the official briefs:
 
@@ -43,7 +43,7 @@ async def app_client():
     class FakeMongoStore(MongoStore):
         def __init__(self):
             self.client = mongomock_motor.AsyncMongoMockClient()
-            self.db = self.client["vera_test_warmup"]
+            self.db = self.client["nexora_test_warmup"]
             self.contexts = self.db["contexts"]
             self.conversations = self.db["conversations"]
             self.actions_log = self.db["actions_log"]
@@ -187,7 +187,7 @@ class TestCanonicalTestPairs:
 
         mock_llm_response = {
             "body": "Test composed message with a concrete number: 42% improvement.",
-            "cta": "open_ended", "send_as": "vera",
+            "cta": "open_ended", "send_as": "nexora",
             "template_params": ["param1"], "rationale": "Test rationale referencing the trigger.",
         }
 

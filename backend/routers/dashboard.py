@@ -1,4 +1,4 @@
-# backend/routers/dashboard.py
+﻿# backend/routers/dashboard.py
 """
 Read-only endpoints that exist solely to back the Next.js operations
 dashboard (Part 5 of the spec): live context inspector, recent
@@ -74,7 +74,7 @@ async def conversation_detail(
     return {
         "conversation_id": conversation_id,
         "turns": turns,
-        "sent_by_vera": sent,
+        "sent_by_nexora": sent,
         "ended": ended,
         "auto_reply_count": auto_reply_count,
         "replies_log": replies_log,

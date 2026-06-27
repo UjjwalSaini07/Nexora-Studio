@@ -1,4 +1,4 @@
-# backend/composer/output_validator.py
+﻿# backend/composer/output_validator.py
 """
 OutputValidator: Ensures LLM output meets the judge's contract.
 
@@ -18,7 +18,7 @@ from typing import Optional
 from models.context import TriggerContext, MerchantContext, CategoryContext
 from logging_config import get_logger
 
-logger = get_logger("vera.output_validator")
+logger = get_logger("nexora.output_validator")
 
 VALID_CTAS = {
     "binary_yes_no", "binary_confirm_cancel", "open_ended",
@@ -43,7 +43,7 @@ class OutputValidator:
 
         body = str(raw.get("body", "")).strip()
         cta = str(raw.get("cta", "open_ended")).strip()
-        send_as = str(raw.get("send_as", "vera")).strip()
+        send_as = str(raw.get("send_as", "nexora")).strip()
         rationale = str(raw.get("rationale", "")).strip()
         template_params = raw.get("template_params", [])
         if not isinstance(template_params, list):
@@ -84,13 +84,13 @@ class OutputValidator:
             cta = "open_ended"
 
         # ── send_as validation + scope-based auto-correction ────────────
-        if send_as not in {"vera", "merchant_on_behalf"}:
-            send_as = "vera" if trigger.scope == "merchant" else "merchant_on_behalf"
-        if trigger.scope == "customer" and send_as == "vera":
+        if send_as not in {"nexora", "merchant_on_behalf"}:
+            send_as = "nexora" if trigger.scope == "merchant" else "merchant_on_behalf"
+        if trigger.scope == "customer" and send_as == "nexora":
             send_as = "merchant_on_behalf"
         if trigger.scope == "merchant" and send_as == "merchant_on_behalf":
-            # Merchant-scoped triggers are Vera-to-merchant; correct mismatches defensively.
-            send_as = "vera"
+            # Merchant-scoped triggers are Nexora-to-merchant; correct mismatches defensively.
+            send_as = "nexora"
 
         # ── Taboo vocabulary check (log only — rejecting on every match
         #    would be too aggressive for tokens that are part of normal

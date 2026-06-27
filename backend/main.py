@@ -1,4 +1,4 @@
-# backend/main.py
+﻿# backend/main.py
 import os
 from contextlib import asynccontextmanager
 
@@ -16,13 +16,13 @@ from middleware import RateLimitMiddleware, RequestLoggingMiddleware
 from config import MONGO_URI, REDIS_URL
 
 configure_logging()
-logger = get_logger("vera.main")
+logger = get_logger("nexora.main")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
-    logger.info("VERA bot starting up...")
+    logger.info("NEXORA bot starting up...")
     app.state.redis = RedisStore(REDIS_URL)
     app.state.mongo = MongoStore(MONGO_URI)
 
@@ -44,19 +44,19 @@ async def lifespan(app: FastAPI):
             "healthz will report redis_connected=False until Redis is reachable)",
             extra={"ctx": {"error": str(exc)}},
         )
-    logger.info("VERA bot startup complete.")
+    logger.info("NEXORA bot startup complete.")
 
     yield
 
     # ── Shutdown ─────────────────────────────────────────────────────────
-    logger.info("VERA bot shutting down...")
+    logger.info("NEXORA bot shutting down...")
     await app.state.redis.close()
     app.state.mongo.close()
 
 
 app = FastAPI(
-    title="VERA Bot",
-    description="magicpin AI Challenge — VERA merchant engagement engine",
+    title="NEXORA Bot",
+    description="magicpin AI Challenge — NEXORA merchant engagement engine",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -123,7 +123,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.get("/")
 async def root():
-    return {"service": "VERA Bot", "status": "running", "docs": "/docs"}
+    return {"service": "NEXORA Bot", "status": "running", "docs": "/docs"}
 
 
 for r in [healthz.router, metadata.router, context.router, tick.router, reply.router, dashboard.router, teardown.router]:

@@ -1,4 +1,4 @@
-# Vera Engagement Framework — Research: Current Merchant Data Access
+﻿# Nexora Engagement Framework — Research: Current Merchant Data Access
 
 **Status**: Research notes — companion to `engagement-design.md`.
 **Last updated**: 2026-04-26
@@ -7,7 +7,7 @@
 
 ## TL;DR
 
-Two distinct paths exist today — **merchant-facing** (Vera ↔ Dr. Meera) and **customer-facing** (a customer asks Vera *about* Dr. Meera). They share infrastructure (vera-mcp + merchant-support-mcp + Redis) but compose context very differently.
+Two distinct paths exist today — **merchant-facing** (Nexora ↔ Dr. Meera) and **customer-facing** (a customer asks Nexora *about* Dr. Meera). They share infrastructure (nexora-mcp + merchant-support-mcp + Redis) but compose context very differently.
 
 Most of what the proposed `MerchantContext` needs **already exists in scattered form** (`_merchant_snapshot`, `_behavioral_profile`, `_session_scenario`). The genuinely new pieces are:
 
@@ -19,19 +19,19 @@ Most of what the proposed `MerchantContext` needs **already exists in scattered 
 The aryan dependency for `category` and `locality` is the soft underbelly — every customer-info-pack call hits aryan synchronously.
 
 
-## Path 1 — Merchant-facing (`VeraMerchantAgent`)
+## Path 1 — Merchant-facing (`NexoraMerchantAgent`)
 
 ### Init (per session, instance-level)
 
-`agents/vera/merchant_agent.py:402` — `__init__`:
+`agents/nexora/merchant_agent.py:402` — `__init__`:
 
-- Spawns its own `vera_mcp_client` (`HTTPMCPClient` → `VERA_MCP_SERVER_URL`, default `vera-mcp:8000`).
+- Spawns its own `nexora_mcp_client` (`HTTPMCPClient` → `NEXORA_MCP_SERVER_URL`, default `nexora-mcp:8000`).
 - Inherits `BaseAgent._merchant_mcp_client` — class-level shared singleton pointing to `merchant-support-mcp` (`https://search5.magicpin.com/staging/mcp-server/mcp`).
 - **No merchant data is loaded at init** — agent doesn't know who it's talking to yet.
 
 ### Per-turn (every inbound message)
 
-`agents/vera/merchant_agent.py:2171` — `handle_input(agent_input)`:
+`agents/nexora/merchant_agent.py:2171` — `handle_input(agent_input)`:
 
 1. Extract `merchant_id` from `metadata.context_data.merchant_id`, falling back to regex on the message body (`\d{7,}`).
 2. Fire 2 parallel tasks:
@@ -42,39 +42,39 @@ The aryan dependency for `category` and `locality` is the soft underbelly — ev
 
 Cache-first design:
 
-1. **Redis check**: `vera:merchant_ctx:{merchant_id}` — TTL **30 min**. Hit → return immediately, skip everything below.
+1. **Redis check**: `nexora:merchant_ctx:{merchant_id}` — TTL **30 min**. Hit → return immediately, skip everything below.
 2. Parallel via `asyncio.gather`:
-    - `vera_merchant_snapshot` (vera-mcp tool)
-    - `vera_get_merchant_profile` (vera-mcp tool)
+    - `nexora_merchant_snapshot` (nexora-mcp tool)
+    - `nexora_get_merchant_profile` (nexora-mcp tool)
 3. If snapshot is empty: fall back to `get_aggregated_unassociated_merchant_data` (merchant-support-mcp) — basic GBP health, no commercial data. Wrap it in a snapshot-shaped envelope.
 4. Sequential enrichments:
-    - `_prefetch_product_context` — fans out to `vera_get_subscription_context`, `vera_get_performance_summary`, and (only if DA subscribed) `da_get_campaign_context`. ~2KB total, embedded into snapshot.
-    - `_enrich_snapshot_with_pricing` — direct HTTP to `https://vera.magicpin.com/api/v1/merchant/pricing/get?mid=...` (vera-mcp's pricing path is unreachable locally). Mounted into snapshot as `pricing_recommendation`.
+    - `_prefetch_product_context` — fans out to `nexora_get_subscription_context`, `nexora_get_performance_summary`, and (only if DA subscribed) `da_get_campaign_context`. ~2KB total, embedded into snapshot.
+    - `_enrich_snapshot_with_pricing` — direct HTTP to `https://nexora.magicpin.com/api/v1/merchant/pricing/get?mid=...` (nexora-mcp's pricing path is unreachable locally). Mounted into snapshot as `pricing_recommendation`.
 5. Stuff result into Redis at the same key, TTL 30 min.
 
 Final state: `self._merchant_snapshot` and `self._behavioral_profile` are populated. `_get_system_prompt()` reads from these and serializes the snapshot directly into the LLM system prompt (`merchant_agent.py:996`).
 
-### What `vera_merchant_snapshot` actually fetches
+### What `nexora_merchant_snapshot` actually fetches
 
-`vera-mcp/src/services/merchant_snapshot.py:51` — `build_merchant_snapshot()`:
+`nexora-mcp/src/services/merchant_snapshot.py:51` — `build_merchant_snapshot()`:
 
 1. **Resolve identity** via `gbp_resolve_merchant` — gets `place_id`, `location_name`, `merchant_title`.
 2. **One async fan-out** of up to 13 tool calls in parallel:
 
 | Bucket | Tools |
 |---|---|
-| Merchant-level (no GBP needed) | `vera_get_subscription_status`, `vera_get_pricing_by_merchant`, `vera_get_merchant_pain_points`, `vera_get_merchant_offer`, `vera_get_merchant_config`, `vera_get_onboarding_status`, `vera_get_enhancement_suggestions` |
+| Merchant-level (no GBP needed) | `nexora_get_subscription_status`, `nexora_get_pricing_by_merchant`, `nexora_get_merchant_pain_points`, `nexora_get_merchant_offer`, `nexora_get_merchant_config`, `nexora_get_onboarding_status`, `nexora_get_enhancement_suggestions` |
 | Location-level (skipped if no place_id) | `gbp_get_location`, `gbp_get_profile_completeness`, `gbp_get_performance_summary`, `gbp_get_search_keywords`, `gbp_get_review_stats`, `gbp_list_posts` |
 
 3. Composes 7 sections: `identity`, `profile`, `reputation`, `growth`, `commercial`, `conversation_hooks`, `issues`.
 
-> **Note**: `category` and `locality` are not first-class fields on the snapshot — they're buried inside `profile.business_info` (from `gbp_get_location`) and surfaced via `aryan_client.get_merchant_v2()` only when `vera_get_customer_info_pack` is called.
+> **Note**: `category` and `locality` are not first-class fields on the snapshot — they're buried inside `profile.business_info` (from `gbp_get_location`) and surfaced via `aryan_client.get_merchant_v2()` only when `nexora_get_customer_info_pack` is called.
 
 ### Mid-conversation tool calls
 
-The LLM gets the full toolset from `MERCHANT_MCP_ALLOWED_TOOLS` (declared on the agent class) merged with `_vera_mcp_tools_cache`. Mid-turn tool calls flow through:
+The LLM gets the full toolset from `MERCHANT_MCP_ALLOWED_TOOLS` (declared on the agent class) merged with `_nexora_mcp_tools_cache`. Mid-turn tool calls flow through:
 
-- `self.vera_mcp_client.call_tool(name, args)` — for vera-mcp tools (HTTP)
+- `self.nexora_mcp_client.call_tool(name, args)` — for nexora-mcp tools (HTTP)
 - `BaseAgent._merchant_mcp_client.call_tool(name, args)` — for merchant-support-mcp tools (HTTP)
 
 No re-prefetch of the snapshot mid-turn. The agent relies on the prefetched snapshot + LLM-initiated lookups when it needs fresh data.
@@ -82,7 +82,7 @@ No re-prefetch of the snapshot mid-turn. The agent relies on the prefetched snap
 
 ## Path 2 — Customer-facing (`CustomerIncomingAgent`)
 
-`agents/vera/customer_incoming_agent.py:91` — different agent, different state model.
+`agents/nexora/customer_incoming_agent.py:91` — different agent, different state model.
 
 ### Init + per-turn
 
@@ -97,24 +97,24 @@ The instance carries:
 
 Single shape, no Redis cache:
 
-1. **Primary call**: `vera_get_customer_info_pack(merchant_id)` — one MCP call returns `business_info` + `reviews` + `photos` + `offers` + `metadata` in one shot. The aggregated customer-facing endpoint.
+1. **Primary call**: `nexora_get_customer_info_pack(merchant_id)` — one MCP call returns `business_info` + `reviews` + `photos` + `offers` + `metadata` in one shot. The aggregated customer-facing endpoint.
 2. **Fallback chain** if `info_pack` is empty:
     - `get_unassociated_merchant_data` — basic merchant info
-    - `vera_list_merchant_offers` — separate offer list
-3. **Supplementary** (non-blocking): `vera_get_merchant_jd_info` — JustDial crawl data for additional name / address / phone.
+    - `nexora_list_merchant_offers` — separate offer list
+3. **Supplementary** (non-blocking): `nexora_get_merchant_jd_info` — JustDial crawl data for additional name / address / phone.
 
 Caching is at the request level (in-memory on the agent instance) — re-using the same `merchant_id` in a session avoids re-fetching.
 
-### What `vera_get_customer_info_pack` does
+### What `nexora_get_customer_info_pack` does
 
-`vera-mcp/src/tools/merchant_info.py:188`:
+`nexora-mcp/src/tools/merchant_info.py:188`:
 
 1. **Resolve place_id**: `_resolve_place_id(merchant_id)` — chain of MongoDB (`gbp_status`) → local JSON → `aryan_client.get_mapping()`.
 2. **Parallel fetch**:
     - GBP data via `get_or_fetch(place_id)` — 24h cache in MongoDB, falls through to Google Places API
     - `_get_active_offers(merchant_id)` — direct MongoDB read of `offers` collection where `status=active`
     - `_get_merchant_metadata(merchant_id)` — `aryan_client.get_merchant_v2()` → returns `name`, `category`, `locality`
-3. **Last-resort fallback**: `_fetch_embed_data(place_id)` — vera REST `/embed` endpoint if everything else came back empty.
+3. **Last-resort fallback**: `_fetch_embed_data(place_id)` — nexora REST `/embed` endpoint if everything else came back empty.
 
 ### Customer profile (the *caller*)
 
@@ -125,10 +125,10 @@ Caching is at the request level (in-memory on the agent instance) — re-using t
 
 | Concern | Implementation |
 |---|---|
-| MCP transport | `HTTPMCPClient` (vera client) — keeps a session, calls `/mcp/tools/{name}` HTTP POST |
+| MCP transport | `HTTPMCPClient` (nexora client) — keeps a session, calls `/mcp/tools/{name}` HTTP POST |
 | Auth | Not required for challenge bot endpoints |
-| Cache key for merchant context | `vera:merchant_ctx:{merchant_id}` — Redis, TTL 30 min, written by `_prefetch_merchant_context` |
-| Cache key for GBP data | `gbp_health_report:{place_id}` — MongoDB, TTL 24h, in vera-mcp |
+| Cache key for merchant context | `nexora:merchant_ctx:{merchant_id}` — Redis, TTL 30 min, written by `_prefetch_merchant_context` |
+| Cache key for GBP data | `gbp_health_report:{place_id}` — MongoDB, TTL 24h, in nexora-mcp |
 | Snapshot freshness for sends | Whatever's in Redis — not refreshed on send unless agent is in active conversation |
 | Source of truth for `category` | aryan `get_merchant_v2` API (via `aryan_client`) — used in `_get_merchant_metadata` |
 | Source of truth for `name` | aryan first, GBP `business_info` second |
@@ -140,7 +140,7 @@ Caching is at the request level (in-memory on the agent instance) — re-using t
 
 1. **Most of `MerchantContext` already exists** — spread across `_merchant_snapshot`, `_behavioral_profile`, `_session_scenario`, `_jd_info`. A `MerchantContext.from_existing(agent_state)` adapter could load ~80% of the fields without any new fetching.
 2. **The customer agent already has half a `CustomerContext`** — `_customer_phone` + `_customer_profile` give us identity + conversation continuity. Missing: visit history, services received, lapse state.
-3. **Two MCP servers, one orchestration** — vera-mcp (instance-level) for vera tools, merchant-support-mcp (class-level shared) for fallback merchant tools. The composer can just consume whatever `MerchantContext` already collected — no new MCP wiring required.
+3. **Two MCP servers, one orchestration** — nexora-mcp (instance-level) for nexora tools, merchant-support-mcp (class-level shared) for fallback merchant tools. The composer can just consume whatever `MerchantContext` already collected — no new MCP wiring required.
 4. **Cache TTL of 30 min is fine** for engagement nudges that fire daily/weekly. Redis hits during conversation are plenty fresh for composition.
 
 ### What does NOT exist
@@ -175,17 +175,17 @@ Phase 1 should NOT require modifying any existing agent. The adapter reads from 
 
 ## Appendix: file pointers for follow-up implementation
 
-- `agents/vera/merchant_agent.py:402` — VeraMerchantAgent init
-- `agents/vera/merchant_agent.py:740` — `_prefetch_merchant_context` (the main load)
-- `agents/vera/merchant_agent.py:899` — `_prefetch_product_context` (subscription + DA campaign + perf summary)
-- `agents/vera/merchant_agent.py:996` — system-prompt builder reads `_merchant_snapshot`
-- `agents/vera/merchant_agent.py:2171` — `handle_input` per-turn entry
-- `agents/vera/customer_incoming_agent.py:91` — CustomerIncomingAgent class
-- `agents/vera/customer_incoming_agent.py:221` — `_load_merchant_data` (single info-pack call + fallbacks)
+- `agents/nexora/merchant_agent.py:402` — NexoraMerchantAgent init
+- `agents/nexora/merchant_agent.py:740` — `_prefetch_merchant_context` (the main load)
+- `agents/nexora/merchant_agent.py:899` — `_prefetch_product_context` (subscription + DA campaign + perf summary)
+- `agents/nexora/merchant_agent.py:996` — system-prompt builder reads `_merchant_snapshot`
+- `agents/nexora/merchant_agent.py:2171` — `handle_input` per-turn entry
+- `agents/nexora/customer_incoming_agent.py:91` — CustomerIncomingAgent class
+- `agents/nexora/customer_incoming_agent.py:221` — `_load_merchant_data` (single info-pack call + fallbacks)
 - `agents/base_agent.py:80-82` — MERCHANT_MCP_SERVER_URL config
 - `agents/base_agent.py:237-244` — class-level shared `_merchant_mcp_client`
-- `vera-mcp/src/tools/merchant_snapshot.py` — `vera_merchant_snapshot` tool
-- `vera-mcp/src/services/merchant_snapshot.py:51` — `build_merchant_snapshot` (the 13-call fan-out)
-- `vera-mcp/src/tools/merchant_info.py:188` — `vera_get_customer_info_pack` tool
-- `vera-mcp/src/tools/merchant_info.py:30` — `_resolve_place_id` chain (MongoDB → JSON → aryan)
-- `vera-mcp/src/services/aryan_client.py` — aryan HTTP client (`get_merchant_v2`, `get_mapping`)
+- `nexora-mcp/src/tools/merchant_snapshot.py` — `nexora_merchant_snapshot` tool
+- `nexora-mcp/src/services/merchant_snapshot.py:51` — `build_merchant_snapshot` (the 13-call fan-out)
+- `nexora-mcp/src/tools/merchant_info.py:188` — `nexora_get_customer_info_pack` tool
+- `nexora-mcp/src/tools/merchant_info.py:30` — `_resolve_place_id` chain (MongoDB → JSON → aryan)
+- `nexora-mcp/src/services/aryan_client.py` — aryan HTTP client (`get_merchant_v2`, `get_mapping`)

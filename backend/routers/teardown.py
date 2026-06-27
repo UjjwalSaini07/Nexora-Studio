@@ -1,4 +1,4 @@
-# backend/routers/teardown.py
+﻿# backend/routers/teardown.py
 """
 POST /v1/teardown (optional, per challenge-testing-brief.md §11) —
 magicpin's judge harness may call this at the end of a test window. On
@@ -16,7 +16,7 @@ from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from logging_config import get_logger
 
-logger = get_logger("vera.routers.teardown")
+logger = get_logger("nexora.routers.teardown")
 
 router = APIRouter()
 
@@ -30,7 +30,7 @@ async def teardown(
     mongo_deleted = {}
 
     try:
-        redis_deleted = await redis.wipe_all_vera_keys()
+        redis_deleted = await redis.wipe_all_nexora_keys()
     except Exception as exc:
         logger.error("Failed to wipe Redis state during teardown", extra={"ctx": {"error": str(exc)}})
 

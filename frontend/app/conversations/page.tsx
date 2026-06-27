@@ -1,4 +1,4 @@
-// frontend/app/conversations/page.tsx
+﻿// frontend/app/conversations/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -46,9 +46,9 @@ export default function ConversationsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold text-vera-text-bright">Conversation monitor</h1>
-        <p className="text-sm text-vera-muted mt-1">
-          Live feed of every inbound reply VERA has processed, grouped by conversation. Polls every 4s.
+        <h1 className="text-lg font-semibold text-nexora-text-bright">Conversation monitor</h1>
+        <p className="text-sm text-nexora-muted mt-1">
+          Live feed of every inbound reply NEXORA has processed, grouped by conversation. Polls every 4s.
         </p>
       </div>
 
@@ -78,15 +78,15 @@ export default function ConversationsPage() {
                     onClick={() => setSelected(convId)}
                     className={`text-left px-3 py-2 rounded-lg border transition-colors ${
                       selected === convId
-                        ? "border-vera-accent bg-vera-accent/10"
-                        : "border-transparent hover:bg-vera-surface-raised"
+                        ? "border-nexora-accent bg-nexora-accent/10"
+                        : "border-transparent hover:bg-nexora-surface-raised"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-mono text-vera-text-bright truncate">{convId}</span>
+                      <span className="text-xs font-mono text-nexora-text-bright truncate">{convId}</span>
                       {hasEnded && <Badge tone="danger">ended</Badge>}
                     </div>
-                    <p className="text-xs text-vera-muted truncate mt-0.5">{last.inbound_message}</p>
+                    <p className="text-xs text-nexora-muted truncate mt-0.5">{last.inbound_message}</p>
                   </button>
                 );
               })}
@@ -110,34 +110,34 @@ export default function ConversationsPage() {
                 return (
                   <div key={`${turn.conversation_id}-${i}`} className="flex flex-col gap-2">
                     {intentSwitch && (
-                      <div className="flex items-center gap-2 text-xs text-vera-accent font-medium">
-                        <span className="h-px flex-1 bg-vera-accent/30" />
+                      <div className="flex items-center gap-2 text-xs text-nexora-accent font-medium">
+                        <span className="h-px flex-1 bg-nexora-accent/30" />
                         Switched to ACTION mode at turn {i + 1}
-                        <span className="h-px flex-1 bg-vera-accent/30" />
+                        <span className="h-px flex-1 bg-nexora-accent/30" />
                       </div>
                     )}
                     {/* Inbound */}
-                    <div className="flex flex-col gap-1 pl-3 border-l-2 border-vera-border">
+                    <div className="flex flex-col gap-1 pl-3 border-l-2 border-nexora-border">
                       <div className="flex items-center gap-2">
                         <Badge>inbound</Badge>
                         {turn.detected_language !== "en" && <Badge tone="accent">{turn.detected_language}</Badge>}
-                        <span className="text-xs text-vera-muted">
+                        <span className="text-xs text-nexora-muted">
                           {new Date(turn.logged_at).toLocaleTimeString()}
                         </span>
                       </div>
-                      <p className="text-sm text-vera-text">{turn.inbound_message}</p>
+                      <p className="text-sm text-nexora-text">{turn.inbound_message}</p>
                     </div>
                     {/* Bot response */}
-                    <div className="flex flex-col gap-1 pl-3 border-l-2 border-vera-accent/40 ml-4">
+                    <div className="flex flex-col gap-1 pl-3 border-l-2 border-nexora-accent/40 ml-4">
                       <div className="flex items-center gap-2">
                         <Badge tone={actionTone(turn.action)}>{turn.action}</Badge>
                         {turn.cta && <Badge>{turn.cta}</Badge>}
                         {turn.wait_seconds != null && (
-                          <span className="text-xs text-vera-muted">wait {turn.wait_seconds}s</span>
+                          <span className="text-xs text-nexora-muted">wait {turn.wait_seconds}s</span>
                         )}
                       </div>
-                      {turn.body && <p className="text-sm text-vera-text-bright">{turn.body}</p>}
-                      <p className="text-xs text-vera-muted italic">{turn.rationale}</p>
+                      {turn.body && <p className="text-sm text-nexora-text-bright">{turn.body}</p>}
+                      <p className="text-xs text-nexora-muted italic">{turn.rationale}</p>
                     </div>
                   </div>
                 );

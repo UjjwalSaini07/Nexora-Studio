@@ -1,4 +1,4 @@
-# backend/reply/handler.py
+﻿# backend/reply/handler.py
 """
 ReplyHandler: Manages multi-turn conversations.
 
@@ -24,9 +24,9 @@ from reply.intent_router import IntentRouter
 from reply.language_detector import LanguageDetector
 from logging_config import get_logger
 
-logger = get_logger("vera.reply_handler")
+logger = get_logger("nexora.reply_handler")
 
-REPLY_SYSTEM_PROMPT = """You are VERA continuing a WhatsApp conversation with a merchant (or their customer).
+REPLY_SYSTEM_PROMPT = """You are NEXORA continuing a WhatsApp conversation with a merchant (or their customer).
 
 You just sent a message. They replied. Decide what to do next.
 
@@ -118,7 +118,7 @@ class ReplyHandler:
             await self.redis.mark_conversation_ended(conversation_id)
             result = {
                 "action": "send",
-                "body": "Apologies for the interruption. I won't message again. If anything changes, just reply 'Hi Vera'. 🙏",
+                "body": "Apologies for the interruption. I won't message again. If anything changes, just reply 'Hi Nexora'. 🙏",
                 "cta": "none",
                 "rationale": "Merchant explicitly opted out. Sending polite exit and closing.",
             }

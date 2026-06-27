@@ -1,6 +1,6 @@
-# backend/config.py
+﻿# backend/config.py
 """
-Central configuration for the VERA bot.
+Central configuration for the NEXORA bot.
 All values are overridable via environment variables (.env in development,
 real env vars in production/Docker).
 """
@@ -36,11 +36,11 @@ LLM_TIMEOUT_SECONDS = float(os.getenv("LLM_TIMEOUT_SECONDS", "22"))  # Leaves bu
 
 # ── Datastores ───────────────────────────────────────────────────────────────
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-MONGO_DB = os.getenv("MONGO_DB", "vera_bot")
+MONGO_DB = os.getenv("MONGO_DB", "nexora_bot")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 # ── Team / submission metadata (exposed via /v1/metadata) ─────────────────
-TEAM_NAME = os.getenv("TEAM_NAME", "VERA Engine")
+TEAM_NAME = os.getenv("TEAM_NAME", "NEXORA Engine")
 TEAM_MEMBERS = [m.strip() for m in os.getenv("TEAM_MEMBERS", "Ujjwal Saini").split(",") if m.strip()]
 CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "you@example.com")
 BOT_VERSION = os.getenv("BOT_VERSION", "1.0.0")

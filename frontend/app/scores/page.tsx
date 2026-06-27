@@ -1,4 +1,4 @@
-// frontend/app/scores/page.tsx
+﻿// frontend/app/scores/page.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -66,8 +66,8 @@ export default function ScoresPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold text-vera-text-bright">Score analytics</h1>
-        <p className="text-sm text-vera-muted mt-1">
+        <h1 className="text-lg font-semibold text-nexora-text-bright">Score analytics</h1>
+        <p className="text-sm text-nexora-muted mt-1">
           Objective anti-pattern tracking from the bot&apos;s own action log. The real 5-dimension judge
           score is produced by magicpin&apos;s LLM judge during a test run — not reproduced here.
         </p>
@@ -119,9 +119,9 @@ export default function ScoresPage() {
               {analysis.byTemplate.map(([name, stats]) => (
                 <div
                   key={name}
-                  className="flex items-center justify-between gap-4 py-2 border-b border-vera-border last:border-0"
+                  className="flex items-center justify-between gap-4 py-2 border-b border-nexora-border last:border-0"
                 >
-                  <span className="text-sm font-mono text-vera-text truncate">{name}</span>
+                  <span className="text-sm font-mono text-nexora-text truncate">{name}</span>
                   <div className="flex items-center gap-3 shrink-0">
                     <Badge>{stats.count} sent</Badge>
                     <Badge tone={stats.avgNumbers >= 1 ? "success" : "warn"}>

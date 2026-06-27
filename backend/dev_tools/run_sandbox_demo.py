@@ -1,4 +1,4 @@
-# backend/dev_tools/run_sandbox_demo.py
+﻿# backend/dev_tools/run_sandbox_demo.py
 """
 DEV-ONLY TOOL — not part of the production deliverable.
 
@@ -38,7 +38,7 @@ from storage.mongo_store import MongoStore
 class SandboxMongoStore(MongoStore):
     def __init__(self, *_args, **_kwargs):
         self.client = mongomock_motor.AsyncMongoMockClient()
-        self.db = self.client["vera_bot_sandbox"]
+        self.db = self.client["nexora_bot_sandbox"]
         self.contexts = self.db["contexts"]
         self.conversations = self.db["conversations"]
         self.actions_log = self.db["actions_log"]

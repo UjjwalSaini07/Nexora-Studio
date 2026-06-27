@@ -1,4 +1,4 @@
-# backend/tests/conftest.py
+﻿# backend/tests/conftest.py
 """
 Pytest fixtures that swap real Mongo/Redis for in-memory equivalents so the
 full test suite runs anywhere (CI, this sandbox, a laptop) with zero
@@ -30,7 +30,7 @@ class FakeMongoStore(MongoStore):
     """Same interface as MongoStore, backed by mongomock-motor instead of a real server."""
     def __init__(self):
         self.client = mongomock_motor.AsyncMongoMockClient()
-        self.db = self.client["vera_bot_test"]
+        self.db = self.client["nexora_bot_test"]
         self.contexts = self.db["contexts"]
         self.conversations = self.db["conversations"]
         self.actions_log = self.db["actions_log"]

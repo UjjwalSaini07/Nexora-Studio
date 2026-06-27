@@ -1,9 +1,9 @@
-# backend/dev_tools/mock_groq_server.py
+﻿# backend/dev_tools/mock_groq_server.py
 """
 DEV-ONLY TOOL — not part of the production deliverable.
 
 A minimal FastAPI app that mimics Groq's OpenAI-compatible chat completions
-endpoint shape, used only to prove the full VERA pipeline works end-to-end
+endpoint shape, used only to prove the full NEXORA pipeline works end-to-end
 over real HTTP in network-restricted environments (e.g. a sandbox where
 api.groq.com is blocked by an egress allowlist). It returns a deterministic,
 content-aware "composition" so generated output can be inspected for
@@ -41,7 +41,7 @@ async def chat_completions(request: Request):
     merchant_name = _extract(r"name:\s*([^\n]+)", user_msg, "your business")
 
     is_customer_scoped = "CUSTOMER CONTEXT" in user_msg
-    send_as = "merchant_on_behalf" if is_customer_scoped else "vera"
+    send_as = "merchant_on_behalf" if is_customer_scoped else "nexora"
 
     composed = {
         "body": (

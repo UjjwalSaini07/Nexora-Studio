@@ -1,4 +1,4 @@
-// frontend/app/simulator/page.tsx
+﻿// frontend/app/simulator/page.tsx
 "use client";
 
 import { useState, useCallback, useRef } from "react";
@@ -102,51 +102,51 @@ export default function SimulatorPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold text-vera-text-bright">Simulator</h1>
-        <p className="text-sm text-vera-muted mt-1">
+        <h1 className="text-lg font-semibold text-nexora-text-bright">Simulator</h1>
+        <p className="text-sm text-nexora-muted mt-1">
           Drive the real bot through health checks and tick triggers, with live output below. For full
           5-dimension LLM-judged scoring, run{" "}
-          <code className="font-mono text-vera-text">judge_simulator.py</code> directly with your own
+          <code className="font-mono text-nexora-text">judge_simulator.py</code> directly with your own
           provider key.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Health check">
-          <p className="text-sm text-vera-muted mb-4">
+          <p className="text-sm text-nexora-muted mb-4">
             Checks <code className="font-mono">/v1/healthz</code> and{" "}
             <code className="font-mono">/v1/metadata</code> against{" "}
-            <span className="font-mono text-vera-text">{api.botUrl}</span>.
+            <span className="font-mono text-nexora-text">{api.botUrl}</span>.
           </p>
           <button
             onClick={runHealthCheck}
             disabled={runState === "running"}
-            className="px-4 py-2 rounded-md bg-vera-accent text-white text-sm font-medium hover:bg-vera-accent-soft transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-md bg-nexora-accent text-white text-sm font-medium hover:bg-nexora-accent-soft transition-colors disabled:opacity-50"
           >
             {runState === "running" ? "Running..." : "Run health check"}
           </button>
         </Card>
 
         <Card title="Tick triggers">
-          <label className="text-xs uppercase tracking-wider text-vera-muted">Trigger IDs (comma or newline separated)</label>
+          <label className="text-xs uppercase tracking-wider text-nexora-muted">Trigger IDs (comma or newline separated)</label>
           <textarea
             value={triggerIds}
             onChange={(e) => setTriggerIds(e.target.value)}
             placeholder="trg_001_research_digest_dentists, trg_004_recall_due_dentists"
             rows={3}
-            className="mt-2 w-full bg-vera-bg border border-vera-border rounded-md px-3 py-2 text-sm font-mono text-vera-text placeholder:text-vera-muted focus:outline-none focus:border-vera-accent resize-none"
+            className="mt-2 w-full bg-nexora-bg border border-nexora-border rounded-md px-3 py-2 text-sm font-mono text-nexora-text placeholder:text-nexora-muted focus:outline-none focus:border-nexora-accent resize-none"
           />
-          <label className="text-xs uppercase tracking-wider text-vera-muted mt-3 block">Simulated &quot;now&quot; (ISO 8601)</label>
+          <label className="text-xs uppercase tracking-wider text-nexora-muted mt-3 block">Simulated &quot;now&quot; (ISO 8601)</label>
           <input
             type="text"
             value={nowIso}
             onChange={(e) => setNowIso(e.target.value)}
-            className="mt-2 w-full bg-vera-bg border border-vera-border rounded-md px-3 py-2 text-sm font-mono text-vera-text focus:outline-none focus:border-vera-accent"
+            className="mt-2 w-full bg-nexora-bg border border-nexora-border rounded-md px-3 py-2 text-sm font-mono text-nexora-text focus:outline-none focus:border-nexora-accent"
           />
           <button
             onClick={runTick}
             disabled={runState === "running"}
-            className="mt-3 px-4 py-2 rounded-md bg-vera-accent text-white text-sm font-medium hover:bg-vera-accent-soft transition-colors disabled:opacity-50"
+            className="mt-3 px-4 py-2 rounded-md bg-nexora-accent text-white text-sm font-medium hover:bg-nexora-accent-soft transition-colors disabled:opacity-50"
           >
             {runState === "running" ? "Running..." : "Run tick"}
           </button>
@@ -171,18 +171,18 @@ export default function SimulatorPage() {
         {logs.length === 0 ? (
           <EmptyState title="No run yet" hint="Run a health check or tick above to see live output here." />
         ) : (
-          <div className="font-mono text-xs bg-vera-bg border border-vera-border rounded-lg p-4 max-h-[400px] overflow-y-auto flex flex-col gap-1">
+          <div className="font-mono text-xs bg-nexora-bg border border-nexora-border rounded-lg p-4 max-h-[400px] overflow-y-auto flex flex-col gap-1">
             {logs.map((line) => (
               <div
                 key={line.id}
                 className={
                   line.tone === "success"
-                    ? "text-vera-success"
+                    ? "text-nexora-success"
                     : line.tone === "warn"
-                    ? "text-vera-warn"
+                    ? "text-nexora-warn"
                     : line.tone === "danger"
-                    ? "text-vera-danger"
-                    : "text-vera-text"
+                    ? "text-nexora-danger"
+                    : "text-nexora-text"
                 }
               >
                 {line.text}
@@ -195,9 +195,9 @@ export default function SimulatorPage() {
       <Card title="Connector status" className="opacity-90">
         <div className="flex items-center gap-2">
           <Badge tone="accent">bot url</Badge>
-          <span className="text-sm font-mono text-vera-text">{api.botUrl}</span>
+          <span className="text-sm font-mono text-nexora-text">{api.botUrl}</span>
         </div>
-        <p className="text-xs text-vera-muted mt-2">
+        <p className="text-xs text-nexora-muted mt-2">
           Set <code className="font-mono">NEXT_PUBLIC_BOT_URL</code> in your frontend{" "}
           <code className="font-mono">.env</code> to point this dashboard at a different backend.
         </p>

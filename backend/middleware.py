@@ -1,4 +1,4 @@
-# backend/middleware.py
+﻿# backend/middleware.py
 """
 Lightweight rate-limiting middleware backed by Redis fixed-window counters,
 keyed by client IP. Applied globally in main.py. Exempts /v1/healthz so
@@ -13,7 +13,7 @@ from starlette.responses import JSONResponse
 from config import RATE_LIMIT_PER_MINUTE
 from logging_config import get_logger
 
-logger = get_logger("vera.middleware")
+logger = get_logger("nexora.middleware")
 
 EXEMPT_PATHS = {"/v1/healthz", "/", "/docs", "/openapi.json", "/redoc"}
 
