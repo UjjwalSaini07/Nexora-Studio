@@ -9,6 +9,9 @@ interface TriggerRank {
   trigger_id: string;
   urgency: number;
   kind: string;
+  priority_score?: number;
+  priority_rank?: number;
+  priority_reason?: string;
   payload: any;
 }
 
@@ -223,12 +226,28 @@ export default function SimulatorPage() {
               {/* Signal Ranking display */}
               {ranking.length > 0 && (
                 <div className="flex flex-col gap-2">
-                  <span className="text-xs font-semibold text-slate-400 font-mono">1. Signal Ranking (Urgency priority queue)</span>
-                  <div className="flex flex-wrap gap-2">
+                  <span className="text-xs font-semibold text-slate-400 font-mono">1. Signal Ranking (Priority Engine — multi-factor score)</span>
+                  <div className="flex flex-col gap-1.5">
                     {ranking.map((r, i) => (
-                      <Badge key={r.trigger_id} tone={r.urgency >= 4 ? "danger" : "default"}>
-                        #{i + 1} {r.trigger_id} (u:{r.urgency})
-                      </Badge>
+                      <div key={r.trigger_id} className={`flex flex-col gap-0.5 px-3 py-2 rounded-lg border ${r.urgency >= 4 ? "border-rose-500/30 bg-rose-500/5" : "border-white/5 bg-white/2"}`}>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-bold font-mono px-1.5 py-0.5 rounded ${r.urgency >= 4 ? "bg-rose-500/20 text-rose-400" : "bg-indigo-500/20 text-indigo-400"}`}>
+                            #{r.priority_rank ?? i + 1}
+                          </span>
+                          <span className="text-xs font-mono text-white truncate max-w-[220px]" title={r.trigger_id}>{r.trigger_id}</span>
+                          <span className="ml-auto text-[10px] font-bold text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">
+                            {r.priority_score ?? "–"} pts
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 pl-6">
+                          <span className="text-[9px] font-mono text-slate-500">u:{r.urgency} · {r.kind}</span>
+                          {r.priority_reason && (
+                            <span className="text-[9px] text-slate-600 italic truncate max-w-[280px]" title={r.priority_reason}>
+                              {r.priority_reason.replace("score=" + (r.priority_score ?? ""), "").replace(": ", "").trim().slice(0, 80)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>

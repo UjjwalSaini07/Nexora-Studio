@@ -147,7 +147,33 @@ class EngagementComposer:
             raw_response, trigger, merchant, category,
             previously_sent_bodies=previously_sent_bodies,
         )
-        if not validated:
+
+        # If the validator signals that no engagement lever was detected
+        # (sentinel {"_lever_missing": True}), retry the LLM once.
+        # On the second attempt the prompt is the same, but with temperature=0
+        # the LLM may still produce a richer response on a fresh call.
+        # If the retry also fails, reject the trigger for this tick.
+        if validated and validated.get("_lever_missing"):
+            logger.info(
+                "No engagement lever detected — retrying LLM once",
+                extra={"ctx": {"trigger_id": trigger.id}},
+            )
+            retry_response = await self.llm.complete(prompt)
+            if retry_response:
+                validated = self.validator.validate(
+                    retry_response, trigger, merchant, category,
+                    previously_sent_bodies=previously_sent_bodies,
+                )
+                if validated and validated.get("_lever_missing"):
+                    logger.warning(
+                        "LLM produced no engagement lever on retry; rejecting trigger",
+                        extra={"ctx": {"trigger_id": trigger.id}},
+                    )
+                    return None
+            else:
+                return None
+
+        if not validated or validated.get("_lever_missing"):
             return None
 
         # 7. Write suppression key + record sent message (anti-repetition memory)

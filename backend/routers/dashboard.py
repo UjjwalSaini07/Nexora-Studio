@@ -16,6 +16,7 @@ from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from dataset.demo_generator import ensure_demo_data
 from composer.engine import EngagementComposer
+from composer.trigger_priority_engine import rank_triggers
 from models.context import TriggerContext
 
 router = APIRouter(prefix="/v1/dashboard")
@@ -428,23 +429,31 @@ async def simulate_tick_stream(
         yield f"data: {json.dumps({'event': 'start', 'message': f'Starting simulation for {len(ids)} triggers'})}\n\n"
         await asyncio.sleep(0.05)
 
-        # 1. Signal Ranking
-        ranked_triggers = []
+        # 1. Signal Ranking — load all trigger docs then run full priority engine
+        raw_trigger_docs = []
         for trg_id in ids:
             trigger_doc = await mongo.get_context("trigger", trg_id)
             if trigger_doc:
-                payload = trigger_doc.get("payload", {})
-                urgency = payload.get("urgency", 3)
-                kind = payload.get("kind", "unknown")
-                ranked_triggers.append({
-                    "trigger_id": trg_id,
-                    "urgency": urgency,
-                    "kind": kind,
-                    "payload": payload
-                })
-        # Sort by urgency descending
-        ranked_triggers.sort(key=lambda x: x["urgency"], reverse=True)
-        
+                # ensure context_id is set for the engine
+                trigger_doc["context_id"] = trg_id
+                raw_trigger_docs.append(trigger_doc)
+
+        # Full multi-factor priority ranking
+        ranked_docs = rank_triggers(raw_trigger_docs, now)
+
+        ranked_triggers = []
+        for rd in ranked_docs:
+            payload = rd.get("payload", {})
+            ranked_triggers.append({
+                "trigger_id": rd.get("context_id", payload.get("id", "?")),
+                "urgency": payload.get("urgency", 3),
+                "kind": payload.get("kind", "unknown"),
+                "priority_score": rd.get("_priority_score", 0),
+                "priority_rank": rd.get("_priority_rank", 0),
+                "priority_reason": rd.get("_priority_reason", ""),
+                "payload": payload,
+            })
+
         yield f"data: {json.dumps({'event': 'signal_ranking', 'ranking': ranked_triggers})}\n\n"
         await asyncio.sleep(0.1)
 

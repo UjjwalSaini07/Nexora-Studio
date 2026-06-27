@@ -408,18 +408,6 @@ ANCHOR ON: Exact count of affected customers from merchant.customer_aggregate.
 CTA: binary_yes_no — "Want me to draft the customer WhatsApp + replacement-pickup workflow?"
 TONE: Trustworthy-precise pharmacist. Not alarming but clear.
 """,
-
-    "bridal_followup": """
-## Trigger: bridal_followup (salons only)
-Source: Internal — bride-to-be had a trial, now in her skin/hair prep window.
-SEND AS: merchant_on_behalf
-
-PRIORITY: Days-to-wedding count + specific skin-prep window + program price.
-Use customer.relationship to reference the trial session.
-HONOR: Customer's preferred booking slot (Saturday afternoon, etc.).
-CTA: binary_yes_no — "Want me to block your [preferred slot] for the first session?"
-""",
-
     "ipl_match_today": """
 ## Trigger: ipl_match_today (restaurants only)
 Source: External — IPL match today, venue nearby.

@@ -8,6 +8,7 @@ from models.requests import TickBody, TickResponse
 from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from composer.engine import EngagementComposer
+from composer.trigger_priority_engine import rank_triggers
 from config import TICK_MAX_ACTIONS, TICK_TIMEOUT_SECONDS
 from logging_config import get_logger
 
@@ -25,8 +26,55 @@ async def tick(
     composer = EngagementComposer(redis, mongo)
     actions = []
 
-    triggers_to_process = body.available_triggers[:TICK_MAX_ACTIONS]
+    raw_trigger_ids = body.available_triggers[:TICK_MAX_ACTIONS]
 
+    # ── Step 1: Load all trigger docs concurrently for priority ranking ──
+    trigger_docs_raw = await asyncio.gather(
+        *[mongo.get_context("trigger", trg_id) for trg_id in raw_trigger_ids],
+        return_exceptions=True,
+    )
+
+    # Build a map of trigger_id -> doc (skip any load failures)
+    doc_map: dict[str, dict] = {}
+    for trg_id, doc in zip(raw_trigger_ids, trigger_docs_raw):
+        if isinstance(doc, Exception) or doc is None:
+            logger.warning(
+                "Could not load trigger doc for priority ranking — will skip",
+                extra={"ctx": {"trigger_id": trg_id}},
+            )
+            continue
+        doc_map[trg_id] = doc
+
+    # ── Step 2: Priority-rank the loaded trigger docs ────────────────────
+    # rank_triggers returns docs sorted by descending priority score with
+    # _priority_score / _priority_reason / _priority_rank injected.
+    ranked_docs = rank_triggers(list(doc_map.values()), body.now)
+
+    # Preserve ranked order for processing; triggers that failed to load
+    # are simply absent from ranked_docs and will not be processed.
+    triggers_to_process = [
+        doc.get("context_id", doc.get("payload", {}).get("id"))
+        for doc in ranked_docs
+    ]
+    # Filter out any None context_ids that slipped through
+    triggers_to_process = [t for t in triggers_to_process if t]
+
+    logger.info(
+        "Trigger priority ranking complete",
+        extra={
+            "ctx": {
+                "requested": len(raw_trigger_ids),
+                "ranked": len(triggers_to_process),
+                "order": triggers_to_process,
+                "scores": {
+                    doc.get("context_id", ""): doc.get("_priority_score", 0)
+                    for doc in ranked_docs
+                },
+            }
+        },
+    )
+
+    # ── Step 3: Compose actions concurrently in ranked order ─────────────
     tasks = [
         composer.compose_for_trigger(trg_id, body.now)
         for trg_id in triggers_to_process
@@ -44,8 +92,9 @@ async def tick(
         )
         return TickResponse(actions=[])
 
+    # ── Step 4: Deduplicate and collect results ───────────────────────────
     seen_pairs = set()
-    for trg_id, result in zip(triggers_to_process, results):
+    for trg_id, result, ranked_doc in zip(triggers_to_process, results, ranked_docs):
         if isinstance(result, Exception):
             logger.error(
                 "Trigger composition raised an exception",
@@ -69,6 +118,11 @@ async def tick(
             continue
         seen_pairs.add(pair_key)
 
+        # Enrich result with priority metadata for dashboard/logging
+        result["priority_score"] = ranked_doc.get("_priority_score", 0)
+        result["priority_rank"] = ranked_doc.get("_priority_rank", 0)
+        result["priority_reason"] = ranked_doc.get("_priority_reason", "")
+
         actions.append(result)
         try:
             await mongo.log_action(result)
@@ -80,6 +134,7 @@ async def tick(
         await mongo.log_tick({
             "now": body.now,
             "available_triggers": body.available_triggers,
+            "ranked_trigger_order": triggers_to_process,
             "actions": actions[:TICK_MAX_ACTIONS]
         })
     except Exception as exc:  # pragma: no cover

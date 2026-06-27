@@ -1,4 +1,4 @@
-﻿# backend/composer/output_validator.py
+# backend/composer/output_validator.py
 """
 OutputValidator: Ensures LLM output meets the judge's contract.
 
@@ -11,6 +11,8 @@ Catches the documented anti-patterns directly:
 - Repeats a body already sent in this conversation -> rejected (forces a
   re-compose) instead of silently emitting a flagged duplicate, since the
   anti-repetition penalty is explicit in the rubric.
+- No engagement/compulsion lever detected -> logged as quality warning;
+  the engine will retry once and reject if still absent.
 """
 import re
 from typing import Optional
@@ -26,6 +28,65 @@ VALID_CTAS = {
 }
 URL_PATTERN = re.compile(r'https?://\S+', re.IGNORECASE)
 WWW_PATTERN = re.compile(r'\bwww\.\S+\.\S+', re.IGNORECASE)
+
+# ── Compulsion lever detection ────────────────────────────────────────────────
+# Each lever is represented by a list of keyword fragments. A lever fires if
+# ANY of its keywords appears in the normalised (lowercase) message body.
+# The list is deliberately broad to avoid false negatives on LLM paraphrasing.
+_LEVER_PATTERNS: dict[str, list[str]] = {
+    "urgency": [
+        "urgent", "immediately", "now", "today", "tonight", "this week",
+        "right now", "asap", "quickly", "before it", "last chance",
+        "abhi", "aaj", "jaldi",
+    ],
+    "scarcity": [
+        "limited", "only", "few left", "running out", "last slot",
+        "seats left", "slots left", "filling up", "almost full",
+        "sirf", "akhri",
+    ],
+    "loss_aversion": [
+        "miss", "losing", "lose", "drop", "decline", "down", "dip",
+        "behind", "losing ground", "falling behind", "gap", "below",
+        "chhoot", "nuksaan",
+    ],
+    "commitment": [
+        "reply yes", "reply confirm", "say yes", "say go", "just reply",
+        "reply 1", "reply 2", "confirm to", "want me to",
+        "haan bolein", "haan karo", "chalein",
+    ],
+    "deadline": [
+        "deadline", "expires", "expir", "by", "before", "within",
+        "days left", "hours left", "last day", "due", "window closes",
+        "khatam", "tak",
+    ],
+    "social_proof": [
+        "dentist", "merchant", "salon", "gym", "similar", "peer",
+        "others", "locality", "nearby", "top", "most", "popular",
+        "3 ", "5 ", "10 ",  # numeric social proof signals
+    ],
+    "specificity": [
+        "%", "₹", "rs.", "rs ", "inr", "patients", "customers", "members",
+        "views", "calls", "visits", "orders", "reviews", "ctr",
+    ],
+    "effort_externalization": [
+        "drafted", "ready", "i've", "i have", "let me", "i'll",
+        "prepared", "built", "set up", "already", "just say",
+        "kar diya", "bana diya", "taiyaar",
+    ],
+}
+
+# A message must contain at least this many distinct levers to pass.
+_MINIMUM_LEVERS = 1
+
+
+def _detect_levers(body: str) -> list[str]:
+    """Return the list of lever names detected in the body text."""
+    normalised = body.lower()
+    found = []
+    for lever_name, keywords in _LEVER_PATTERNS.items():
+        if any(kw in normalised for kw in keywords):
+            found.append(lever_name)
+    return found
 
 
 class OutputValidator:
@@ -75,6 +136,19 @@ class OutputValidator:
             )
             return None
 
+        # ── Compulsion lever check ────────────────────────────────────────
+        # The rubric requires engagement compulsion. Flag bodies with no
+        # detectable lever so the engine can retry once before accepting.
+        detected_levers = _detect_levers(body)
+        has_lever = len(detected_levers) >= _MINIMUM_LEVERS
+        if not has_lever:
+            logger.warning(
+                "LLM body contains no detectable engagement lever",
+                extra={"ctx": {"trigger_id": trigger.id, "body_preview": body[:120]}},
+            )
+            # Return a sentinel: lever_missing=True so the engine knows to retry
+            return {"_lever_missing": True}
+
         # ── CTA validation ───────────────────────────────────────────────
         if cta not in VALID_CTAS:
             logger.info(
@@ -120,4 +194,5 @@ class OutputValidator:
             "template_params": template_params,
             "rationale": rationale,
             "taboo_hits": hit_taboo,
+            "detected_levers": detected_levers,
         }

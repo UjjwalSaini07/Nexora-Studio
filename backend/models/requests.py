@@ -1,4 +1,4 @@
-﻿# backend/models/requests.py
+# backend/models/requests.py
 """
 Request/response schemas for the 5 judge-facing endpoints.
 
@@ -97,6 +97,8 @@ class ReplyBody(BaseModel):
     def message_not_blank(cls, v: str) -> str:
         if v is None:
             raise ValueError("message must not be None")
+        if not v.strip():
+            raise ValueError("message must not be empty or whitespace-only")
         return v
 
 

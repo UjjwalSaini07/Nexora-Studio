@@ -1,4 +1,4 @@
-﻿# backend/tests/test_output_validator.py
+# backend/tests/test_output_validator.py
 import sys
 from pathlib import Path
 
@@ -81,7 +81,7 @@ class TestOutputValidator:
 
     def test_url_in_body_is_stripped(self):
         raw = {
-            "body": "Check this out: https://magicpin.com/merchant/xyz for details",
+            "body": "Check this out: https://magicpin.com/merchant/xyz — your CTR is below peer median now",
             "cta": "open_ended",
             "send_as": "nexora",
             "rationale": "x",
@@ -91,7 +91,7 @@ class TestOutputValidator:
         assert "http" not in result["body"]
 
     def test_invalid_cta_defaults_to_open_ended(self):
-        raw = {"body": "Some message here", "cta": "not_a_real_cta", "send_as": "nexora", "rationale": "x"}
+        raw = {"body": "Dr. Ravi, your views dropped below peer median this week. Want me to fix it?", "cta": "not_a_real_cta", "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result["cta"] == "open_ended"
 
@@ -114,13 +114,13 @@ class TestOutputValidator:
         assert result["template_params"][0] == "Ravi"
 
     def test_missing_rationale_backfilled(self):
-        raw = {"body": "Message body here.", "cta": "open_ended", "send_as": "nexora", "rationale": ""}
+        raw = {"body": "Your CTR is 2% — below the 3% peer median. This is a fixable gap.", "cta": "open_ended", "send_as": "nexora", "rationale": ""}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result["rationale"] != ""
         assert "research_digest" in result["rationale"]
 
     def test_taboo_word_flagged_but_not_rejected(self):
-        raw = {"body": "This treatment is guaranteed to work!", "cta": "open_ended",
+        raw = {"body": "This treatment is guaranteed to work — your CTR is below peer median!", "cta": "open_ended",
                "send_as": "nexora", "rationale": "x"}
         result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
         assert result is not None
@@ -138,3 +138,31 @@ class TestOutputValidator:
     def test_non_dict_output_rejected(self):
         result = self.validator.validate("not a dict", self.trigger, self.merchant, self.category)
         assert result is None
+
+    def test_no_lever_returns_sentinel(self):
+        """Bodies with no detectable engagement lever return a sentinel, not None,
+        so the engine can retry once before rejecting."""
+        raw = {
+            # Deliberately lever-free: no urgency/scarcity/commitment/deadline/
+            # social-proof/loss-aversion/specificity/effort keywords at all.
+            "body": "Greetings from the Nexora team. We wanted to share an announcement.",
+            "cta": "open_ended",
+            "send_as": "nexora",
+            "rationale": "x",
+        }
+        result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
+        assert result is not None
+        assert result.get("_lever_missing") is True
+
+    def test_body_with_lever_passes_and_reports_levers(self):
+        """A body with a detectable lever passes validation and lists detected levers."""
+        raw = {
+            "body": "Dr. Ravi, your CTR is below peer median. Want me to draft a fix?",
+            "cta": "binary_yes_no",
+            "send_as": "nexora",
+            "rationale": "CTR gap signal.",
+        }
+        result = self.validator.validate(raw, self.trigger, self.merchant, self.category)
+        assert result is not None
+        assert result.get("_lever_missing") is not True
+        assert len(result.get("detected_levers", [])) >= 1
