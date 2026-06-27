@@ -1,4 +1,4 @@
-﻿# backend/storage/redis_store.py
+# backend/storage/redis_store.py
 """
 RedisStore: versioned context index, suppression (dedup) keys, conversation
 state, and auto-reply streak tracking.
@@ -118,6 +118,13 @@ class RedisStore:
 
     async def is_conversation_ended(self, conv_id: str) -> bool:
         return (await self.r.exists(f"nexora:conv_ended:{conv_id}")) > 0
+
+    # ── Conversation Wait state ─────────────────────────────────
+    async def set_conversation_wait(self, conv_id: str, wait_until_iso: str):
+        await self.r.setex(f"nexora:conv_wait_until:{conv_id}", 86400 * 30, wait_until_iso)
+
+    async def get_conversation_wait(self, conv_id: str) -> Optional[str]:
+        return await self.r.get(f"nexora:conv_wait_until:{conv_id}")
 
     # ── Auto-reply tracking ─────────────────────────────────────
     async def get_auto_reply_count(self, conv_id: str) -> int:

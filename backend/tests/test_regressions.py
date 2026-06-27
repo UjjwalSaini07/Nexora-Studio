@@ -1,4 +1,4 @@
-﻿# backend/tests/test_regressions.py
+# backend/tests/test_regressions.py
 """
 Regression tests for two real bugs found via live end-to-end testing against
 the official dataset (not caught by earlier unit-level mocks):
@@ -71,7 +71,7 @@ class TestSimulatedTimeExpiryRegression:
         composer = EngagementComposer(redis_store, mongo_store)
 
         mock_response = {
-            "body": "Test message with concrete content.",
+            "body": "Test message with concrete content now.",
             "cta": "open_ended", "send_as": "nexora",
             "template_params": [], "rationale": "x",
         }

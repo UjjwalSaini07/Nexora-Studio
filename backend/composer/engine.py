@@ -91,6 +91,34 @@ class EngagementComposer:
             )
             return None
 
+        # Build conversation ID
+        conv_id = self._build_conversation_id(trigger)
+
+        # Check wait state — skip if conversation is in active delay window,
+        # unless bypassed by business override (urgency >= 5)
+        wait_until_iso = await self.redis.get_conversation_wait(conv_id)
+        if wait_until_iso:
+            try:
+                wait_until_dt = datetime.fromisoformat(wait_until_iso.replace("Z", "+00:00"))
+                now_dt = datetime.fromisoformat(now_iso.replace("Z", "+00:00"))
+                if now_dt < wait_until_dt:
+                    if (trigger.urgency or 3) < 5:
+                        logger.info(
+                            "Skipping trigger composition: conversation in wait state until " + wait_until_iso,
+                            extra={"ctx": {"trigger_id": trigger.id, "conv_id": conv_id}}
+                        )
+                        return None
+                    else:
+                        logger.info(
+                            "Bypassing wait state for high-urgency trigger",
+                            extra={"ctx": {"trigger_id": trigger.id, "urgency": trigger.urgency}}
+                        )
+            except Exception as exc:
+                logger.warning(
+                    "Error parsing wait_until or now_iso for wait state check",
+                    extra={"ctx": {"error": str(exc)}}
+                )
+
         # 2. Check suppression — skip if already sent
         if await self.redis.is_suppressed(trigger.suppression_key):
             return None
@@ -139,7 +167,6 @@ class EngagementComposer:
         # 6. Validate and shape output, checking against what's already been
         #    sent in this merchant/customer's conversation(s) to prevent
         #    verbatim repetition.
-        conv_id = self._build_conversation_id(trigger)
         previously_sent_raw = await self.redis.get_sent_messages(conv_id)
         previously_sent_bodies = [m["body"] for m in previously_sent_raw]
 

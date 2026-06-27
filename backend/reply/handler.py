@@ -107,6 +107,7 @@ class ReplyHandler:
                     "action": "end",
                     "rationale": "Auto-reply 3x in a row. No engagement signal. Closing conversation.",
                 }
+            await self._save_wait_state_if_needed(conversation_id, received_at, result)
             await self._log(conversation_id, merchant_id, customer_id, message, result)
             return result
         else:
@@ -203,6 +204,7 @@ Decide: send / wait / end. Output JSON only."""
         if not raw.get("rationale"):
             raw["rationale"] = f"Reply handled for conversation {conversation_id}."
 
+        await self._save_wait_state_if_needed(conversation_id, received_at, raw)
         await self._log(
             conversation_id, merchant_id, customer_id, message, raw,
             explicit_commit=explicit_commit, detected_language=detected_language,
@@ -263,3 +265,15 @@ Decide: send / wait / end. Output JSON only."""
             })
         except Exception as exc:  # pragma: no cover - logging must never crash the request
             logger.error("Failed to persist reply log", extra={"ctx": {"error": str(exc)}})
+
+    async def _save_wait_state_if_needed(self, conversation_id: str, received_at: str, result: dict):
+        if result.get("action") == "wait":
+            wait_sec = result.get("wait_seconds") or 300
+            try:
+                from datetime import datetime, timedelta
+                base_dt = datetime.fromisoformat(received_at.replace("Z", "+00:00"))
+                wait_until_dt = base_dt + timedelta(seconds=wait_sec)
+                wait_until_iso = wait_until_dt.isoformat().replace("+00:00", "Z")
+                await self.redis.set_conversation_wait(conversation_id, wait_until_iso)
+            except Exception as exc:
+                logger.error("Failed to set conversation wait time", extra={"ctx": {"error": str(exc)}})

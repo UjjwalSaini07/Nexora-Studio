@@ -50,6 +50,7 @@ async def app_client():
             self.replies_log = self.db["replies_log"]
             self.ticks_log = self.db["ticks_log"]
             self.suppressions_log = self.db["suppressions_log"]
+            self.contexts_history = self.db["contexts_history"]
 
         async def ping(self):
             return True
@@ -217,7 +218,7 @@ class TestTickEndpoint:
         await self._push_full_context_for_trigger(client, trigger_payload)
 
         mock_llm_response = {
-            "body": "Dr. Meera, JIDA's Oct issue landed. Worth a look. Want the abstract?",
+            "body": "Dr. Meera, JIDA's Oct issue landed. Worth a look now. Want the abstract?",
             "cta": "open_ended",
             "send_as": "nexora",
             "template_params": ["Meera", "JIDA", "open_ended"],
@@ -253,7 +254,7 @@ class TestTickEndpoint:
         await self._push_full_context_for_trigger(client, trigger_payload)
 
         mock_llm_response = {
-            "body": "First message about the digest item.",
+            "body": "First message about the digest item now.",
             "cta": "open_ended", "send_as": "nexora",
             "template_params": [], "rationale": "x",
         }

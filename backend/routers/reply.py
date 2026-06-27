@@ -1,7 +1,7 @@
-﻿# backend/routers/reply.py
+# backend/routers/reply.py
 import asyncio
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, HTTPException
 
 from dependencies import get_redis, get_mongo, verify_auth
 from models.requests import ReplyBody, ReplyResponse
@@ -19,9 +19,31 @@ router = APIRouter()
 @router.post("/v1/reply", response_model=ReplyResponse, dependencies=[Depends(verify_auth)])
 async def handle_reply(
     body: ReplyBody,
+    request: Request,
     redis: RedisStore = Depends(get_redis),
     mongo: MongoStore = Depends(get_mongo),
 ):
+    # ── Rate Limiting ──
+    ip = request.client.host if (request.client and request.client.host) else "unknown_ip"
+    
+    # 1. IP-based limit: 100 requests per 60 seconds
+    ip_allowed, ip_count = await redis.rate_limit_hit(f"ip:{ip}", 60, 100)
+    if not ip_allowed:
+        logger.warning(
+            "Rate limit exceeded (IP)",
+            extra={"ctx": {"ip": ip, "count": ip_count}}
+        )
+        raise HTTPException(status_code=429, detail="Rate limit exceeded by IP. Please try again later.")
+
+    # 2. Conversation-based limit: 10 requests per 60 seconds
+    conv_allowed, conv_count = await redis.rate_limit_hit(f"conv:{body.conversation_id}", 60, 10)
+    if not conv_allowed:
+        logger.warning(
+            "Rate limit exceeded (Conversation)",
+            extra={"ctx": {"conversation_id": body.conversation_id, "count": conv_count}}
+        )
+        raise HTTPException(status_code=429, detail="Rate limit exceeded for this conversation. Please try again later.")
+
     handler = ReplyHandler(redis, mongo)
 
     merchant_doc = None
