@@ -44,10 +44,16 @@
   --font-mono: var(--font-mono);
 }
 
-html, body {
+html {
   background: var(--nexora-bg);
   color: var(--nexora-text);
+  overflow-y: auto;
   overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  overflow: visible;
 }
 
 * {
@@ -59,26 +65,26 @@ html, body {
   color: var(--nexora-text-bright);
 }
 
-/* Glassmorphism custom scrollbars */
+/* Glassmorphism custom scrollbars with premium blue-to-indigo gradient */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(3, 3, 6, 0.5);
-  backdrop-filter: blur(10px);
+  background: rgba(3, 3, 6, 0.4);
+  backdrop-filter: blur(12px);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #2563eb 0%, #6366f1 100%);
   border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(180deg, #3b82f6 0%, #818cf8 100%);
   border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
 }
 
 /* Keyboard focus - premium neon glow ring */
