@@ -2,17 +2,18 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from logging_config import configure_logging, get_logger
 from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
 from routers import healthz, metadata, context, tick, reply, dashboard, teardown, demo, explain
 from dataset.loader import load_dataset_to_mongo
-from middleware import RateLimitMiddleware, RequestLoggingMiddleware
+from middleware import RateLimitMiddleware, RequestLoggingMiddleware, PayloadSizeMiddleware
 from config import MONGO_URI, REDIS_URL
 
 configure_logging()
@@ -79,6 +80,7 @@ app.add_middleware(
 )
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(PayloadSizeMiddleware)
 
 
 def _sanitize_validation_errors(errors: list) -> list:
@@ -99,14 +101,94 @@ def _sanitize_validation_errors(errors: list) -> list:
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    safe_errors = _sanitize_validation_errors(exc.errors())
+    errors = exc.errors()
+    # Check if this is a JSON decode error / malformed JSON
+    is_malformed_json = any(
+        err.get("type") in {"json_invalid", "value_error.jsondecode"} 
+        or "json decode error" in str(err.get("msg", "")).lower()
+        for err in errors
+    )
+    
+    if is_malformed_json:
+        logger.warning("Request body contains malformed JSON", extra={"ctx": {"path": request.url.path}})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "success": False,
+                "accepted": False,
+                "reason": "invalid_json",
+                "error": {
+                    "code": "INVALID_JSON",
+                    "message": "Request body contains malformed JSON."
+                }
+            }
+        )
+
+    safe_errors = _sanitize_validation_errors(errors)
     logger.warning(
         "Request validation failed",
         extra={"ctx": {"path": request.url.path, "errors": safe_errors}},
     )
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"accepted": False, "reason": "validation_error", "details": safe_errors},
+        content={
+            "success": False,
+            "accepted": False,
+            "reason": "validation_error",
+            "details": safe_errors,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Request validation failed.",
+                "details": safe_errors
+            }
+        },
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    code_map = {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
+        405: "METHOD_NOT_ALLOWED",
+        413: "PAYLOAD_TOO_LARGE",
+        422: "UNPROCESSABLE_ENTITY",
+        429: "RATE_LIMIT_EXCEEDED",
+    }
+    code = code_map.get(exc.status_code, "HTTP_ERROR")
+
+    accepted_val = False
+    reason_val = "error"
+    details_val = None
+    message_val = str(exc.detail)
+
+    if isinstance(exc.detail, dict):
+        accepted_val = exc.detail.get("accepted", False)
+        reason_val = exc.detail.get("reason", "error")
+        details_val = exc.detail.get("details")
+        message_val = exc.detail.get("message", exc.detail.get("reason", message_val))
+        
+        if "error" in exc.detail:
+            resp_content = dict(exc.detail)
+            if "success" not in resp_content:
+                resp_content["success"] = False
+            return JSONResponse(status_code=exc.status_code, content=resp_content)
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "accepted": accepted_val,
+            "reason": reason_val,
+            "details": details_val,
+            "error": {
+                "code": code,
+                "message": message_val,
+                "details": details_val
+            }
+        }
     )
 
 
@@ -119,7 +201,16 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"accepted": False, "reason": "internal_error", "details": "An unexpected error occurred."},
+        content={
+            "success": False,
+            "accepted": False,
+            "reason": "internal_error",
+            "details": "An unexpected error occurred.",
+            "error": {
+                "code": "INTERNAL_ERROR",
+                "message": "An unexpected error occurred."
+            }
+        },
     )
 
 

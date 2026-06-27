@@ -2,7 +2,7 @@ import asyncio
 import time
 import os
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from dependencies import get_redis, get_mongo, verify_auth
 from models.requests import TickBody, TickResponse
@@ -45,11 +45,18 @@ async def tick(
     doc_map: dict[str, dict] = {}
     for trg_id, doc in zip(raw_trigger_ids, trigger_docs_raw):
         if isinstance(doc, Exception) or doc is None:
-            logger.warning(
-                "Could not load trigger doc for priority ranking — will skip",
-                extra={"ctx": {"trigger_id": trg_id}},
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "success": False,
+                    "accepted": False,
+                    "reason": "trigger_not_found",
+                    "error": {
+                        "code": "TRIGGER_NOT_FOUND",
+                        "message": f"Trigger '{trg_id}' does not exist."
+                    }
+                }
             )
-            continue
         doc_map[trg_id] = doc
 
     # ── Step 2: Priority-rank the loaded trigger docs ────────────────────

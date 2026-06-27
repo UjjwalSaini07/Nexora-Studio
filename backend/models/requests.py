@@ -48,6 +48,18 @@ class ContextBody(BaseModel):
             raise ValueError("context_id must not be blank")
         return v
 
+    @field_validator("delivered_at")
+    @classmethod
+    def delivered_at_valid(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("delivered_at must not be blank")
+        try:
+            from datetime import datetime
+            datetime.fromisoformat(v.replace("Z", "+00:00"))
+            return v
+        except Exception:
+            raise ValueError("Invalid ISO 8601 timestamp format for delivered_at")
+
 
 class ContextAckResponse(BaseModel):
     accepted: bool
@@ -63,6 +75,18 @@ class ContextAckResponse(BaseModel):
 class TickBody(BaseModel):
     now: str
     available_triggers: List[str] = []
+
+    @field_validator("now")
+    @classmethod
+    def now_valid(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("now must not be blank")
+        try:
+            from datetime import datetime
+            datetime.fromisoformat(v.replace("Z", "+00:00"))
+            return v
+        except Exception:
+            raise ValueError("Invalid ISO 8601 timestamp format for now")
 
 
 class TickAction(BaseModel):
@@ -99,6 +123,13 @@ class ReplyBody(BaseModel):
     received_at: str
     turn_number: int = Field(ge=1)
 
+    @field_validator("conversation_id")
+    @classmethod
+    def conversation_id_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("conversation_id must not be blank")
+        return v
+
     @field_validator("message")
     @classmethod
     def message_not_blank(cls, v: str) -> str:
@@ -107,6 +138,18 @@ class ReplyBody(BaseModel):
         if not v.strip():
             raise ValueError("message must not be empty or whitespace-only")
         return v
+
+    @field_validator("received_at")
+    @classmethod
+    def received_at_valid(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("received_at must not be blank")
+        try:
+            from datetime import datetime
+            datetime.fromisoformat(v.replace("Z", "+00:00"))
+            return v
+        except Exception:
+            raise ValueError("Invalid ISO 8601 timestamp format for received_at")
 
 
 class ReplyResponse(BaseModel):

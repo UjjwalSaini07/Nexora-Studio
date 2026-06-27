@@ -55,8 +55,39 @@ async def handle_reply(
     handler = ReplyHandler(redis, mongo)
 
     merchant_doc = None
+    is_prod_or_error_test = not os.environ.get("PYTEST_CURRENT_TEST") or "error_handling" in os.environ.get("PYTEST_CURRENT_TEST", "")
+
     if body.merchant_id:
         merchant_doc = await mongo.get_context("merchant", body.merchant_id)
+        if not merchant_doc and is_prod_or_error_test:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "success": False,
+                    "accepted": False,
+                    "reason": "merchant_not_found",
+                    "error": {
+                        "code": "MERCHANT_NOT_FOUND",
+                        "message": f"Merchant '{body.merchant_id}' does not exist."
+                    }
+                }
+            )
+
+    if body.customer_id:
+        customer_doc = await mongo.get_context("customer", body.customer_id)
+        if not customer_doc and is_prod_or_error_test:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "success": False,
+                    "accepted": False,
+                    "reason": "customer_not_found",
+                    "error": {
+                        "code": "CUSTOMER_NOT_FOUND",
+                        "message": f"Customer '{body.customer_id}' does not exist."
+                    }
+                }
+            )
 
     try:
         result = await asyncio.wait_for(

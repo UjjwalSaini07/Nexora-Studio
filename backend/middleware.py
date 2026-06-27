@@ -1,4 +1,4 @@
-﻿# backend/middleware.py
+# backend/middleware.py
 """
 Lightweight rate-limiting middleware backed by Redis fixed-window counters,
 keyed by client IP. Applied globally in main.py. Exempts /v1/healthz so
@@ -68,3 +68,29 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             },
         )
         return response
+
+
+class PayloadSizeMiddleware(BaseHTTPMiddleware):
+    """Rejects requests exceeding 2MB size limit."""
+
+    async def dispatch(self, request: Request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > 2 * 1024 * 1024:
+                    return JSONResponse(
+                        status_code=413,
+                        content={
+                            "success": False,
+                            "accepted": False,
+                            "reason": "payload_too_large",
+                            "error": {
+                                "code": "PAYLOAD_TOO_LARGE",
+                                "message": "Request payload exceeds size limit of 2MB.",
+                                "details": f"Payload size: {content_length} bytes"
+                            }
+                        }
+                    )
+            except ValueError:
+                pass
+        return await call_next(request)
