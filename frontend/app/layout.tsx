@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-nexora-bg text-nexora-text relative overflow-x-hidden">
+    <html lang="en" className="h-full antialiased overflow-y-auto overflow-x-hidden" suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col bg-nexora-bg text-nexora-text relative">
         {/* Background Ambient Glow Orbs */}
         <div className="absolute top-[-100px] left-[-200px] glow-orb-1 pointer-events-none" />
         <div className="absolute top-[30%] right-[-200px] glow-orb-2 pointer-events-none" />

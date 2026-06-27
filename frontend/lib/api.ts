@@ -1,4 +1,4 @@
-﻿// frontend/lib/api.ts
+// frontend/lib/api.ts
 /**
  * Typed client for the NEXORA backend's dashboard-support endpoints
  * (/v1/dashboard/*) plus the 5 judge-facing endpoints, used by the
@@ -83,6 +83,9 @@ export interface ActionLogEntry {
   rationale: string;
   taboo_hits?: string[];
   logged_at: string;
+  confidence?: number;
+  category?: string;
+  trigger?: string;
 }
 
 export interface ReplyLogEntry {
@@ -172,6 +175,8 @@ export const api = {
     ),
   getContext: (scope: string, contextId: string) =>
     request<{ context: ContextSummary | null }>(`/v1/dashboard/contexts/${scope}/${contextId}`),
+  getContextHistory: (scope: string, contextId: string) =>
+    request<{ history: ContextSummary[]; count: number }>(`/v1/dashboard/contexts/${scope}/${contextId}/history`),
 
   recentActions: (limit = 50) =>
     request<{ actions: ActionLogEntry[]; count: number }>(`/v1/dashboard/actions?limit=${limit}`),
@@ -179,7 +184,13 @@ export const api = {
     request<{ replies: ReplyLogEntry[]; count: number }>(`/v1/dashboard/replies?limit=${limit}`),
   conversationDetail: (conversationId: string) =>
     request<ConversationDetail>(`/v1/dashboard/conversations/${encodeURIComponent(conversationId)}`),
-  stats: () => request<StatsResponse>("/v1/dashboard/stats"),
+  listConversations: (status?: string) =>
+    request<{ conversations: any[]; count: number }>(
+      `/v1/dashboard/conversations${status ? `?status=${status}` : ""}`
+    ),
+  simulateTickStreamUrl: (now: string, triggerIds: string[]) =>
+    `${BOT_URL}/v1/dashboard/simulate_tick_stream?now=${encodeURIComponent(now)}&trigger_ids=${encodeURIComponent(triggerIds.join(","))}`,
+  stats: () => request<any>("/v1/dashboard/stats"),
 
   pushContext: (body: ContextPushBody) =>
     request<ContextAckResponse>("/v1/context", { method: "POST", body: JSON.stringify(body) }),
