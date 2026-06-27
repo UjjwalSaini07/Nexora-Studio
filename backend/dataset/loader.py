@@ -1,4 +1,4 @@
-﻿# backend/dataset/loader.py
+# backend/dataset/loader.py
 """
 Loads the expanded dataset (output of generate_dataset.py) into MongoDB at
 startup. This ensures the bot has all merchants, customers, categories, and
@@ -46,7 +46,7 @@ async def _load_scope(mongo, redis, scope: str, dir_path: Path, id_field: str):
     loaded = 0
     for f in sorted(dir_path.glob("*.json")):
         try:
-            data = json.loads(f.read_text())
+            data = json.loads(f.read_text(encoding="utf-8-sig"))
         except json.JSONDecodeError as exc:
             logger.error(f"Failed to parse {f}: {exc}")
             continue

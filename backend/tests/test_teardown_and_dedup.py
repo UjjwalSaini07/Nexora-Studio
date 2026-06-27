@@ -1,4 +1,4 @@
-﻿# backend/tests/test_teardown_and_dedup.py
+# backend/tests/test_teardown_and_dedup.py
 """
 Tests for two contract requirements from challenge-testing-brief.md:
 
@@ -60,7 +60,7 @@ async def app_client():
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 class TestTeardown:

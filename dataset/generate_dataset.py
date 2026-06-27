@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Expand seed JSON files into the full challenge dataset.
 
@@ -103,14 +103,14 @@ NAME_BANKS = {
 def load_seeds(seed_dir: Path):
     categories = {}
     for f in (seed_dir / "categories").glob("*.json"):
-        with open(f) as fp:
+        with open(f, encoding="utf-8-sig") as fp:
             data = json.load(fp)
             categories[data["slug"]] = data
-    with open(seed_dir / "merchants_seed.json") as fp:
+    with open(seed_dir / "merchants_seed.json", encoding="utf-8-sig") as fp:
         merchants = json.load(fp)["merchants"]
-    with open(seed_dir / "customers_seed.json") as fp:
+    with open(seed_dir / "customers_seed.json", encoding="utf-8-sig") as fp:
         customers = json.load(fp)["customers"]
-    with open(seed_dir / "triggers_seed.json") as fp:
+    with open(seed_dir / "triggers_seed.json", encoding="utf-8-sig") as fp:
         triggers = json.load(fp)["triggers"]
     return categories, merchants, customers, triggers
 
@@ -248,19 +248,19 @@ def write_outputs(out_dir: Path, categories, merchants, customers, triggers):
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "categories").mkdir(exist_ok=True)
     for slug, data in categories.items():
-        with open(out_dir / "categories" / f"{slug}.json", "w") as f:
+        with open(out_dir / "categories" / f"{slug}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
     (out_dir / "merchants").mkdir(exist_ok=True)
     for m in merchants:
-        with open(out_dir / "merchants" / f"{m['merchant_id']}.json", "w") as f:
+        with open(out_dir / "merchants" / f"{m['merchant_id']}.json", "w", encoding="utf-8") as f:
             json.dump(m, f, indent=2, ensure_ascii=False)
     (out_dir / "customers").mkdir(exist_ok=True)
     for c in customers:
-        with open(out_dir / "customers" / f"{c['customer_id']}.json", "w") as f:
+        with open(out_dir / "customers" / f"{c['customer_id']}.json", "w", encoding="utf-8") as f:
             json.dump(c, f, indent=2, ensure_ascii=False)
     (out_dir / "triggers").mkdir(exist_ok=True)
     for t in triggers:
-        with open(out_dir / "triggers" / f"{t['id']}.json", "w") as f:
+        with open(out_dir / "triggers" / f"{t['id']}.json", "w", encoding="utf-8") as f:
             json.dump(t, f, indent=2, ensure_ascii=False)
 
 
@@ -278,7 +278,7 @@ def write_test_pairs(out_dir: Path, triggers, rnd: random.Random):
             test_id += 1
             if len(pairs) >= 30: break
         if len(pairs) >= 30: break
-    with open(out_dir / "test_pairs.json", "w") as f:
+    with open(out_dir / "test_pairs.json", "w", encoding="utf-8") as f:
         json.dump({"pairs": pairs[:30]}, f, indent=2)
 
 

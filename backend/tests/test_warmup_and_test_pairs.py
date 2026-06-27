@@ -1,4 +1,4 @@
-﻿# backend/tests/test_warmup_and_test_pairs.py
+# backend/tests/test_warmup_and_test_pairs.py
 """
 Validates two specific contractual requirements from the official briefs:
 
@@ -67,7 +67,7 @@ async def app_client():
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 class TestWarmupPhase:

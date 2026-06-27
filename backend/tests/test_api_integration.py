@@ -1,4 +1,4 @@
-﻿# backend/tests/test_api_integration.py
+# backend/tests/test_api_integration.py
 """
 End-to-end integration tests against the real FastAPI app, using:
 - fakeredis / mongomock-motor in place of real Redis/Mongo (via dependency
@@ -67,7 +67,7 @@ async def app_client():
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 class TestHealthzAndMetadata:
