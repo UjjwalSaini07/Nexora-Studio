@@ -1,4 +1,4 @@
-﻿// frontend/app/simulator/page.tsx
+// frontend/app/simulator/page.tsx
 "use client";
 
 import { useState, useCallback, useRef } from "react";
@@ -121,32 +121,32 @@ export default function SimulatorPage() {
           <button
             onClick={runHealthCheck}
             disabled={runState === "running"}
-            className="px-4 py-2 rounded-md bg-nexora-accent text-white text-sm font-medium hover:bg-nexora-accent-soft transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 rounded-lg glass-button-primary text-sm font-semibold transition-all disabled:opacity-50 disabled:transform-none"
           >
             {runState === "running" ? "Running..." : "Run health check"}
           </button>
         </Card>
 
         <Card title="Tick triggers">
-          <label className="text-xs uppercase tracking-wider text-nexora-muted">Trigger IDs (comma or newline separated)</label>
+          <label className="text-xs uppercase tracking-wider text-slate-400 font-medium">Trigger IDs (comma or newline separated)</label>
           <textarea
             value={triggerIds}
             onChange={(e) => setTriggerIds(e.target.value)}
             placeholder="trg_001_research_digest_dentists, trg_004_recall_due_dentists"
             rows={3}
-            className="mt-2 w-full bg-nexora-bg border border-nexora-border rounded-md px-3 py-2 text-sm font-mono text-nexora-text placeholder:text-nexora-muted focus:outline-none focus:border-nexora-accent resize-none"
+            className="mt-2 w-full glass-input px-3.5 py-2.5 text-sm font-mono placeholder:text-slate-500 focus:outline-none resize-none"
           />
-          <label className="text-xs uppercase tracking-wider text-nexora-muted mt-3 block">Simulated &quot;now&quot; (ISO 8601)</label>
+          <label className="text-xs uppercase tracking-wider text-slate-400 font-medium mt-3.5 block">Simulated &quot;now&quot; (ISO 8601)</label>
           <input
             type="text"
             value={nowIso}
             onChange={(e) => setNowIso(e.target.value)}
-            className="mt-2 w-full bg-nexora-bg border border-nexora-border rounded-md px-3 py-2 text-sm font-mono text-nexora-text focus:outline-none focus:border-nexora-accent"
+            className="mt-2 w-full glass-input px-3.5 py-2.5 text-sm font-mono focus:outline-none"
           />
           <button
             onClick={runTick}
             disabled={runState === "running"}
-            className="mt-3 px-4 py-2 rounded-md bg-nexora-accent text-white text-sm font-medium hover:bg-nexora-accent-soft transition-colors disabled:opacity-50"
+            className="mt-4 px-5 py-2.5 rounded-lg glass-button-primary text-sm font-semibold transition-all disabled:opacity-50 disabled:transform-none"
           >
             {runState === "running" ? "Running..." : "Run tick"}
           </button>
@@ -171,7 +171,7 @@ export default function SimulatorPage() {
         {logs.length === 0 ? (
           <EmptyState title="No run yet" hint="Run a health check or tick above to see live output here." />
         ) : (
-          <div className="font-mono text-xs bg-nexora-bg border border-nexora-border rounded-lg p-4 max-h-[400px] overflow-y-auto flex flex-col gap-1">
+          <div className="font-mono text-xs bg-black/60 border border-white/5 rounded-lg p-4.5 max-h-[400px] overflow-y-auto flex flex-col gap-1.5 backdrop-blur-sm shadow-inner">
             {logs.map((line) => (
               <div
                 key={line.id}

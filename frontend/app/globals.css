@@ -1,28 +1,23 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 /*
  * NEXORA Operations Dashboard — design tokens.
- *
- * This is a real-time ops tool for monitoring an AI engagement bot, not a
- * consumer marketing page. The palette and signature motif both reflect
- * that: deep navy/near-black background (serious, low-glare for long
- * monitoring sessions), electric blue for "live/active" state, and a
- * heartbeat-style pulse line as the one bold gesture — because NEXORA is
- * literally the heartbeat of magicpin's merchant engagement.
+ * Customized for Black Glassmorphism style with premium depth and rich aesthetics.
  */
 
 :root {
-  --nexora-bg: #0a0d14;
-  --nexora-surface: #12172b;
-  --nexora-surface-raised: #161d38;
-  --nexora-border: #1e2a45;
-  --nexora-accent: #3b82f6;
-  --nexora-accent-soft: #1d4ed8;
+  --nexora-bg: #030306;
+  --nexora-surface: rgba(13, 13, 18, 0.45);
+  --nexora-surface-raised: rgba(26, 26, 36, 0.55);
+  --nexora-border: rgba(255, 255, 255, 0.08);
+  --nexora-border-active: rgba(99, 102, 241, 0.25);
+  --nexora-accent: #6366f1; /* Premium Electric Indigo */
+  --nexora-accent-soft: rgba(99, 102, 241, 0.15);
   --nexora-success: #10b981;
   --nexora-warn: #f59e0b;
   --nexora-danger: #ef4444;
-  --nexora-text: #e2e8f0;
-  --nexora-text-bright: #f8fafc;
+  --nexora-text: #cbd5e1; /* Slate-300 */
+  --nexora-text-bright: #ffffff;
   --nexora-muted: #64748b;
   --nexora-muted-dim: #475569;
 
@@ -52,6 +47,7 @@
 html, body {
   background: var(--nexora-bg);
   color: var(--nexora-text);
+  overflow-x: hidden;
 }
 
 * {
@@ -63,28 +59,34 @@ html, body {
   color: var(--nexora-text-bright);
 }
 
-/* Subtle scrollbar that matches the ops-tool aesthetic instead of the
-   default OS scrollbar, which clashes with a near-black canvas. */
+/* Glassmorphism custom scrollbars */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--nexora-bg);
+  background: rgba(3, 3, 6, 0.5);
+  backdrop-filter: blur(10px);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--nexora-border);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--nexora-muted-dim);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-/* Visible keyboard focus everywhere — accessibility floor, not optional. */
+/* Keyboard focus - premium neon glow ring */
 :focus-visible {
   outline: 2px solid var(--nexora-accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -96,10 +98,134 @@ html, body {
   }
 }
 
+/* Ambient glow orb animations */
+@keyframes float-slow-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(80px, -60px) scale(1.15);
+  }
+}
+
+@keyframes float-slow-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1.1);
+  }
+  50% {
+    transform: translate(-100px, 80px) scale(0.9);
+  }
+}
+
+@keyframes float-slow-3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(0.9);
+  }
+  50% {
+    transform: translate(50px, 50px) scale(1.1);
+  }
+}
+
+.glow-orb-1 {
+  position: absolute;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(99, 102, 241, 0) 70%);
+  filter: blur(80px);
+  animation: float-slow-1 25s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb-2 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(168, 85, 247, 0) 70%);
+  filter: blur(90px);
+  animation: float-slow-2 32s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb-3 {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0) 70%);
+  filter: blur(75px);
+  animation: float-slow-3 28s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--nexora-surface);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid var(--nexora-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(18, 18, 25, 0.55);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.7),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-header {
+  background: rgba(3, 3, 5, 0.55);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--nexora-text-bright);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--nexora-accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15), 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+.glass-button-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+  transition: all 0.25s ease;
+}
+
+.glass-button-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5), 0 0 12px rgba(99, 102, 241, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.glass-button-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 /* ── Heartbeat pulse — the signature element ──────────────────────────
-   A literal ECG-style pulse line used in the live ops header to represent
-   "messages firing/sec". Drawn as an SVG path animated with stroke-dashoffset
-   so it reads as a continuous heartbeat trace rather than a generic loader. */
+   ECG-style pulse line with active glowing filter styles. */
 @keyframes nexora-pulse-trace {
   from { stroke-dashoffset: 240; }
   to   { stroke-dashoffset: 0; }
@@ -108,14 +234,15 @@ html, body {
 .nexora-pulse-path {
   stroke-dasharray: 240;
   animation: nexora-pulse-trace 2.2s linear infinite;
+  filter: drop-shadow(0 0 3px currentColor);
 }
 
 @keyframes nexora-pulse-dot {
-  0%, 100% { opacity: 0.35; transform: scale(0.85); }
-  50%      { opacity: 1;    transform: scale(1.15); }
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.2); }
 }
 
 .nexora-pulse-dot {
   animation: nexora-pulse-dot 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px currentColor);
 }
-

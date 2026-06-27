@@ -1,4 +1,4 @@
-﻿// frontend/app/conversations/page.tsx
+// frontend/app/conversations/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -72,23 +72,23 @@ export default function ConversationsPage() {
                 const turns = grouped.get(convId)!;
                 const last = turns.at(-1)!;
                 const hasEnded = turns.some((t) => t.action === "end");
-                return (
-                  <button
-                    key={convId}
-                    onClick={() => setSelected(convId)}
-                    className={`text-left px-3 py-2 rounded-lg border transition-colors ${
-                      selected === convId
-                        ? "border-nexora-accent bg-nexora-accent/10"
-                        : "border-transparent hover:bg-nexora-surface-raised"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-mono text-nexora-text-bright truncate">{convId}</span>
-                      {hasEnded && <Badge tone="danger">ended</Badge>}
-                    </div>
-                    <p className="text-xs text-nexora-muted truncate mt-0.5">{last.inbound_message}</p>
-                  </button>
-                );
+                  return (
+                    <button
+                      key={convId}
+                      onClick={() => setSelected(convId)}
+                      className={`text-left px-3.5 py-2.5 rounded-lg border transition-all duration-200 flex flex-col gap-1.5 ${
+                        selected === convId
+                          ? "border-indigo-500/25 bg-indigo-500/10 shadow-[0_0_12px_rgba(99,102,241,0.06)]"
+                          : "border-transparent bg-white/2 hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <span className="text-xs font-mono text-white truncate">{convId}</span>
+                        {hasEnded && <Badge tone="danger">ended</Badge>}
+                      </div>
+                      <p className="text-xs text-slate-400 truncate w-full mt-0.5">{last.inbound_message}</p>
+                    </button>
+                  );
               })}
             </div>
           )}
@@ -108,36 +108,54 @@ export default function ConversationsPage() {
                 const intentSwitch =
                   turn.explicit_commit && (!prevTurn || !prevTurn.explicit_commit);
                 return (
-                  <div key={`${turn.conversation_id}-${i}`} className="flex flex-col gap-2">
+                  <div key={`${turn.conversation_id}-${i}`} className="flex flex-col gap-3 w-full">
                     {intentSwitch && (
-                      <div className="flex items-center gap-2 text-xs text-nexora-accent font-medium">
-                        <span className="h-px flex-1 bg-nexora-accent/30" />
+                      <div className="flex items-center gap-2 text-xs text-indigo-400 font-semibold my-1.5 uppercase tracking-wider">
+                        <span className="h-px flex-1 bg-indigo-500/20" />
                         Switched to ACTION mode at turn {i + 1}
-                        <span className="h-px flex-1 bg-nexora-accent/30" />
+                        <span className="h-px flex-1 bg-indigo-500/20" />
                       </div>
                     )}
-                    {/* Inbound */}
-                    <div className="flex flex-col gap-1 pl-3 border-l-2 border-nexora-border">
-                      <div className="flex items-center gap-2">
-                        <Badge>inbound</Badge>
-                        {turn.detected_language !== "en" && <Badge tone="accent">{turn.detected_language}</Badge>}
-                        <span className="text-xs text-nexora-muted">
+                    {/* Inbound Chat Bubble */}
+                    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 border border-white/5 bg-white/3 max-w-[85%]">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] uppercase tracking-wider font-extrabold text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                            Inbound
+                          </span>
+                          {turn.detected_language !== "en" && <Badge tone="accent">{turn.detected_language}</Badge>}
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-semibold">
                           {new Date(turn.logged_at).toLocaleTimeString()}
                         </span>
                       </div>
-                      <p className="text-sm text-nexora-text">{turn.inbound_message}</p>
+                      <p className="text-sm text-slate-200 leading-relaxed">{turn.inbound_message}</p>
                     </div>
-                    {/* Bot response */}
-                    <div className="flex flex-col gap-1 pl-3 border-l-2 border-nexora-accent/40 ml-4">
-                      <div className="flex items-center gap-2">
-                        <Badge tone={actionTone(turn.action)}>{turn.action}</Badge>
-                        {turn.cta && <Badge>{turn.cta}</Badge>}
-                        {turn.wait_seconds != null && (
-                          <span className="text-xs text-nexora-muted">wait {turn.wait_seconds}s</span>
-                        )}
+
+                    {/* Bot response Chat Bubble */}
+                    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 border border-indigo-500/15 bg-indigo-500/5 max-w-[85%] self-end ml-auto shadow-[0_0_20px_rgba(99,102,241,0.02)]">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge tone={actionTone(turn.action)}>{turn.action}</Badge>
+                          {turn.cta && <Badge>{turn.cta}</Badge>}
+                          {turn.wait_seconds != null && (
+                            <span className="text-[9px] font-extrabold text-amber-400 uppercase bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                              wait {turn.wait_seconds}s
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      {turn.body && <p className="text-sm text-nexora-text-bright">{turn.body}</p>}
-                      <p className="text-xs text-nexora-muted italic">{turn.rationale}</p>
+                      {turn.body && <p className="text-sm text-white font-medium leading-relaxed">{turn.body}</p>}
+                      {turn.rationale && (
+                        <div className="border-t border-white/5 pt-2 mt-1">
+                          <p className="text-xs text-slate-400 italic leading-relaxed">
+                            <span className="font-mono text-indigo-400 text-[10px] not-italic mr-1.5 uppercase font-bold tracking-wider">
+                              Rationale:
+                            </span>
+                            {turn.rationale}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

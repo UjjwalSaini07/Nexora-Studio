@@ -1,4 +1,4 @@
-﻿// frontend/components/ui.tsx
+// frontend/components/ui.tsx
 import type { ReactNode } from "react";
 
 export function Card({
@@ -13,10 +13,14 @@ export function Card({
   action?: ReactNode;
 }) {
   return (
-    <div className={`bg-nexora-surface border border-nexora-border rounded-xl p-5 ${className}`}>
+    <div className={`glass-panel glass-panel-hover p-5 ${className}`}>
       {(title || action) && (
-        <div className="flex items-center justify-between mb-4">
-          {title && <h2 className="text-sm font-semibold text-nexora-text-bright tracking-tight">{title}</h2>}
+        <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+          {title && (
+            <h2 className="text-sm font-semibold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+              {title}
+            </h2>
+          )}
           {action}
         </div>
       )}
@@ -35,15 +39,15 @@ export function MetricStat({
   tone?: "default" | "success" | "warn" | "danger";
 }) {
   const toneColor = {
-    default: "text-nexora-text-bright",
-    success: "text-nexora-success",
-    warn: "text-nexora-warn",
-    danger: "text-nexora-danger",
+    default: "text-white [text-shadow:0_0_12px_rgba(255,255,255,0.15)]",
+    success: "text-emerald-400 [text-shadow:0_0_12px_rgba(16,185,129,0.25)]",
+    warn: "text-amber-400 [text-shadow:0_0_12px_rgba(245,158,11,0.25)]",
+    danger: "text-rose-400 [text-shadow:0_0_12px_rgba(239,68,68,0.25)]",
   }[tone];
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs uppercase tracking-wider text-nexora-muted">{label}</span>
+      <span className="text-xs uppercase tracking-wider text-slate-400 font-medium">{label}</span>
       <span className={`text-2xl font-bold tabular-nums tracking-tight ${toneColor}`}>{value}</span>
     </div>
   );
@@ -57,15 +61,15 @@ export function Badge({
   tone?: "default" | "success" | "warn" | "danger" | "accent";
 }) {
   const styles = {
-    default: "bg-nexora-surface-raised text-nexora-muted border-nexora-border",
-    success: "bg-nexora-success/10 text-nexora-success border-nexora-success/30",
-    warn: "bg-nexora-warn/10 text-nexora-warn border-nexora-warn/30",
-    danger: "bg-nexora-danger/10 text-nexora-danger border-nexora-danger/30",
-    accent: "bg-nexora-accent/10 text-nexora-accent border-nexora-accent/30",
+    default: "bg-white/5 text-slate-300 border-white/10 [text-shadow:0_0_8px_rgba(255,255,255,0.1)]",
+    success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.06)]",
+    warn: "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.06)]",
+    danger: "bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.06)]",
+    accent: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.06)]",
   }[tone];
 
   return (
-    <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${styles}`}>
+    <span className={`inline-flex items-center text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-md ${styles}`}>
       {children}
     </span>
   );
@@ -74,8 +78,8 @@ export function Badge({
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-12 px-4">
-      <p className="text-sm font-medium text-nexora-text">{title}</p>
-      {hint && <p className="text-xs text-nexora-muted mt-1 max-w-sm">{hint}</p>}
+      <p className="text-sm font-medium text-white">{title}</p>
+      {hint && <p className="text-xs text-slate-400 mt-1.5 max-w-sm">{hint}</p>}
     </div>
   );
 }
@@ -84,18 +88,18 @@ export function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-12 px-4">
       <Badge tone="danger">Connection error</Badge>
-      <p className="text-xs text-nexora-muted mt-2 max-w-sm font-mono">{message}</p>
+      <p className="text-xs text-slate-400 mt-3.5 max-w-sm font-mono">{message}</p>
     </div>
   );
 }
 
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-nexora-surface-raised rounded ${className}`} />;
+  return <div className={`animate-pulse bg-white/5 border border-white/5 rounded ${className}`} />;
 }
 
 export function CodeBlock({ children }: { children: string }) {
   return (
-    <pre className="font-mono text-xs bg-nexora-bg border border-nexora-border rounded-lg p-3 overflow-x-auto whitespace-pre-wrap break-words text-nexora-text">
+    <pre className="font-mono text-xs bg-black/50 border border-white/5 rounded-lg p-3.5 overflow-x-auto whitespace-pre-wrap break-words text-slate-300 shadow-inner backdrop-blur-sm">
       {children}
     </pre>
   );

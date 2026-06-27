@@ -1,4 +1,4 @@
-﻿// frontend/app/contexts/page.tsx
+// frontend/app/contexts/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -39,10 +39,10 @@ export default function ContextsPage() {
               setScope(s);
               setSelected(null);
             }}
-            className={`px-3 py-1.5 rounded-md text-sm border transition-colors capitalize ${
+            className={`px-4 py-1.5 rounded-lg text-sm border transition-all duration-200 capitalize font-medium ${
               scope === s
-                ? "border-nexora-accent bg-nexora-accent/15 text-nexora-accent font-medium"
-                : "border-nexora-border text-nexora-muted hover:text-nexora-text"
+                ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.12)]"
+                : "border-white/5 bg-white/3 text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
             {s}
@@ -53,7 +53,7 @@ export default function ContextsPage() {
           placeholder="Search by context_id..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="ml-auto bg-nexora-surface border border-nexora-border rounded-md px-3 py-1.5 text-sm text-nexora-text placeholder:text-nexora-muted focus:outline-none focus:border-nexora-accent w-64"
+          className="ml-auto glass-input px-3.5 py-1.5 text-sm placeholder:text-slate-500 focus:outline-none w-64"
         />
       </div>
 
@@ -73,13 +73,13 @@ export default function ContextsPage() {
                 <button
                   key={ctx.context_id}
                   onClick={() => setSelected(ctx)}
-                  className={`text-left px-3 py-2 rounded-lg border transition-colors flex items-center justify-between gap-2 ${
+                  className={`text-left px-3.5 py-2.5 rounded-lg border transition-all duration-200 flex items-center justify-between gap-2 ${
                     selected?.context_id === ctx.context_id
-                      ? "border-nexora-accent bg-nexora-accent/10"
-                      : "border-transparent hover:bg-nexora-surface-raised"
+                      ? "border-indigo-500/25 bg-indigo-500/10 shadow-[0_0_12px_rgba(99,102,241,0.06)]"
+                      : "border-transparent bg-white/2 hover:bg-white/5"
                   }`}
                 >
-                  <span className="text-xs font-mono text-nexora-text truncate">{ctx.context_id}</span>
+                  <span className="text-xs font-mono text-white truncate">{ctx.context_id}</span>
                   <Badge>v{ctx.version}</Badge>
                 </button>
               ))}
