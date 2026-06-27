@@ -163,6 +163,10 @@ class MongoStore:
         ).sort("version", -1)
         return await cursor.to_list(length=100)
 
+    async def wipe_demo_suppressions(self) -> int:
+        result = await self.suppressions_log.delete_many({})
+        return result.deleted_count
+
     async def wipe_all(self) -> dict:
         """
         Drops all NEXORA collections. Used by the optional POST /v1/teardown

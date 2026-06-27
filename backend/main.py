@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from logging_config import configure_logging, get_logger
 from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore
-from routers import healthz, metadata, context, tick, reply, dashboard, teardown
+from routers import healthz, metadata, context, tick, reply, dashboard, teardown, demo, explain
 from dataset.loader import load_dataset_to_mongo
 from middleware import RateLimitMiddleware, RequestLoggingMiddleware
 from config import MONGO_URI, REDIS_URL
@@ -128,7 +128,7 @@ async def root():
     return {"service": "NEXORA Bot", "status": "running", "docs": "/docs"}
 
 
-for r in [healthz.router, metadata.router, context.router, tick.router, reply.router, dashboard.router, teardown.router]:
+for r in [healthz.router, metadata.router, context.router, tick.router, reply.router, dashboard.router, teardown.router, demo.router, explain.router]:
     app.include_router(r)
 
 

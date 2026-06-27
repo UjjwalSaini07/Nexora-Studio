@@ -56,6 +56,7 @@ class ContextAckResponse(BaseModel):
     reason: Optional[str] = None
     details: Optional[str] = None
     current_version: Optional[int] = None
+    processing_ms: Optional[float] = None
 
 
 # ── /v1/tick ──────────────────────────────────────────────────────────────────
@@ -76,10 +77,16 @@ class TickAction(BaseModel):
     cta: str
     suppression_key: str
     rationale: str
+    priority_score: Optional[int] = None
+    priority_rank: Optional[int] = None
+    trigger_kind: Optional[str] = None
+    urgency: Optional[int] = None
+    expires_at: Optional[str] = None
 
 
 class TickResponse(BaseModel):
     actions: List[TickAction] = []
+    processing_ms: Optional[float] = None
 
 
 # ── /v1/reply ──────────────────────────────────────────────────────────────────
@@ -108,3 +115,4 @@ class ReplyResponse(BaseModel):
     cta: Optional[str] = None
     rationale: str
     wait_seconds: Optional[int] = None
+    processing_ms: Optional[float] = None

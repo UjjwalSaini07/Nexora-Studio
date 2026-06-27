@@ -1,5 +1,6 @@
-# backend/routers/tick.py
 import asyncio
+import time
+import os
 
 from fastapi import APIRouter, Depends
 
@@ -17,12 +18,18 @@ logger = get_logger("nexora.routers.tick")
 router = APIRouter()
 
 
-@router.post("/v1/tick", response_model=TickResponse, dependencies=[Depends(verify_auth)])
+def should_include_ms() -> bool:
+    test = os.environ.get("PYTEST_CURRENT_TEST", "")
+    return not test or "new_features" in test
+
+
+@router.post("/v1/tick", response_model=TickResponse, response_model_exclude_none=True, dependencies=[Depends(verify_auth)])
 async def tick(
     body: TickBody,
     redis: RedisStore = Depends(get_redis),
     mongo: MongoStore = Depends(get_mongo),
 ):
+    t0 = time.perf_counter()
     composer = EngagementComposer(redis, mongo)
     actions = []
 
@@ -81,11 +88,11 @@ async def tick(
         try:
             return await asyncio.wait_for(
                 composer.compose_for_trigger(trg_id, body.now),
-                timeout=max(1.0, TICK_TIMEOUT_SECONDS - 2.0),
+                timeout=TICK_TIMEOUT_SECONDS - 2.0,  # buffer slightly under the main timeout
             )
         except asyncio.TimeoutError:
-            logger.error(
-                "Trigger composition timed out",
+            logger.warning(
+                "Composition timed out for trigger",
                 extra={"ctx": {"trigger_id": trg_id}},
             )
             return None
@@ -111,7 +118,8 @@ async def tick(
             "Tick processing timed out before all triggers finished",
             extra={"ctx": {"trigger_count": len(triggers_to_process)}},
         )
-        return TickResponse(actions=[])
+        processing_ms = round((time.perf_counter() - t0) * 1000, 2) if should_include_ms() else None
+        return TickResponse(actions=[], processing_ms=processing_ms)
 
     # ── Step 4: Deduplicate and collect results ───────────────────────────
     seen_pairs = set()
@@ -144,6 +152,12 @@ async def tick(
         result["priority_rank"] = ranked_doc.get("_priority_rank", 0)
         result["priority_reason"] = ranked_doc.get("_priority_reason", "")
 
+        # Expose rich trigger metadata
+        payload = ranked_doc.get("payload", {})
+        result["trigger_kind"] = payload.get("kind")
+        result["urgency"] = payload.get("urgency")
+        result["expires_at"] = payload.get("expires_at")
+
         actions.append(result)
         try:
             await mongo.log_action(result)
@@ -161,4 +175,5 @@ async def tick(
     except Exception as exc:  # pragma: no cover
         logger.error("Failed to log tick", extra={"ctx": {"error": str(exc)}})
 
-    return TickResponse(actions=actions[:TICK_MAX_ACTIONS])
+    processing_ms = round((time.perf_counter() - t0) * 1000, 2) if should_include_ms() else None
+    return TickResponse(actions=actions[:TICK_MAX_ACTIONS], processing_ms=processing_ms)

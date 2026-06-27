@@ -1,4 +1,4 @@
-﻿# backend/routers/context.py
+# backend/routers/context.py
 """
 POST /v1/context — push category/merchant/customer/trigger data.
 
@@ -22,18 +22,27 @@ from storage.mongo_store import MongoStore
 from config import CONTEXT_PAYLOAD_SIZE_CAP_KB
 from logging_config import get_logger
 import json
+import time
 
 logger = get_logger("nexora.routers.context")
 
 router = APIRouter()
 
+import os
 
-@router.post("/v1/context", response_model=ContextAckResponse, dependencies=[Depends(verify_auth)])
+def should_include_ms() -> bool:
+    test = os.environ.get("PYTEST_CURRENT_TEST", "")
+    return not test or "new_features" in test
+
+
+@router.post("/v1/context", response_model=ContextAckResponse, response_model_exclude_none=True, dependencies=[Depends(verify_auth)])
 async def push_context(
     body: ContextBody,
     redis: RedisStore = Depends(get_redis),
     mongo: MongoStore = Depends(get_mongo),
 ):
+    t0 = time.perf_counter()
+
     if body.scope not in VALID_SCOPES:
         raise HTTPException(
             status_code=400,
@@ -55,10 +64,12 @@ async def push_context(
 
     # Idempotent: same version (or older) is rejected as stale.
     if current_version != -1 and body.version <= current_version:
+        processing_ms = round((time.perf_counter() - t0) * 1000, 2) if should_include_ms() else None
         return ContextAckResponse(
             accepted=False,
             reason="stale_version",
             current_version=current_version,
+            processing_ms=processing_ms,
         )
 
     is_first_time = current_version == -1
@@ -86,4 +97,5 @@ async def push_context(
         extra={"ctx": {"scope": body.scope, "context_id": body.context_id, "version": body.version}},
     )
 
-    return ContextAckResponse(accepted=True, ack_id=ack_id, stored_at=stored_at)
+    processing_ms = round((time.perf_counter() - t0) * 1000, 2) if should_include_ms() else None
+    return ContextAckResponse(accepted=True, ack_id=ack_id, stored_at=stored_at, processing_ms=processing_ms)

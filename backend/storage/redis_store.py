@@ -175,3 +175,39 @@ class RedisStore:
             if cursor == 0:
                 break
         return deleted
+
+    async def wipe_demo_keys(self) -> dict:
+        """
+        Scan and delete demo runtime keys in Redis:
+        - suppressions
+        - wait states
+        - conversations/sessions
+        """
+        categories = {
+            "suppression_keys_removed": "nexora:suppress:*",
+            "wait_states_removed": "nexora:conv_wait_until:*",
+            "conversation_states_removed": [
+                "nexora:conv:*",
+                "nexora:conv_sent:*",
+                "nexora:conv_ended:*",
+                "nexora:auto_reply_count:*"
+            ]
+        }
+        
+        results = {}
+        for category, patterns in categories.items():
+            if not isinstance(patterns, list):
+                patterns = [patterns]
+            
+            deleted_count = 0
+            for pattern in patterns:
+                cursor = 0
+                while True:
+                    cursor, keys = await self.r.scan(cursor=cursor, match=pattern, count=500)
+                    if keys:
+                        deleted_count += await self.r.delete(*keys)
+                    if cursor == 0:
+                        break
+            results[category] = deleted_count
+            
+        return results

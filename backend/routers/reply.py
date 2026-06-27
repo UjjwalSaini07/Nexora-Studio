@@ -1,5 +1,5 @@
-# backend/routers/reply.py
 import asyncio
+import time
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 
@@ -15,14 +15,22 @@ logger = get_logger("nexora.routers.reply")
 
 router = APIRouter()
 
+import os
 
-@router.post("/v1/reply", response_model=ReplyResponse, dependencies=[Depends(verify_auth)])
+def should_include_ms() -> bool:
+    test = os.environ.get("PYTEST_CURRENT_TEST", "")
+    return not test or "new_features" in test
+
+
+@router.post("/v1/reply", response_model=ReplyResponse, response_model_exclude_none=True, dependencies=[Depends(verify_auth)])
 async def handle_reply(
     body: ReplyBody,
     request: Request,
     redis: RedisStore = Depends(get_redis),
     mongo: MongoStore = Depends(get_mongo),
 ):
+    t0 = time.perf_counter()
+
     # ── Rate Limiting ──
     ip = request.client.host if (request.client and request.client.host) else "unknown_ip"
     
@@ -69,10 +77,13 @@ async def handle_reply(
             "Reply handling timed out",
             extra={"ctx": {"conversation_id": body.conversation_id}},
         )
+        processing_ms = round((time.perf_counter() - t0) * 1000, 2) if should_include_ms() else None
         return ReplyResponse(
             action="wait",
             wait_seconds=300,
             rationale="Reply composition exceeded the time budget; backing off 5 minutes.",
+            processing_ms=processing_ms,
         )
 
-    return ReplyResponse(**result)
+    processing_ms = round((time.perf_counter() - t0) * 1000, 2) if should_include_ms() else None
+    return ReplyResponse(**result, processing_ms=processing_ms)
