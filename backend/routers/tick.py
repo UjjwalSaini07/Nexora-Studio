@@ -1,4 +1,4 @@
-﻿# backend/routers/tick.py
+# backend/routers/tick.py
 import asyncio
 
 from fastapi import APIRouter, Depends
@@ -74,5 +74,15 @@ async def tick(
             await mongo.log_action(result)
         except Exception as exc:  # pragma: no cover
             logger.error("Failed to log action", extra={"ctx": {"error": str(exc)}})
+
+    # Log tick execution metadata to MongoDB
+    try:
+        await mongo.log_tick({
+            "now": body.now,
+            "available_triggers": body.available_triggers,
+            "actions": actions[:TICK_MAX_ACTIONS]
+        })
+    except Exception as exc:  # pragma: no cover
+        logger.error("Failed to log tick", extra={"ctx": {"error": str(exc)}})
 
     return TickResponse(actions=actions[:TICK_MAX_ACTIONS])
