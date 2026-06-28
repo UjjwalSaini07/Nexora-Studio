@@ -15,6 +15,8 @@ Team: NEXORA Engine · Stack: FastAPI · MongoDB · Redis · Groq (Llama 3.3) ·
 
 > Built on a fully data-driven architecture with intelligent trigger orchestration, explainable AI decisions, resilient conversation state management, and enterprise-grade validation.
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/cd0e551a-2d11-4fe9-af48-add40cd0dbe7" />
+
 ## 📌 Table of Contents
 
 1.  [🌟 What is NEXORA?](#-what-is-nexora)
@@ -232,6 +234,7 @@ To run the complete stack (FastAPI Backend, Next.js Frontend, MongoDB, Redis):
     ```env
     GROQ_API_KEY=gsk_your_groq_api_key_here
     ```
+    Project settings are centralized in config.py & .env and the service modules. If you need the exact deployment values, service wiring, or notification settings & the keys for your environment, contact the author through the [Author & System Architect](#%E2%80%8D-author--lead-architect) section at the end of this README.
 
 2.  **Launch Stack:**
     ```bash
