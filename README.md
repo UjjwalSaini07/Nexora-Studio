@@ -466,6 +466,55 @@ To verify NEXORA against the Magicpin AI Challenge grading harness:
     EXamine the generated audit logs on the dashboard (`http://localhost:3000/scores`) to verify URL compliance, compulsion checks, and response latency.
 
 
+## 📤 Generating Submission File
+
+The `generate_submission.py` script produces the official `submission.jsonl` file required by the magicpin AI Challenge. It drives the live running bot through its HTTP API (`/v1/context` and `/v1/tick`) using the 30 canonical test cases, validating response formatting and schemas dynamically. This ensures that the generated submission file matches exactly what the live bot would output during evaluation.
+
+### Windows (PowerShell) Run Instructions
+
+To generate the submission file from the `backend/` directory:
+
+1.  **Launch the Backend Server:** Start your FastAPI backend in a PowerShell window:
+    ```powershell
+    uvicorn main:app --host 0.0.0.0 --port 8080
+    ```
+
+2.  **Run the Generator Script:** Open a second PowerShell window, change directory to `backend/`, configure the `BOT_URL` environment variable, and execute the generator:
+    ```powershell
+    cd backend
+    $env:BOT_URL="http://localhost:8080"
+    ```
+    ```bash
+    python ../generate_submission.py --expanded-dir ../expanded --out ../submission.jsonl
+    ```
+
+*If using standard Windows Command Prompt (CMD), run:*
+```cmd
+cd backend
+set BOT_URL=http://localhost:8080
+python ..\generate_submission.py --expanded-dir ..\expanded --out ..\submission.jsonl
+```
+
+### Expected Output
+
+Upon successful execution, the script will output log traces indicating contexts are loaded and tick events are evaluated:
+
+```
+Loaded 30 canonical test pairs.
+Verifying connection to http://localhost:8080/v1/healthz ... Connected!
+[1/30] Processing trigger: trg_001_recall_due for merchant: m_001_drmeera_dentist_delhi
+Pushed category, merchant, customer, and trigger contexts.
+Executing tick event...
+Generated action successfully (CTA: multi_choice_slot)
+...
+[30/30] Processing trigger: trg_030_curious_ask_due for merchant: m_010_nupurdental_dentist_delhi
+Generated action successfully (CTA: binary_yes_no)
+
+Successfully completed all 30 test pairs.
+Submission file saved at: F:\_Code\Nexora-Studio\submission.jsonl
+```
+
+
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](/LICENSE) for more details.
