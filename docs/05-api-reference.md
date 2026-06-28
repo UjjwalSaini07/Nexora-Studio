@@ -157,7 +157,7 @@ If Redis or MongoDB experiences a transient outage, the endpoint returns a `200 
 ```
 
 ### 📸 Screenshots
-*(Add Postman healthz request and response here)*
+<img width="1577" height="1037" alt="image" src="https://github.com/user-attachments/assets/45c17790-2295-4d5e-bd76-d9bf299a7b9a" />
 
 ### 2. `GET /v1/metadata`
 
@@ -193,7 +193,7 @@ Provides metadata about the submission, team structure, and system approach.
 ```
 
 ### 📸 Screenshots
-*(Add Postman metadata response here)*
+<img width="1567" height="1002" alt="image" src="https://github.com/user-attachments/assets/34483acf-7f91-4928-9f16-0b9fc6c34c40" />
 
 ### 3. `POST /v1/context`
 
@@ -251,7 +251,14 @@ If the version pushed is less than or equal to the version cached, the update is
 ```
 
 ### 📸 Screenshots
-*(Add Postman context ingestion success and version stale response here)*
+### Push Trigger Context
+<img width="1572" height="997" alt="image" src="https://github.com/user-attachments/assets/abc18d2e-6b58-4505-b8f4-a086d3736a25" />
+
+### Category Context
+<img width="1567" height="997" alt="image" src="https://github.com/user-attachments/assets/dcb223b6-ceaf-42ac-b8c2-6af38ed63c32" />
+
+### Merchant Context
+<img width="1577" height="992" alt="image" src="https://github.com/user-attachments/assets/c9b1a75b-c329-4e3b-adca-b54711ab6240" />
 
 ### 4. `POST /v1/tick`
 
@@ -266,40 +273,45 @@ Evaluates triggers and returns the corresponding engagement actions.
 *   **Body (raw JSON):**
 ```json
 {
-  "now": "2026-06-27T12:00:00Z",
-  "available_triggers": ["trg_rec_001"]
+  "now": "2026-04-29T10:30:00Z",
+  "available_triggers": [
+    "trg_018_supply_atorvastatin_recall"
+  ]
 }
 ```
 
 #### Example Success Response
 ```json
 {
-  "actions": [
-    {
-      "conversation_id": "conv_m_salon_01_trg_rec_001",
-      "merchant_id": "m_salon_01",
-      "customer_id": "cust_salon_01",
-      "send_as": "merchant_on_behalf",
-      "trigger_id": "trg_rec_001",
-      "template_name": "recall_due_template",
-      "template_params": ["Priya", "hair spa appointment", "Saturday 2PM"],
-      "body": "Hi Priya, it's been 3 months since your last hair spa. We have slots open this weekend on Saturday at 2PM or Sunday at 11AM. Would you like to book?",
-      "cta": "multi_choice_slot",
-      "suppression_key": "sup_recall_cust_salon_01",
-      "rationale": "Identified customer recall eligibility. Utilized social specificity and slot options to prompt booking.",
-      "priority_score": 85,
-      "priority_rank": 1,
-      "trigger_kind": "recall_due",
-      "urgency": 4,
-      "expires_at": "2026-07-10T12:00:00Z"
-    }
-  ],
-  "processing_ms": 234.1
+    "actions": [
+        {
+            "conversation_id": "conv_m_009_apollo_pharmacy_jaipur_supply_alert",
+            "merchant_id": "m_009_apollo_pharmacy_jaipur",
+            "send_as": "nexora",
+            "trigger_id": "trg_018_supply_atorvastatin_recall",
+            "template_name": "nexora_supply_alert_v1",
+            "template_params": [
+                "Ramesh",
+                "atorvastatin",
+                "AT2024-1102"
+            ],
+            "body": "Ramesh ji, atorvastatin ki voluntary recall hai - batches AT2024-1102 aur AT2024-1108. Aapke 24 high-risk adult customers ismein shaamil hain. Main customer WhatsApp aur replacement pickup workflow draft karoon?",
+            "cta": "binary_yes_no",
+            "suppression_key": "alert:atorvastatin:2026-04",
+            "rationale": "The trigger is a high-urgency supply alert for atorvastatin, and the compulsion lever used is specificity/verifiability with the exact batch numbers and the number of affected customers, along with a clear call-to-action for drafting a customer WhatsApp and replacement pickup workflow.",
+            "priority_score": 72,
+            "priority_rank": 1,
+            "trigger_kind": "supply_alert",
+            "urgency": 5,
+            "expires_at": "2026-05-30T00:00:00Z"
+        }
+    ],
+    "processing_ms": 2697.74
 }
 ```
 
 ### 📸 Screenshots
-*(Add Postman tick evaluation response here)*
+<img width="1570" height="995" alt="image" src="https://github.com/user-attachments/assets/6dbdd373-21f7-4fc6-bf00-998ecb1593b0" />
 
 ### 5. `POST /v1/reply`
 
@@ -314,24 +326,22 @@ Processes conversational replies and executes multi-turn decision state transiti
 *   **Body (raw JSON):**
 ```json
 {
-  "conversation_id": "conv_m_salon_01_trg_rec_001",
-  "merchant_id": "m_salon_01",
-  "customer_id": "cust_salon_01",
-  "from_role": "customer",
-  "message": "Yes, Saturday 2PM works for me.",
-  "received_at": "2026-06-27T12:05:00Z",
-  "turn_number": 2
+  "conversation_id":"conv_m_009_apollo_pharmacy_jaipur_supply_alert",
+  "from_role":"merchant",
+  "message":"Yes",
+  "turn_number":2,
+  "received_at":"2026-04-29T10:31:00Z"
 }
 ```
 
 #### Example Success Response (Transition to Action Mode)
 ```json
 {
-  "action": "send",
-  "body": "Perfect! I have blocked Saturday at 2:00 PM for your hair spa. See you at the salon!",
-  "cta": "none",
-  "rationale": "Customer responded positively indicating slot selection. Transitioned to execution mode and confirmed slot booking.",
-  "processing_ms": 185.3
+    "action": "send",
+    "body": "Let's draft the agreement then",
+    "cta": "Please provide the necessary details",
+    "rationale": "Merchant has shown interest, time to move forward with the agreement",
+    "processing_ms": 1042.51
 }
 ```
 
@@ -347,7 +357,7 @@ If consecutive auto-replies are received, the handler tells the gateway to wait:
 ```
 
 ### 📸 Screenshots
-*(Add Postman reply state machine responses here)*
+<img width="1571" height="1002" alt="image" src="https://github.com/user-attachments/assets/2afd215c-39c1-439d-812d-23d31326f738" />
 
 ### 6. `POST /v1/teardown`
 
@@ -377,7 +387,7 @@ Wipes all database state from Redis and MongoDB. **Exempt from authentication.**
 ```
 
 ### 📸 Screenshots
-*(Add Postman teardown completion response here)*
+<img width="1581" height="1002" alt="image" src="https://github.com/user-attachments/assets/08953647-17f0-450d-ab45-abee2fb102ac" />
 
 ### 7. `POST /v1/demo/reset`
 
@@ -402,7 +412,7 @@ Clears dynamic demonstration runtime artifacts (suppression, wait states, active
 ```
 
 ### 📸 Screenshots
-*(Add Postman demo reset response here)*
+<img width="1575" height="1007" alt="image" src="https://github.com/user-attachments/assets/8ca109b2-a2a2-42de-b5d8-a436f3860980" />
 
 ### 8. `GET /v1/action/{conversation_id}/explain`
 
@@ -418,33 +428,56 @@ Generates diagnostic rationale explaining the specific triggers, levers, and sig
 #### Example Success Response
 ```json
 {
-  "conversation_id": "conv_m_salon_01_trg_rec_001",
-  "trigger_id": "trg_rec_001",
-  "why_selected": "Trigger 'trg_rec_001' of kind 'recall_due' with urgency 4 was selected and assigned a priority score of 85 (ranked #1).",
-  "priority_breakdown": {
-    "score": 85,
-    "rank": 1,
-    "reason": "score=85: [urgency=4/5 -> 20pts] + [expires_in=312.0h -> 0pts] + [kind=recall_due -> 18pts] + [source=internal -> 6pts] + [scope=customer -> 10pts] + [payload_keys=1 -> 2pts]"
-  },
-  "merchant_signals_used": ["high_lapsing"],
-  "category_signals_used": [],
-  "customer_signals_used": ["preferred_slots:evening"],
-  "compulsion_levers_used": ["specificity", "commitment"],
-  "confidence_score": 0.92,
-  "suppression_status": {
-    "is_suppressed": false,
-    "suppression_key": "sup_recall_cust_salon_01"
-  },
-  "wait_state_status": {
-    "is_waiting": false,
-    "wait_until": null
-  },
-  "rationale": "Identified customer recall eligibility. Utilized social specificity and slot options to prompt booking."
+    "conversation_id": "conv_m_010_sunrisepharm_pharmacy_lucknow_gbp_unverified",
+    "trigger_id": "trg_021_unverified_gbp_sunrise",
+    "why_selected": "Trigger 'trg_021_unverified_gbp_sunrise' of kind 'gbp_unverified' with urgency 3 was selected and assigned a priority score of 47 (ranked #1).",
+    "priority_breakdown": {
+        "score": 47,
+        "rank": 1,
+        "reason": "score=47: [urgency=3/5 → 15pts] + [expires_in=733.5h → 0pts] + [kind=gbp_unverified → 9pts] + [source=internal → 6pts] + [scope=merchant → 7pts] + [payload_keys=10 → 10pts]"
+    },
+    "merchant_signals_used": [
+        "unverified_gbp",
+        "no_active_offers",
+        "no_recent_conversation",
+        "delivery_not_set_up"
+    ],
+    "category_signals_used": [
+        "summer surge — ORS, sunscreen, anti-fungal, deodorant",
+        "monsoon — anti-bacterial, anti-fungal, immunity supplements peak",
+        "festival sweets → blood sugar spike — diabetic monitoring needs surge",
+        "respiratory peak — cough/cold/anti-allergic 2x baseline",
+        "medicine home delivery",
+        "generic medicine",
+        "diabetes care kit",
+        "blood pressure monitor"
+    ],
+    "customer_signals_used": [],
+    "compulsion_levers_used": [
+        "urgency",
+        "deadline",
+        "specificity"
+    ],
+    "confidence_score": 0.86,
+    "suppression_status": {
+        "is_suppressed": true,
+        "suppression_key": "unverified:m_010"
+    },
+    "wait_state_status": {
+        "is_waiting": false,
+        "wait_until": null
+    },
+    "rationale": "The signal driving this message is the unverified Google Business Profile, which can lead to reduced visibility and lost customers. The compulsion lever used is the estimated 30% uplift in views upon verification, making it a clear and bounded action with a known time cost.",
+    "trigger_ranking_details": {
+        "score": 47,
+        "rank": 1,
+        "reason": "score=47: [urgency=3/5 → 15pts] + [expires_in=733.5h → 0pts] + [kind=gbp_unverified → 9pts] + [source=internal → 6pts] + [scope=merchant → 7pts] + [payload_keys=10 → 10pts]"
+    }
 }
 ```
 
 ### 📸 Screenshots
-*(Add Postman explain response here)*
+<img width="1566" height="997" alt="image" src="https://github.com/user-attachments/assets/8fe0c4c9-b678-481b-b3c7-853077689a41" />
 
 ### 9. `GET /v1/dashboard/stats`
 
@@ -460,16 +493,28 @@ Retrieves summary performance metrics, throughput, and error ratios.
 #### Example Success Response
 ```json
 {
-  "total_ticks": 450,
-  "total_actions": 380,
-  "total_replies": 1200,
-  "avg_processing_ms": 210.5,
-  "active_conversations": 32,
-  "redis_suppressions_active": 45
-}
+    "bot_status": "running",
+    "mongo_connected": true,
+    "redis_connected": true,
+    "llm_status": "configured",
+    "contexts_loaded": {
+        "category": 5,
+        "merchant": 50,
+        "customer": 200,
+        "trigger": 100
+    },
+    "today_messages": 228,
+    "active_conversations": 10,
+    "pending_replies": 10,
+    "suppressed_messages": 5,
+    "average_decision_confidence": 0.91,
+    "top_trigger": "recall_due",
+    "top_category": "dentists",
+    "top_merchant": "m_001_drmeera_dentist_delhi",
+    .........so on
 ```
 
 ### 📸 Screenshots
-*(Add Postman dashboard stats response here)*
+<img width="1576" height="1007" alt="image" src="https://github.com/user-attachments/assets/535c75fc-2296-4dcf-bc80-750c28c27d8c" />
 
 👉 **Next Steps:** Proceed to the [Judge Evaluation Guide](/docs/06-judge-testing-guide.md) to run manual test queries.
