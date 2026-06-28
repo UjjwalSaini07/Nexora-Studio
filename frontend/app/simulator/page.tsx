@@ -1,4 +1,3 @@
-// frontend/app/simulator/page.tsx
 "use client";
 
 import { useState, useCallback, useRef } from "react";

@@ -1,4 +1,3 @@
-// frontend/app/conversations/page.tsx
 "use client";
 
 import { useState } from "react";

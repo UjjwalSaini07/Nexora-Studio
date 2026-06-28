@@ -1,4 +1,3 @@
-// frontend/app/scores/page.tsx
 "use client";
 
 import { useMemo } from "react";
