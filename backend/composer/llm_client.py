@@ -1,4 +1,3 @@
-# backend/composer/llm_client.py
 """
 LLMClient: talks to Groq's OpenAI-compatible Chat Completions API.
 

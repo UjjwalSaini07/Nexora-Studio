@@ -1,5 +1,4 @@
-﻿# backend/composer/context_assembler.py
-"""
+﻿"""
 ContextAssembler: given a TriggerContext, resolves and validates the other
 3 contexts the composer needs (category, merchant, customer-if-applicable).
 

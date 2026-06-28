@@ -1,5 +1,4 @@
-﻿# backend/composer/prompt_builder.py
-"""
+﻿"""
 PromptBuilder: Constructs the LLM prompt for each trigger kind.
 
 This is the highest-leverage file in the entire codebase.

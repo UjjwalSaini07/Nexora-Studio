@@ -1,4 +1,3 @@
-# backend/composer/engine.py
 """
 EngagementComposer: The core logic that decides WHAT to say, WHEN, and WHY.
 

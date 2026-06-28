@@ -1,4 +1,3 @@
-# backend/composer/trigger_priority_engine.py
 """
 TriggerPriorityEngine: Ranks available triggers before any LLM call.
 

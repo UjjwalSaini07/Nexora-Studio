@@ -1,4 +1,3 @@
-# backend/composer/output_validator.py
 """
 OutputValidator: Ensures LLM output meets the judge's contract.
 
