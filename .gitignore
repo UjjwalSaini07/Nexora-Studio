@@ -16,7 +16,6 @@ frontend/.env.local
 !*.env.example
 
 # Generated dataset (reproducible via dataset/generate_dataset.py — not
-# committed since it's deterministic, large, and easy to regenerate)
 /expanded/
 
 # Submission output (regenerable via generate_submission.py)

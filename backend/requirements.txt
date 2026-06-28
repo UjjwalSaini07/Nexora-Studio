@@ -14,7 +14,5 @@ pytest-asyncio==0.23.7
 mongomock==4.1.2
 mongomock-motor==0.0.34
 fakeredis==2.23.2
-# mongomock depends on pkg_resources, which setuptools>=81 removed entirely.
-# Pin below that line so `pip install -r requirements.txt` works on a fresh
-# Python 3.12+ environment without a separate manual setuptools install.
+
 setuptools<81
