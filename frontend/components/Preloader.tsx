@@ -257,13 +257,50 @@ export function Preloader() {
         </div>
 
         {/* Console Log Stream terminal block (Incredibly engaging) */}
-        <div className="w-full h-32 rounded-xl border border-white/5 bg-slate-950/80 p-4 font-mono text-[10px] text-slate-400 overflow-y-auto space-y-1.5 scrollbar-thin select-none">
-          {consoleLogs.map((log, idx) => (
-            <div key={idx} className={log.includes("SUCCESS") ? "text-emerald-400" : log.includes("WARNING") ? "text-amber-400" : log.includes("ERROR") ? "text-rose-400" : "text-slate-400"}>
-              {log}
+        <div className="w-full rounded-xl border border-white/10 bg-slate-950/90 overflow-hidden shadow-2xl">
+          {/* Mac-style Window Top Bar */}
+          <div className="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-white/5 select-none">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500/85" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500/85" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/85" />
             </div>
-          ))}
-          <div ref={consoleBottomRef} />
+            <span className="text-[9px] font-mono text-slate-500 tracking-wider">
+              diagnostics@nexora:~
+            </span>
+            <div className="w-10" /> {/* balance spacing */}
+          </div>
+
+          {/* Logs scrollable block */}
+          <div 
+            className="h-32 p-4 overflow-y-auto space-y-1.5 select-none font-mono text-[10px]"
+            style={{ 
+              scrollbarWidth: "none", 
+              msOverflowStyle: "none" 
+            }}
+          >
+            {/* Inline CSS to hide Chrome/Webkit scrollbars */}
+            <style dangerouslySetInnerHTML={{__html: `
+              .no-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+            `}} />
+            
+            <div className="no-scrollbar space-y-1.5">
+              {consoleLogs.map((log, idx) => (
+                <div key={idx} className={log.includes("SUCCESS") ? "text-emerald-400" : log.includes("WARNING") ? "text-amber-400" : log.includes("ERROR") ? "text-rose-400" : "text-slate-400"}>
+                  {log}
+                </div>
+              ))}
+              
+              {/* Blinking terminal prompt */}
+              <div className="flex items-center text-slate-400">
+                <span className="text-indigo-400 mr-1.5">$</span>
+                <span className="w-1.5 h-3.5 bg-emerald-400 ml-0.5 animate-pulse" style={{ animationDuration: "1s" }} />
+              </div>
+            </div>
+            <div ref={consoleBottomRef} />
+          </div>
         </div>
 
         {/* Real-time Checklist & Empty Database Seeding card */}
