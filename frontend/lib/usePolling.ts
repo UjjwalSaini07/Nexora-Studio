@@ -1,4 +1,3 @@
-// frontend/lib/usePolling.ts
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -9,12 +8,6 @@ interface PollingState<T> {
   loading: boolean;
 }
 
-/**
- * Polls an async fetcher on an interval, exposing data/error/loading state.
- * Used throughout the dashboard for "live" panels (context counts, recent
- * actions, conversation feeds) without pulling in a full data-fetching
- * library for what is fundamentally a handful of polled GET requests.
- */
 export function usePolling<T>(fetcher: () => Promise<T>, intervalMs = 5000, deps: any[] = []) {
   const [state, setState] = useState<PollingState<T>>({ data: null, error: null, loading: true });
   const fetcherRef = useRef(fetcher);

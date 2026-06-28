@@ -1,7 +1,18 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "nexora-ops-dashboard",
+  "version": "1.0.0",
   "private": true,
+  "description": "Real-time operations, diagnostics, and SLA monitoring dashboard for the NEXORA Merchant Engagement Engine (magicpin AI Challenge).",
+  "author": "Ujjwal Saini <ujjwalsaini0007@gmail.com> (https://ujjwalsaini.vercel.app)",
+  "homepage": "https://github.com/UjjwalSaini07/Nexora-Studio",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UjjwalSaini07/Nexora-Studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/UjjwalSaini07/Nexora-Studio/issues"
+  },
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",

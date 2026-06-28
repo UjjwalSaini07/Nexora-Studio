@@ -1,56 +1,112 @@
-﻿# NEXORA Operations Dashboard (frontend)
+# 🌌 NEXORA Operations Dashboard (frontend)
 
-Next.js 16 (App Router) + TypeScript + Tailwind v4 dashboard for monitoring
-the NEXORA bot in real time. See the [repo-level README](../README.md) for
-full project context, architecture, and the backend it talks to.
+Next.js (App Router) + TypeScript + Tailwind CSS dashboard designed for monitoring, testing, and auditing the NEXORA bot in real time. 
 
-## Setup
+See the [repo-level README](../README.md) for full project context, architecture, and the FastAPI backend specifications it interacts with.
 
-```bash
-npm install
-cp .env.example .env.local   # set NEXT_PUBLIC_BOT_URL if not http://localhost:8080
-npm run dev
+## 🗺️ Frontend-Backend Interaction Pipeline
+
+The Next.js operational dashboard acts as a real-time monitor and debugger, communicating directly with FastAPI's analytics endpoints:
+
+```mermaid
+graph TD
+    User[Developer / Judge Browser] -->|Renders UI| ClientApp[Next.js Client Components]
+    ClientApp -->|HTTP Fetch Queries| FastAPI[FastAPI Backend Endpoint: http://localhost:8080]
+    
+    subgraph Pages Routing
+        ClientApp --> Dashboard["/ (Ops Dashboard)"]
+        ClientApp --> Conversations["/conversations (Multi-turn Threads)"]
+        ClientApp --> Inspector["/contexts (JSON Context Search)"]
+        ClientApp --> Simulator["/simulator (Direct Tick Trigger)"]
+        ClientApp --> Scores["/scores (SLA Analytics)"]
+    end
+    
+    FastAPI -->|MongoDB Aggregates| Dashboard
+    FastAPI -->|Redis Turn Logs| Conversations
+    FastAPI -->|Context Payloads| Inspector
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The backend
-(`../backend`) must be running for any page to show real data — every page
-fails gracefully with a clear connection-error state if it isn't.
+## 🚀 Setup & Installation
 
-## Pages
+To run the Next.js app locally in development mode:
 
-- **`/`** — live ops overview: heartbeat-pulse status indicator, datastore
-  connectivity, context counts, action/CTA distribution, recent actions feed.
-- **`/conversations`** — turn-by-turn conversation timelines pulled from
-  `/v1/dashboard/replies`, with auto-reply badges and "switched to ACTION
-  mode" intent-transition markers.
-- **`/contexts`** — searchable inspector over every context currently loaded
-  in the bot, by scope, with full JSON payload viewing.
-- **`/simulator`** — run health checks and `/v1/tick` calls against the live
-  bot directly from the browser, with streamed log output. This complements
-  (does not replace) the official `judge_simulator.py`, which is the only
-  thing that produces real LLM-judged scores.
-- **`/scores`** — objective anti-pattern tracking (URL violations, taboo
-  vocabulary hits, missing required fields, numeric-specificity proxy) computed
-  client-side from the bot's own logged actions.
+1.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-## Build
+2.  **Configure environment variables:**
+    Copy the example template and verify your backend endpoint:
+    ```bash
+    cp .env.example .env.local
+    ```
+    *Ensure `NEXT_PUBLIC_BOT_URL` points to your running FastAPI server (defaults to `http://localhost:8080`).*
+
+3.  **Boot the development server:**
+    ```bash
+    npm run dev
+    ```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. The backend must be active to stream live stats. The UI degrades gracefully with a connection-error state if the backend is unreachable.
+
+## 📦 Docker & Production Build
+
+To run a production-ready standalone build:
 
 ```bash
-npm run build && npm run start
+npm run build
+npm run start
 ```
 
-Production builds use `output: "standalone"` (see `next.config.ts`) for a
-minimal Docker image — see `Dockerfile` and the root `docker-compose.yml`.
+### Standalone Optimization
+The Next.js configuration is optimized using `output: "standalone"` (see `next.config.ts`) to output a minimal build bundle containing only production dependencies, which is compiled in the multi-stage `Dockerfile`.
 
-`NEXT_PUBLIC_BOT_URL` is inlined into the client bundle at **build** time.
-If you rebuild against a different backend URL, you must rebuild the app
-(or the Docker image with a different `--build-arg NEXT_PUBLIC_BOT_URL=...`).
+> [!WARNING]
+> `NEXT_PUBLIC_BOT_URL` is baked into the client bundle at **build** time. If your backend address changes, you must rebuild the application.
 
-## Design
+## 📊 Operations Dashboard Lifecycle
 
-Dark navy/electric-blue ops-tool palette (`app/globals.css`, CSS custom
-properties prefixed `--nexora-*`), Inter for UI text, JetBrains Mono for
-JSON/context IDs/code. The signature visual is the `PulseMonitor` component
-— an animated ECG-style trace representing NEXORA's "the living heartbeat of
-merchant engagement" framing from the original design brief, rather than a
-generic spinner.
+```mermaid
+sequenceDiagram
+    participant B as Browser Client
+    participant N as Next.js Dev Server
+    participant API as FastAPI backend (/v1/dashboard/*)
+    
+    B->>N: Request Dashboard Page (/)
+    N->>B: Returns static bundle with custom HSL variables
+    Note over B: Client mounts PulseMonitor (heartbeat loop)
+    B->>API: GET /v1/dashboard/metrics
+    API-->>B: Returns connection status & loaded counts
+    Note over B: UI transitions from loading skeleton to glassmorphic panels
+```
+
+## 🧭 Pages & Feature Overview
+
+### 1. Live Ops Overview (`/`)
+*   **Heartbeat Monitor:** Integrates an ECG-style animated `PulseMonitor` showing backend responsiveness.
+*   **System Health:** Heartbeat status indicators for MongoDB, Redis, and Groq API latency.
+*   **Metrics Grid:** Displays current counts of loaded contexts (`category`, `merchant`, `customer`, `trigger`) and CTA distributions.
+
+### 2. Conversation Timelines (`/conversations`)
+*   **Multi-Turn Visualization:** Renders multi-turn conversation logs stored in Redis.
+*   **Strike Badges:** Flags auto-reply strikes and locks visually.
+*   **Action Markers:** Annotates intent transitions when the conversation switches to *Action Mode*.
+
+### 3. Context Inspector (`/contexts`)
+*   **Search and Filter:** Full-text searchable directory of categories, merchants, customers, and active triggers.
+*   **JSON Tree View:** Displays the raw Pydantic schemas and metadata payloads for audits.
+
+### 4. Interactive Simulator (`/simulator`)
+*   **Endpoint Triggering:** Allows developers and judges to run health checks and manually fire tick events directly from the web browser.
+*   **Terminal Log Stream:** Displays a running log console output from backend operations.
+
+### 5. Compliance Scores (`/scores`)
+*   **Audit Metrics:** Evaluates taboo word hits, Meta URL policy violations, and required field compliance computed client-side.
+*   **Uptime & Processing Analytics:** Displays latency distribution maps for the Groq engine.
+
+## 🎨 Design System & Aesthetics
+
+NEXORA’s frontend uses a premium, dark-mode glassmorphic visual style:
+*   **Colors:** Deep navy backdrops combined with glowing electric-blue highlights (`app/globals.css`, CSS properties prefixed with `--nexora-*`).
+*   **Typography:** Renders standard UI elements in **Inter** and raw JSON/context schemas in **JetBrains Mono**.
+*   **Glassmorphism:** Employs backdrop filters, subtle border gradients, and card highlights to create depth.

@@ -1,14 +1,3 @@
-// frontend/lib/api.ts
-/**
- * Typed client for the NEXORA backend's dashboard-support endpoints
- * (/v1/dashboard/*) plus the 5 judge-facing endpoints, used by the
- * Next.js operations dashboard.
- *
- * All requests go directly from the browser to NEXT_PUBLIC_BOT_URL — no
- * Next.js API routes / server actions in between, since this is purely a
- * read-mostly monitoring UI over an already-public bot API.
- */
-
 const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL || "http://localhost:8080";
 
 export class ApiError extends Error {
@@ -50,7 +39,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 // ── Types mirroring backend/models/requests.py + dashboard responses ──────
-
 export interface HealthzResponse {
   status: "ok" | "degraded" | "down";
   uptime_seconds: number;
@@ -129,7 +117,6 @@ export interface StatsResponse {
 }
 
 // ── Judge-facing endpoints (used by the simulator runner page) ─────────────
-
 export interface TickAction {
   conversation_id: string;
   merchant_id: string | null;
@@ -162,7 +149,6 @@ export interface ContextAckResponse {
 }
 
 // ── API surface ──────────────────────────────────────────────────────────
-
 export const api = {
   botUrl: BOT_URL,
 
