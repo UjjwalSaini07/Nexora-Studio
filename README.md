@@ -514,6 +514,157 @@ Successfully completed all 30 test pairs.
 Submission file saved at: F:\_Code\Nexora-Studio\submission.jsonl
 ```
 
+## 📸 Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/1e0cec07-96d5-4a6d-af14-3465cc44471b" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Overview Tab 1</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/5a132cc9-8c5c-42cc-8aa0-1af9fa7986fe" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Overview Tab 2</b>
+    </td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/5ca0cb6d-8c69-41fb-8d95-366451328f32" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Overview Tab 3</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/d9628a0b-48a9-4488-9609-fc6c1a467f35" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Overview Tab 4</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/50f61218-b2f1-42fa-92f2-df795c35cb26" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Overview Tab 5</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/8934a3af-cc33-4f15-a1d2-0b3e2e4d5988" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Conversation Tab 1</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/a1a58ac6-3766-431b-be2a-b8efa4e85a51" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Conversation Tab 2</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/6492dde3-8e2f-4072-b94a-c6d6c27bacc3" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Conversation Tab 3</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/ae4f511a-452f-4c84-aa1e-88dad69190ba" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Contexts Tab 1</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/d3435298-3c3a-4454-a22b-74cc581189e4" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Contexts Tab 2</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/4c687889-4c56-46e5-82ab-96d8771d9c92" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Contexts Tab 3</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/2e51e364-fc66-44d8-8e80-901f871bc0d2" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Contexts Tab 4</b>
+    </td>
+  </tr>
+</table>
+
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/17583e9a-37cb-4287-ab8a-ce26637b2394" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Simulator Tab 1</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/402fa7e5-dd74-4b53-873a-815ff2ce55eb" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Simulator Tab 2</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/708ad2ab-52a5-4fe3-9ef8-5d4ee9c3843b" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Simulator Tab 3</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/41f366cf-e754-4140-bf8c-ada5b7dc675c" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Scores Tab 1</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/2cadf194-1e01-4810-9eb5-8e87afa366c2" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Scores Tab 2</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/ca5a71bb-f980-4e4c-bf63-12347c8ab28f" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Scores Tab 3</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/9cb79c46-64b9-4ef6-9fbe-29e53f31dd83" alt="Section 1" width="1200"/>
+      <br/>
+      <b>Architecture Tab 1</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/faecba05-4aa0-471b-927f-9b7a6574079b" alt="Section 2" width="1200"/>
+      <br/>
+      <b>Architecture Tab 2</b>
+    </td>
+  </tr>
+</table>
 
 ## 📄 License
 
