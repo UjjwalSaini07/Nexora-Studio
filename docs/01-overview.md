@@ -92,4 +92,30 @@ To ensure high-performance and strict focus, NEXORA does **not**:
 *   *Support arbitrary prompt injection.* The validation pipeline immediately flags and strips off-topic messages or malicious inputs.
 
 
+## 💬 Important Operational FAQs
+
+### Q1: Why does NEXORA combine MongoDB and Redis instead of using a single database?
+MongoDB serves as our durable, schema-less system of record for rich context payloads and audit trails. Redis handles fast in-memory operations (atomic version counters, suppression keys, rate limiters, and conversation wait states) where low-latency is critical to remain under the 30-second API budget.
+
+### Q2: How does the priority engine calculate the final score?
+The engine calculates a deterministic 0-100 score based on 6 parameters: Urgency (25pts), Expiry proximity (25pts), Business kind impact weight (20pts), Source type (10pts), Target scope (10pts), and Payload dictionary key counts (10pts).
+
+### Q3: What happens if trigger composition times out for a single trigger?
+Individual compositions are wrapped in isolated `asyncio.wait_for` blocks set to `TICK_TIMEOUT_SECONDS - 2.0` (23 seconds). If a single trigger times out, its composition task is safely aborted and logged as `None`, allowing other concurrent trigger tasks in the tick to complete successfully.
+
+### Q4: How does NEXORA handle automated WhatsApp Business "canned replies"?
+The system implements a three-strike rule: the 1st auto-reply sends a nudge to prompt human action; the 2nd auto-reply sets a 24-hour wait state block; the 3rd auto-reply marks the conversation ended.
+
+### Q5: What is "Action Mode" and how does the bot transition into it?
+When a customer indicates commitment (e.g., `"yes"`, `"book it"`, `"go ahead"`), the `IntentRouter` flags an explicit commit. This instructs the LLM to transition to Action Mode, delivering final drafts/checklist artifacts immediately rather than asking further discovery questions.
+
+### Q6: How are outbound message repetitions prevented?
+The output validator compares the generated body against recent conversation history in Redis. If a duplicate is detected, the composition is rejected, prompting a retry.
+
+### Q7: Does `/v1/healthz` return an HTTP 500 error if MongoDB or Redis is offline?
+No. In compliance with the challenge requirements, health checks degrade gracefully: returning an HTTP 200 status with `status: "degraded"` and setting `mongo_connected: false` or `redis_connected: false`. This avoids triggering automatic platform container restarts.
+
+### Q8: How does the teardown endpoint work?
+`POST /v1/teardown` deletes all cached keys in Redis and drops all collections in MongoDB, ensuring clean environments between test runs.
+
 👉 **Next Steps:** Proceed to the [System Architecture](/docs/02-architecture.md) documentation to learn how these concepts are implemented.
