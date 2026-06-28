@@ -13,7 +13,15 @@ logger = get_logger("nexora.redis_store")
 
 class RedisStore:
     def __init__(self, url: str = REDIS_URL):
-        self.r = aioredis.from_url(url, decode_responses=True)
+        self.r = aioredis.from_url(
+            url,
+            decode_responses=True,
+            socket_timeout=5.0,
+            socket_connect_timeout=5.0,
+            socket_keepalive=True,
+            health_check_interval=30,
+            retry_on_timeout=True,
+        )
 
     async def ping(self) -> bool:
         try:
