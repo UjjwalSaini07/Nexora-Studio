@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/contexts", label: "Contexts" },
   { href: "/simulator", label: "Simulator" },
   { href: "/scores", label: "Scores" },
+  { href: "/architecture", label: "Architecture" },
 ];
 
 export function NavBar() {
