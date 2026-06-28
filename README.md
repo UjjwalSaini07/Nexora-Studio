@@ -1,395 +1,373 @@
-﻿# NEXORA — magicpin AI Challenge Submission
+# NEXORA: AI Merchant Engagement Engine
 
-NEXORA is a production-grade merchant engagement bot built for the magicpin
-AI Challenge. It receives structured context about merchants, customers,
-and categories, decides what to say and when, and composes specific,
-on-brand WhatsApp messages via an LLM (Groq) — all behind a versioned,
-idempotent HTTP API that matches the official challenge contract exactly.
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg?style=for-the-badge&logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111.0-009688.svg?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Groq](https://img.shields.io/badge/LLM-Groq%20Llama%203.3-orange.svg?style=for-the-badge&logo=openai)](https://groq.com)
+[![Redis](https://img.shields.io/badge/Cache-Redis%207-red.svg?style=for-the-badge&logo=redis)](https://redis.io)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB%207-green.svg?style=for-the-badge&logo=mongodb)](https://mongodb.com)
+[![Docker](https://img.shields.io/badge/Deployment-Docker%20Compose-blue.svg?style=for-the-badge&logo=docker)](https://docker.com)
+[![Tests](https://img.shields.io/badge/Tests-101%20Pass%20%2F%20100%25-brightgreen.svg?style=for-the-badge&logo=pytest)](https://pytest.org)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Team:** NEXORA Engine · **Stack:** FastAPI + MongoDB + Redis + Groq (Llama) + Next.js
+NEXORA is a production-grade AI decision and engagement platform that transforms dynamic business context into intelligent, personalized customer interactions. Leveraging structured datasets, trigger-priority orchestration, context-aware prompt engineering, multi-turn conversational intelligence, and enterprise-grade validation, it autonomously generates explainable WhatsApp engagements through a resilient, scalable architecture.
 
-## Table of contents
+Team: NEXORA Engine · Stack: FastAPI · MongoDB · Redis · Groq (Llama 3.3) · Next.js
 
-1. [Architecture](#architecture)
-2. [Quick start (Docker)](#quick-start-docker)
-3. [Quick start (without Docker)](#quick-start-without-docker)
-4. [Environment variables](#environment-variables)
-5. [API reference](#api-reference)
-6. [Dataset](#dataset)
-7. [Testing](#testing)
-8. [Frontend dashboard](#frontend-dashboard)
-9. [Deployment](#deployment)
-10. [Submission format note](#submission-format-note)
-11. [Project structure](#project-structure)
-12. [Requirements checklist](#requirements-checklist)
+> Built on a fully data-driven architecture with intelligent trigger orchestration, explainable AI decisions, resilient conversation state management, and enterprise-grade validation.
 
+## 📌 Table of Contents
 
-## Architecture
-
-```
-                    ┌─────────────────────────────────────────────────────┐
-                    │              magicpin Judge Harness                 │
-                    │   (LLM playing merchant + context injector + scorer)│
-                    └──────────────────────────┬──────────────────────────┘
-                                                │ HTTP/JSON
-                                                ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                         NEXORA Bot Server (FastAPI)                            │
-│                                                                               │
-│  /v1/healthz  /v1/metadata  /v1/context  /v1/tick  /v1/reply  /v1/teardown  │
-│                                          │                  │                │
-│                          ┌───────────────▼──────────────────▼─────────────┐ │
-│                          │         Context Store Layer                    │ │
-│                          │  Redis: version index + suppression keys      │ │
-│                          │  MongoDB: full context payloads + audit log   │ │
-│                          └────────────────┬────────────────────────────── ┘ │
-│                                           │                                  │
-│                          ┌────────────────▼─────────────────────────────┐  │
-│                          │     EngagementComposer (core logic)          │  │
-│                          │  TriggerRouter → ContextAssembler →          │  │
-│                          │  PromptBuilder → Groq LLM → OutputValidator  │  │
-│                          └────────────────┬─────────────────────────────┘  │
-│                                           │                                  │
-│                          ┌────────────────▼─────────────────────────────┐  │
-│                          │   ReplyHandler (multi-turn state machine)    │  │
-│                          │  Auto-reply detector · Intent router ·       │  │
-│                          │  Language detector · Graceful exit logic     │  │
-│                          └───────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────────────────┘
-                                           │
-                          ┌────────────────▼───────────────────────────────┐
-                          │      Next.js Operations Dashboard (port 3000) │
-                          │  Live monitor · Conversations · Contexts ·    │
-                          │  Simulator runner · Score analytics           │
-                          └─────────────────────────────────────────────────┘
-```
-
-**Why Groq:** the 30-second response budget (and the need to compose up
-to 20 actions per `/v1/tick` call) rewards low-latency inference. Groq's
-LPU-backed hosting of Llama 3.3 70B gives us full-size-model quality at a
-fraction of typical inference latency, with `llama-3.1-8b-instant` as an
-automatic fallback if the primary model errors out.
+1.  [🌟 What is NEXORA?](#-what-is-nexora)
+2.  [🧠 How NEXORA Thinks](#-how-nexora-thinks)
+3.  [🏗️ System Architecture](#%EF%B8%8F-system-architecture)
+4.  [⚙️ Technology Stack](#%EF%B8%8F-technology-stack)
+5.  [✨ Feature Highlights](#-feature-highlights)
+6.  [🚀 Quick Start (Docker)](#-quick-start-docker)
+7.  [💻 Local Setup (No Docker)](#-local-setup-no-docker)
+8.  [📡 API Reference Summary](#-api-reference-summary)
+9.  [❌ Error Ingestion & Codes](#-error-ingestion--codes)
+10. [📊 Trigger Priority Ranking](#-trigger-priority-ranking)
+11. [🔔 Supported Trigger Kinds](#-supported-trigger-kinds)
+12. [🔧 Configuration Environment](#-configuration-environment)
+13. [🧪 Testing Framework](#-testing-framework)
+14. [📁 Project Structure](#-project-structure)
+15. [⚖️ Judge Evaluation Workflow](#%EF%B8%8F-judge-evaluation-workflow)
+16. [📄 License](#-license)
 
 
-## Quick start (Docker)
+## 🌟 What is NEXORA?
 
-This is the fastest path to a fully running stack (Mongo + Redis + backend + frontend).
+NEXORA is a production-grade merchant engagement assistant engineered for magicpin’s AI Challenge. The core service acts as an autonomous cognitive gateway, converting background data events (triggers) into highly personalized, contextual WhatsApp outreach.
 
-```bash
-git clone <this-repo>
-cd nexora-bot
-cp .env.example .env
-# Edit .env and set GROQ_API_KEY (get one free at https://console.groq.com/keys)
+Unlike basic templated bots, NEXORA enforces a strict **4-context resolution** (Category, Merchant, Customer, Trigger) to anchor all LLM generation. Every number, percentage, date, and name must exist in the context payloads; hallucinations are strictly blocked by the validation pipeline.
 
-docker compose up --build
+By combining low-latency inference on Groq's Llama 3.3 with local cache controls via Redis and persistent audit logging in MongoDB, NEXORA satisfies the challenge's strict 30-second response budget while guaranteeing production safety, conversation state tracking, and rate limiting.
+
+
+## 🧠 How NEXORA Thinks
+
+NEXORA follows a systematic workflow to evaluate opportunities and compose messages:
+
+1.  **Ingestion:** Real-time system states (contexts) are pushed via an idempotent HTTP API. Stale version numbers are rejected immediately.
+2.  **Prioritization:** Active trigger signals are prioritized and sorted using a deterministic, multi-dimensional formula (calculating urgency, expiry, business kind, and context richness).
+3.  **Assembly:** Category voice parameters, merchant metrics, customer history, and trigger payloads are merged into a single multi-dimensional context.
+4.  **Composition:** The prompt builder dispatches the assembled context to the LLM (temperature $T=0$, running on Groq Llama 3.3). If Groq experiences an outage, it automatically fails over to a secondary Llama 3.1 model.
+5.  **Verification:** The validation engine analyzes the generated message. It strips dangerous URLs, checks for required psychological compulsion levers, corrects mismatching sender scopes, and blocks repetitions.
+6.  **Outreach:** Compliant actions are returned to the client and logged to MongoDB. Suppression keys are set in Redis to prevent outreach fatigue.
+
+
+## 🏗️ System Architecture
+
+### Core Components Flow
+
+```mermaid
+graph TD
+    Client[Client / Judge] -->|REST Request| API[FastAPI Gateway]
+    API -->|Global Rate Limit Check| Redis[(Redis Cache)]
+    API -->|Payload Verification| Mongo[(MongoDB)]
+    
+    subgraph Composition Pipeline
+        Priority[Trigger Priority Engine]
+        Assembly[Context Assembler]
+        Prompt[Prompt Builder]
+        Groq[Groq Llama Client]
+        Validator[Output Validator]
+        
+        Priority --> Assembly --> Prompt --> Groq --> Validator
+    end
+
+    API -->|POST /v1/tick| Priority
+    Validator -->|Log Audit Trail & Set Suppression| Mongo
+    Validator -->|Set Suppression Key| Redis
+    Validator -->|Return Action| API
 ```
 
-This will:
-1. Start MongoDB and Redis
-2. Build the backend image, **generating the expanded dataset inside the
-   image** (deterministic — same seed, same output every time)
-3. Start the backend on `http://localhost:8080`
-4. Build and start the frontend dashboard on `http://localhost:3000`
+### Request Lifecycle (`POST /v1/tick`)
 
-Verify it's healthy:
-
-```bash
-curl http://localhost:8080/v1/healthz
-# {"status":"ok","uptime_seconds":12,"contexts_loaded":{"category":5,"merchant":50,"customer":200,"trigger":100},...}
+```mermaid
+sequenceDiagram
+    autonumber
+    Client->>API: POST /v1/tick {now, triggers}
+    API->>Mongo: Fetch Triggers Concurrently
+    Mongo-->>API: Return Trigger Payloads
+    API->>Priority: Score & Sort Triggers (0-100)
+    Note over Priority: Urgency + Expiry + Kind + Source + Scope + payload keys
+    Priority-->>API: Ranked Triggers List
+    loop For each ranked trigger
+        API->>Redis: Check Suppression key
+        Redis-->>API: return is_suppressed
+        alt not suppressed
+            API->>Assembly: Assemble (Category + Merchant + Customer)
+            Assembly-->>API: Combined Context
+            API->>Prompt: Prompt Builder (Master system + kind addendum)
+            Prompt-->>API: Prompts System/User
+            API->>Groq: Query Llama 3.3 (22s timeout, temp=0)
+            Groq-->>API: JSON Message
+            API->>Validator: Validate Output
+            Note over Validator: Strips URLs, validates CTA, corrects send_as
+            Validator-->>API: Validated Action
+            API->>Mongo: Save Actions Log
+            API->>Redis: Set Suppression Key (7-day TTL)
+        end
+    end
+    API-->>Client: Return actions list with processing_ms
 ```
 
-Open `http://localhost:3000` for the live operations dashboard.
+### Conversation Reply State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Active
+    
+    Active --> AutoReply1 : Inbound Auto-Reply (1st strike)
+    AutoReply1 --> Active : Inbound Genuine Message
+    AutoReply1 --> AutoReply2 : Inbound Auto-Reply (2nd strike)
+    AutoReply2 --> Active : Inbound Genuine Message
+    AutoReply2 --> WaitState : Wait 24h timer active
+    WaitState --> AutoReply3 : Turn during wait window
+    AutoReply3 --> Ended : Inbound Auto-Reply (3rd strike) -> Close
+    
+    Active --> Ended : Hard Opt-out ("Stop" / "Exit")
+    Active --> ActionMode : Explicit Commit ("Yes" / "Confirm")
+    ActionMode --> Ended : Conversation Finished
+```
 
 
-## Quick start (without Docker)
+## ⚙️ Technology Stack
+
+*   **Runtime Framework:** FastAPI (Python 3.13)
+*   **Database (Durable Store):** MongoDB 7 (Persistent context payloads, action logs, audit trails)
+*   **Cache (In-memory Cache):** Redis 7 (Version checking, sliding-window rate limiters, suppression keys)
+*   **Inference Gateway:** Groq API client
+*   **Primary LLM Model:** Llama-3.3-70b-versatile (deterministic execution, $T=0$)
+*   **Fallback LLM Model:** Llama-3.1-8b-instant (automatic failover)
+*   **UI Dashboard:** Next.js (App Router, Tailwind v4, TypeScript)
+*   **Deployment:** Docker, Docker Compose
+
+
+## ✨ Feature Highlights
+
+*   **🔒 Strict URL Stripping:** Strips any inbound or outbound URLs to comply with Meta's messaging policies, avoiding API penalties.
+*   **⚡ Idempotence & Version Checking:** Context updates enforce strict monotonically increasing versions. Out-of-order or duplicate updates are rejected.
+*   **🛡️ Resilient Health Checks:** The `/v1/healthz` endpoint handles database exceptions gracefully, reporting `degraded` connectivity status rather than returning a 500 server error.
+*   **🗣️ Bilingual Hindi-English (Hinglish):** Seamless code-mixing for merchants with `"hi"` language preferences, mirroring local Indian commerce styles naturally.
+*   **🤖 Automated Responder Mitigation:** Implements a three-strike rule to prevent infinite loops when interacting with automated business reply systems.
+*   **🔬 Diagnostic Decision Auditor:** Includes `/v1/action/{id}/explain` to expose exactly why actions were taken, which category beats matched, and what compulsion levers were used.
+
+
+## 🚀 Quick Start (Docker)
+
+To run the complete stack (FastAPI Backend, Next.js Frontend, MongoDB, Redis):
+
+1.  **Clone and Configure:**
+    ```bash
+    git clone https://github.com/UjjwalSaini07/Nexora-Studio
+    ```
+    ```bash
+    cd Nexora-Studio
+    cp .env.example .env
+    ```
+    Set your **Groq API Key** in `.env`:
+    ```env
+    GROQ_API_KEY=gsk_your_groq_api_key_here
+    ```
+
+2.  **Launch Stack:**
+    ```bash
+    docker compose up --build -d
+    ```
+
+3.  **Verify Health:**
+    ```bash
+    curl http://localhost:8080/v1/healthz
+    ```
+
+4.  **Explore Operations Dashboard:**
+    Open `http://localhost:3000` to inspect live operations, conversation threads, and context versions.
+
+## 💻 Local Setup (No Docker)
 
 ### Backend
-
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env: set GROQ_API_KEY, and MONGO_URI/REDIS_URL if not running locally
+# Edit backend/.env and configure 
+```
 
+```bash
+python -m venv venv
+```
+```bash
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+```bash
 pip install -r requirements.txt
-
-# You need a local MongoDB and Redis running. Quickest way on most systems:
-#   redis-server --daemonize yes
-#   mongod --dbpath /tmp/mongo-data &
-# (or install via your OS package manager / Homebrew / apt)
-
-# Generate the expanded dataset (50 merchants, 200 customers, 100 triggers, 30 test pairs)
+```
+```bash
+# Pre-seed the MongoDB database with expanded mock dataset
 python3 ../dataset/generate_dataset.py --seed-dir ../dataset --out ../expanded
-
+```
+```bash
+# Start the development server
 uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-`uvicorn bot:app` also works — `backend/bot.py` is a thin alias for `main:app`,
-provided because the official testing brief's reference skeleton names the
-file `bot.py`. Both start the exact same application.
-
-### Frontend
-
+### Frontend Dashboard
 ```bash
 cd frontend
 cp .env.example .env.local
+# Set NEXT_PUBLIC_BOT_URL=http://localhost:8080 in env.local
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
 
+## 📡 API Reference Summary
 
-## Environment variables
+| HTTP Verb | Path | Request Body | Success Code | Purpose |
+| :--- | :--- | :--- | :---: | :--- |
+| **`GET`** | `/v1/healthz` | *None* | `200` | Liveness check (DB connectivity & uptime). |
+| **`GET`** | `/v1/metadata` | *None* | `200` | Team metadata and challenge approach. |
+| **`POST`** | `/v1/context` | `ContextBody` JSON | `200` | Ingest new context versions. |
+| **`POST`** | `/v1/tick` | `TickBody` JSON | `200` | Evaluate triggers and return actions. |
+| **`POST`** | `/v1/reply` | `ReplyBody` JSON | `200` | Process conversational reply turns. |
+| **`POST`** | `/v1/teardown` | *None* | `200` | Wipe all tables (called between test windows). |
+| **`POST`** | `/v1/demo/reset`| *None* | `200` | Clear suppression, wait states, and conversations. |
+| **`GET`** | `/v1/action/{id}/explain`| *None* | `200` | Audit decision path for a conversation. |
 
-See `.env.example` (root, for docker-compose), `backend/.env.example`, and
-`frontend/.env.example` for the full annotated list. The most important:
+## ❌ Error Ingestion & Codes
 
-| Variable | Where | Purpose |
-|---|---|---|
-| `GROQ_API_KEY` | backend | Your Groq API key. Required for `/v1/tick` and `/v1/reply` to compose real messages. |
-| `LLM_MODEL` | backend | Default `llama-3.3-70b-versatile`. |
-| `LLM_FALLBACK_MODEL` | backend | Default `llama-3.1-8b-instant`, used if the primary model fails every retry. |
-| `MONGO_URI` / `REDIS_URL` | backend | Datastore connection strings. |
-| `TEAM_NAME` / `TEAM_MEMBERS` / `CONTACT_EMAIL` | backend | Returned by `/v1/metadata`. |
-| `RATE_LIMIT_PER_MINUTE` | backend | Default `1200` — comfortably above the judge harness's documented 10 req/sec (600/min) ceiling, with headroom for warmup bursts. |
-| `ENABLE_AUTH` / `API_AUTH_TOKEN` | backend | Optional shared-secret auth on `/v1/*` routes (off by default — the judge harness isn't guaranteed to send an Authorization header). |
-| `NEXT_PUBLIC_BOT_URL` | frontend | Where the dashboard fetches data from. **Inlined at build time** — see note below. |
-
-> **Frontend build-time URL note:** `NEXT_PUBLIC_BOT_URL` is inlined into
-> the client JS bundle at build time (standard Next.js behavior for
-> `NEXT_PUBLIC_*` vars). If you deploy the backend and frontend to different
-> public URLs, rebuild the frontend image with the correct
-> `NEXT_PUBLIC_BOT_URL` build arg pointing at your real backend URL.
-
-
-## API reference
-
-All 5 judge-facing endpoints plus an optional teardown endpoint, exactly per
-`challenge-testing-brief.md`.
-
-### `GET /v1/healthz`
-Liveness probe. **Never returns a 500** — if Mongo or Redis is unreachable,
-returns `200` with `status: "degraded"` and the relevant `*_connected: false`
-flag, so the judge's "3 consecutive non-200 healthz" penalty is never
-triggered by a transient backend hiccup.
+The API wraps validation and runtime errors in a standard error schema:
 
 ```json
-{"status":"ok","uptime_seconds":142,"contexts_loaded":{"category":5,"merchant":50,"customer":200,"trigger":100},"mongo_connected":true,"redis_connected":true}
+{
+  "success": false,
+  "accepted": false,
+  "reason": "error_reason_slug",
+  "error": {
+    "code": "ERROR_CODE_SLUG",
+    "message": "Detailed error description."
+  }
+}
 ```
 
-### `GET /v1/metadata`
-Team identity and approach summary, used by the judge for transparency.
-
-### `POST /v1/context`
-Versioned, idempotent context ingestion for `category` / `merchant` /
-`customer` / `trigger` scopes. Same-or-older version → `accepted: false,
-reason: "stale_version"`. Higher version → accepted and persisted.
-
-### `POST /v1/tick`
-Periodic wake-up. Composes up to `TICK_MAX_ACTIONS` (default 20) actions
-for the given `available_triggers`, respecting suppression keys, expiry
-(checked against the **simulated** `now` from the request, never real
-wall-clock time — see the regression test for why this matters), and the
-"max one action per `(merchant_id, conversation_id)` pair per tick" rule.
-
-### `POST /v1/reply`
-Handles one inbound turn of a conversation. Returns `send` / `wait` / `end`.
-Detects WhatsApp Business auto-replies (1st → friendly nudge, 2nd → wait
-24h, 3rd → end), hard-stop/opt-out language (graceful single exit message),
-explicit commit signals (switches to drafting the actual artifact instead
-of asking another qualifying question), and mid-conversation language
-switches.
-
-### `POST /v1/teardown` *(optional, called by the judge between test windows)*
-Wipes all persisted Redis keys and Mongo documents. Idempotent, always
-returns 200, never requires auth — per the privacy requirement that bots
-must not retain context/conversation data after a test ends.
-
-### Dashboard-support endpoints (`/v1/dashboard/*`)
-Read-only endpoints backing the Next.js dashboard (`contexts`, `actions`,
-`replies`, `conversations/{id}`, `stats`). Not part of the judge's 5
-required endpoints — purely operational tooling.
+Standard Codes:
+*   `INVALID_JSON` (400): Malformed JSON syntax in request body.
+*   `BAD_REQUEST` (400): Invalid scope provided in context push.
+*   `TRIGGER_NOT_FOUND` (404): Specified trigger ID does not exist.
+*   `MERCHANT_NOT_FOUND` (404): Specified merchant ID does not exist.
+*   `CUSTOMER_NOT_FOUND` (404): Specified customer ID does not exist.
+*   `PAYLOAD_TOO_LARGE` (413): Request body exceeds `2MB` cap.
+*   `VALIDATION_ERROR` (422): Request parameters failed validation checks.
+*   `RATE_LIMIT_EXCEEDED` (429): Global or endpoint rate limits exceeded.
+*   `INTERNAL_ERROR` (500): Unexpected exception in backend code.
 
 
-## Dataset
+## 📊 Trigger Priority Ranking
 
-```
-dataset/
-  categories/{dentists,salons,restaurants,gyms,pharmacies}.json   # official seed (unmodified)
-  merchants_seed.json   customers_seed.json   triggers_seed.json   # official seeds (unmodified)
-  generate_dataset.py                                              # official generator (unmodified)
-expanded/        # generated: 50 merchants, 200 customers, 100 triggers, test_pairs.json (30 canonical pairs)
-```
+Triggers processed during `/v1/tick` are ranked using a deterministic 0-100 score:
 
-These are the **official** files from magicpin's challenge zip, used
-as-is. Regenerate the expanded dataset anytime with:
+$$\text{Priority Score} = S_{\text{urgency}} + S_{\text{expiry}} + S_{\text{kind}} + S_{\text{source}} + S_{\text{scope}} + S_{\text{payload}}$$
 
-```bash
-python3 dataset/generate_dataset.py --seed-dir dataset --out expanded
-```
+1.  **Urgency (Max 25):** Clamped urgency score ($1 \text{ to } 5$) $\times 5$.
+2.  **Expiry Proximity (Max 25):** Expiry window proximity scoring. $\le 24$ hours left = $25\text{pts}$. $\ge 168$ hours left = $0\text{pts}$. No expiry = $12\text{pts}$.
+3.  **Kind Weight (Max 20):** Business kind weight assigned to the trigger kind.
+4.  **Source Weight (Max 10):** `external` = $10\text{pts}$, `internal` = $6\text{pts}$.
+5.  **Scope Weight (Max 10):** `customer` (direct revenue) = $10\text{pts}$, `merchant` = $7\text{pts}$.
+6.  **Payload Richness (Max 10):** Number of payload dictionary keys $\times 2$ (capped at 10).
 
-`generate_submission.py` (repo root) drives the **real, running bot**
-through all 30 canonical test pairs over its actual HTTP API and writes
-`submission.jsonl`:
-
-```bash
-python3 generate_submission.py --bot-url http://localhost:8080 --dataset-dir expanded
-```
+*Ties are broken lexicographically by trigger ID.*
 
 
-## Testing
+## 🔔 Supported Trigger Kinds
+
+NEXORA supports 27 trigger configurations:
+
+*   **Critical Events (20pts):** `supply_alert`, `regulation_change`.
+*   **High Commercial Value (18pts):** `appointment_tomorrow`, `recall_due`, `chronic_refill_due`.
+*   **Retention Nudges (16pts):** `renewal_due`.
+*   **Performance Signals (14-15pts):** `perf_spike`, `perf_dip`, `seasonal_perf_dip`, `competitor_opened`.
+*   **Engagement Cycles (10-13pts):** `customer_lapsed_hard`, `ipl_match_today`, `winback_eligible`, `bridal_followup`, `wedding_package_followup`, `festival_upcoming`, `trial_followup`, `customer_lapsed_soft`, `category_seasonal`.
+*   **Relationship Celebrations (5-9pts):** `milestone_reached`, `review_theme_emerged`, `gbp_unverified`, `cde_opportunity`, `research_digest`, `active_planning_intent`, `dormant_with_nexora`, `curious_ask_due`.
+
+
+## 🔧 Configuration Environment
+
+*   `GROQ_API_KEY` (Required): API key for Llama model calls.
+*   `LLM_MODEL` (Default: `llama-3.3-70b-versatile`): Core composition model.
+*   `LLM_FALLBACK_MODEL` (Default: `llama-3.1-8b-instant`): Failover composition model.
+*   `LLM_TIMEOUT_SECONDS` (Default: `22`): Threshold before attempting failover.
+*   `MONGO_URI` (Default: `mongodb://localhost:27017`): MongoDB connection string.
+*   `REDIS_URL` (Default: `redis://localhost:6379`): Redis connection string.
+*   `RATE_LIMIT_PER_MINUTE` (Default: `1200`): Global request rate limit per minute.
+*   `DEMO_MODE` (Default: `true`): Bypasses suppression logic for demonstration purposes.
+*   `ENABLE_AUTH` (Default: `false`): Enables token authentication.
+*   `API_AUTH_TOKEN` (Default: *None*): Authorization Bearer token.
+
+
+## 🧪 Testing Framework
+
+NEXORA includes an extensive test suite with **101 tests (100% passing)**:
 
 ```bash
 cd backend
-pip install -r requirements.txt
 pytest tests/ -v
 ```
 
-**83 tests, all passing**, covering:
-- Unit tests: output validation, auto-reply/intent/language detectors, prompt construction
-- Integration tests: the real FastAPI app (via `httpx.AsyncClient` + `fakeredis` + `mongomock-motor`)
-  exercised against the **real official dataset** — idempotency, suppression,
-  customer-scope `send_as` correction, auto-reply-hell → wait → end, hostile
-  message handling, intent transition
-- Warmup-phase test matching `challenge-testing-brief.md` §4 Phase 1 exactly
-  (255 base contexts reflected in `/v1/healthz`)
-- All 30 canonical `test_pairs.json` pairs proven to produce a valid action
-- Regression tests for two real bugs found via live end-to-end testing
-  against the official dataset (see `tests/test_regressions.py`):
-  1. The trigger-expiry check must compare against the judge's *simulated*
-     `now` (from the `/v1/tick` request), never the real wall-clock time —
-     since seed-dataset `expires_at` values are authored on the challenge's
-     own simulated timeline.
-  2. `/v1/healthz` must survive a Redis/Mongo ping exception and report
-     `degraded`, never crash with a raw 500.
-
-`backend/dev_tools/` contains two local-only test doubles (never used in
-production): `mock_groq_server.py` (an OpenAI-compatible mock that parses
-real prompt content for genuinely deterministic local testing) and
-`run_sandbox_demo.py` (boots the real app against a real Redis + an
-in-memory Mongo, for environments without a local MongoDB install).
+### Target Test Scopes
+*   **Unit Tests:** Prompt formatting, lever matching, language switching, output validation.
+*   **Integration Tests:** Core API flows, versioning controls, wait-state timers, rate limit blocks.
+*   **Warmup Tests:** Warmup simulation matching Phase 1 of the testing brief (verifies that 255 base contexts load successfully).
+*   **Validation Tests:** Simulates all 30 canonical test cases against the live API, validating output schemas and formatting.
 
 
-## Frontend dashboard
+## 📁 Project Structure
 
-Next.js 16 (App Router) + TypeScript + Tailwind v4. Five pages:
-
-| Route | Purpose |
-|---|---|
-| `/` | Live ops overview — heartbeat-pulse status, context counts, action/CTA breakdown, recent actions feed |
-| `/conversations` | Turn-by-turn conversation timelines, auto-reply badges, intent-transition markers |
-| `/contexts` | Searchable inspector for every loaded context, by scope, with full JSON view |
-| `/simulator` | Browser-driven health checks and tick runs against the live bot, with streamed output |
-| `/scores` | Objective anti-pattern tracking (URLs, taboo words, missing fields) from the bot's own action log |
-
-> The dashboard's `/scores` and `/simulator` pages do **not** reproduce
-> magicpin's real 5-dimension LLM-judged scoring (that requires the
-> judge's own model and is run via `judge_simulator.py`, not from this
-> dashboard) — they're clearly labeled as operational/diagnostic tooling
-> that complements, rather than replaces, the official judge.
-
-```bash
-cd frontend
-npm install
-npm run dev      # development
-npm run build && npm run start   # production
+```
+Nexora-Studio/
+├── backend/                  # FastAPI Application Code
+│   ├── main.py               # Lifespan coordination, middleware initialization, exception handlers
+│   ├── bot.py                # Thin entrypoint alias for uvicorn launcher
+│   ├── config.py             # Environment configurations
+│   ├── middleware.py         # Global rate limiter, payload size verifier, logging middleware
+│   ├── models/               # Pydantic schemas (requests, responses, contexts)
+│   ├── storage/              # Database adapter singletons (Redis, MongoDB)
+│   ├── composer/             # Message composition pipeline modules
+│   ├── reply/                # Multi-turn conversational handler modules
+│   ├── routers/              # API controller route endpoints
+│   ├── dataset/              # Mock dataset loaders and seeding tools
+│   ├── tests/                # 101 automated test cases
+│   └── Dockerfile            # Container configuration (runs as non-root user)
+├── frontend/                 # Next.js UI operations dashboard
+├── dataset/                  # Challenge base JSON seeds
+├── expanded/                 # Seeding dataset generated at build
+├── documents/                # Challenge documentation files
+├── docker-compose.yml        # Orchestration file
+├── judge_simulator.py        # Local testing grading simulator
+└── generate_submission.py    # Submits 30 canonical tests to API -> submission.jsonl
 ```
 
 
-## Deployment
+## ⚖️ Judge Evaluation Workflow
 
-Any host with a public HTTPS URL works. The bot is a standard FastAPI/
-Uvicorn app with no platform-specific dependencies.
+To verify NEXORA against the Magicpin AI Challenge grading harness:
 
-- **Railway / Render / Fly.io**: point at `backend/Dockerfile` (build
-  context = repo root) or use `docker-compose.yml` directly if the
-  platform supports compose.
-- **Bare VM**: `docker compose up -d --build`, or run `uvicorn main:app`
-  behind a reverse proxy (nginx/Caddy) with your own MongoDB/Redis.
-- Make sure `GROQ_API_KEY` is set and the published port (8080) is
-  reachable over HTTPS before submitting your bot URL via the challenge
-  portal.
+1.  **Launch Stack:**
+    ```bash
+    docker compose up --build
+    ```
+2.  **Verify Health & Load Status:**
+    ```bash
+    curl http://localhost:8080/v1/healthz
+    # Ensure all contexts are preloaded (category: 5, merchant: 50, customer: 200, trigger: 100)
+    ```
+3.  **Run Grading Simulator:**
+    ```bash
+    python3 judge_simulator.py --bot-url http://localhost:8080 --groq-api-key $GROQ_API_KEY
+    ```
+4.  **Inspect Score Diagnostic Log:**
+    Examine the generated audit logs on the dashboard (`http://localhost:3000/scores`) to verify URL compliance, compulsion checks, and response latency.
 
+## 📄 License
 
-## Submission format note
-
-magicpin's challenge zip contains two documents that describe submission
-slightly differently:
-
-- `challenge-brief.md` §7 shows an ~80-line reference skeleton saved as
-  `bot.py`.
-- `challenge-testing-brief.md` (the detailed, binding spec) confirms this
-  is the **same FastAPI app** — just run via `uvicorn bot:app` instead of
-  `uvicorn main:app` — deployed to a public URL, which the judge harness
-  calls over HTTP.
-
-This submission implements the full HTTP contract (all 5 endpoints +
-optional teardown) in `backend/main.py`, with `backend/bot.py` provided as
-a one-line re-export so `uvicorn bot:app` works identically, for maximum
-compatibility with either document's exact wording. `generate_submission.py`
-additionally produces a `submission.jsonl` (per `challenge-brief.md` §7.2)
-by driving the real deployed bot through the 30 canonical test pairs, in
-case that artifact is also collected.
-
-
-## Project structure
-
-```
-nexora-bot/
-├── backend/
-│   ├── main.py                 # FastAPI app, lifespan, middleware, exception handlers
-│   ├── bot.py                  # alias: `uvicorn bot:app` == `uvicorn main:app`
-│   ├── config.py                # env-driven configuration
-│   ├── dependencies.py          # FastAPI DI providers + optional auth
-│   ├── middleware.py             # rate limiting + request logging
-│   ├── logging_config.py         # structured JSON/dev logging
-│   ├── models/                   # Pydantic schemas (context.py, requests.py, conversation.py)
-│   ├── storage/                  # redis_store.py, mongo_store.py
-│   ├── composer/                 # engine.py, prompt_builder.py, llm_client.py, output_validator.py, context_assembler.py
-│   ├── reply/                    # handler.py, auto_reply_detector.py, intent_router.py, language_detector.py
-│   ├── routers/                  # healthz, metadata, context, tick, reply, teardown, dashboard
-│   ├── dataset/loader.py         # startup dataset preload
-│   ├── dev_tools/                 # LOCAL-ONLY test doubles, never used in production
-│   ├── tests/                     # 83 tests (unit + integration + regression)
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .env.example
-├── frontend/                       # Next.js 16 dashboard (5 pages, see above)
-│   ├── app/  components/  lib/
-│   ├── Dockerfile
-│   └── .env.example
-├── dataset/                        # OFFICIAL seed files + generator (unmodified)
-├── expanded/                        # generated: 50 merchants / 200 customers / 100 triggers / test_pairs.json
-├── examples/                         # OFFICIAL api-call-examples.md, case-studies.md (unmodified)
-├── challenge-brief.md                # OFFICIAL (unmodified)
-├── challenge-testing-brief.md         # OFFICIAL (unmodified)
-├── engagement-design.md               # OFFICIAL (unmodified)
-├── engagement-research.md              # OFFICIAL (unmodified)
-├── judge_simulator.py                   # OFFICIAL (unmodified) — run with your own LLM key for real scoring
-├── generate_submission.py                # drives the real bot through the 30 test pairs → submission.jsonl
-├── docker-compose.yml
-└── .env.example
-```
-
-
-## Requirements checklist
-
-| Requirement | Status |
-|---|---|
-| 5 required HTTP endpoints (healthz, metadata, context, tick, reply) | ✅ |
-| Optional teardown endpoint | ✅ |
-| Versioned, idempotent context ingestion | ✅ |
-| Suppression/dedup via Redis | ✅ |
-| Trigger-kind-specific prompt composition (all 25 real trigger kinds) | ✅ |
-| Output validation (URL stripping, CTA validation, anti-repetition, taboo tracking) | ✅ |
-| Multi-turn reply state machine (auto-reply, hard-stop, intent transition, language switch) | ✅ |
-| Groq LLM integration with retry + fallback model | ✅ |
-| MongoDB persistence + indexes | ✅ |
-| Redis caching, versioning, suppression, rate limiting | ✅ |
-| Structured logging | ✅ |
-| Rate limiting (above judge's documented ceiling) | ✅ |
-| Resilient healthz (never 500s on datastore outage) | ✅ |
-| Docker + docker-compose for full stack | ✅ |
-| Next.js operations dashboard (5 pages) | ✅ |
-| 83 automated tests against the real official dataset | ✅ |
-| README, env docs, architecture, API docs, deployment guide | ✅ |
+This project is licensed under the MIT License. See [LICENSE](/LICENSE) for more details.
