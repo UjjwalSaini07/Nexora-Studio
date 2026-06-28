@@ -1,4 +1,4 @@
-# NEXORA: AI Merchant Engagement Engine
+# 🌌 NEXORA: AI Merchant Engagement Engine
 
 [![Python](https://img.shields.io/badge/Python-3.13-blue.svg?style=for-the-badge&logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111.0-009688.svg?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
@@ -43,6 +43,16 @@ Unlike basic templated bots, NEXORA enforces a strict **4-context resolution** (
 
 By combining low-latency inference on Groq's Llama 3.3 with local cache controls via Redis and persistent audit logging in MongoDB, NEXORA satisfies the challenge's strict 30-second response budget while guaranteeing production safety, conversation state tracking, and rate limiting.
 
+### 🎭 Category Verticals & Voice Registers
+
+NEXORA adapts its conversational register dynamically to match the expected tone of different local business categories:
+
+*   **Dentists (`dentists`):** Uses a *clinical peer* voice. Tone is professional and clinical. It references patient segments, clinical studies, and page numbers, strictly avoiding marketing buzzwords like "discount" or "cheap offer."
+*   **Salons & Spas (`salons`):** Employs a *warm and practical* tone. It emphasizes relaxation, personal care windows, prep durations, and reservation slot convenience.
+*   **Gyms & Fitness (`gyms`):** Communicates as a *motivational coach*. Emphasizes habit consistency, metric goals, active participation, and slot availability.
+*   **Restaurants & Dining (`restaurants`):** Uses an *operator-to-operator* register. Discusses delivery margins, covers-per-hour, seasonal spikes, kitchen prep constraints, and match-day forecasts.
+*   **Pharmacies (`pharmacies`):** Adopts a *trustworthy and precise* tone. Focuses on refill schedules, senior discount programs, batch verification, and molecule safety alerts.
+
 
 ## 🧠 How NEXORA Thinks
 
@@ -54,6 +64,18 @@ NEXORA follows a systematic workflow to evaluate opportunities and compose messa
 4.  **Composition:** The prompt builder dispatches the assembled context to the LLM (temperature $T=0$, running on Groq Llama 3.3). If Groq experiences an outage, it automatically fails over to a secondary Llama 3.1 model.
 5.  **Verification:** The validation engine analyzes the generated message. It strips dangerous URLs, checks for required psychological compulsion levers, corrects mismatching sender scopes, and blocks repetitions.
 6.  **Outreach:** Compliant actions are returned to the client and logged to MongoDB. Suppression keys are set in Redis to prevent outreach fatigue.
+
+### 🧭 Inbound Reply Evaluation Pipeline
+
+When an inbound reply turn is received via `POST /v1/reply`, NEXORA executes a pipeline to determine the appropriate response:
+
+*   **Rate Limit Check:** Evaluates both IP limits and conversation turn limits in Redis to prevent loops.
+*   **Active Thread Check:** Confirms if the conversation has already been marked as ended in Redis.
+*   **Auto-Reply Detection:** Uses pattern matching to identify automatic business canned messages. If detected, it increments a strike counter in Redis and triggers wait or end states.
+*   **Opt-Out Router:** Scans the text for hard-stop keywords. If matched, it sets the conversation status to ended and generates a polite exit message.
+*   **Commit Router:** Scans for affirmative signals. If matched, it transitions the LLM prompt to Action Mode.
+*   **Language Check:** Analyzes characters and Hinglish code-mix markers to adjust translation directives.
+*   **LLM Compilation:** Submits the compiled turn history and category constraints to the LLM.
 
 
 ## 🏗️ System Architecture
@@ -185,6 +207,7 @@ To run the complete stack (FastAPI Backend, Next.js Frontend, MongoDB, Redis):
 4.  **Explore Operations Dashboard:**
     Open `http://localhost:3000` to inspect live operations, conversation threads, and context versions.
 
+
 ## 💻 Local Setup (No Docker)
 
 ### Backend
@@ -234,6 +257,38 @@ npm run dev
 | **`POST`** | `/v1/teardown` | *None* | `200` | Wipe all tables (called between test windows). |
 | **`POST`** | `/v1/demo/reset`| *None* | `200` | Clear suppression, wait states, and conversations. |
 | **`GET`** | `/v1/action/{id}/explain`| *None* | `200` | Audit decision path for a conversation. |
+
+### 🔍 Explaining AI Decisions (`/v1/action/{conversation_id}/explain`)
+
+NEXORA exposes its full cognitive routing trace through the explain endpoint. This returns diagnostic details about why a specific trigger was prioritized and what factors were extracted during generation:
+
+```json
+{
+  "conversation_id": "conv_m_001_trg_001",
+  "trigger_id": "trg_001",
+  "why_selected": "Trigger 'trg_001' of kind 'research_digest' with urgency 3 was selected and assigned a priority score of 75 (ranked #1).",
+  "priority_breakdown": {
+    "score": 75,
+    "rank": 1,
+    "reason": "score=75: [urgency=3/5 -> 15pts] + [expires_in=24.5h -> 20pts] + [kind=research_digest -> 8pts] + [source=external -> 10pts] + [scope=merchant -> 7pts] + [payload_keys=2 -> 4pts]"
+  },
+  "merchant_signals_used": ["low_ctr"],
+  "category_signals_used": ["Nov-Feb exam-stress bruxism spike"],
+  "customer_signals_used": [],
+  "compulsion_levers_used": ["specificity", "effort_externalization"],
+  "confidence_score": 0.92,
+  "suppression_status": {
+    "is_suppressed": false,
+    "suppression_key": "sup_research_m_001"
+  },
+  "wait_state_status": {
+    "is_waiting": false,
+    "wait_until": null
+  },
+  "rationale": "Anchored on recent clinical digest item. Proposing patient campaign workflow utilizing commitment lever."
+}
+```
+
 
 ## ❌ Error Ingestion & Codes
 
@@ -287,7 +342,7 @@ NEXORA supports 27 trigger configurations:
 *   **High Commercial Value (18pts):** `appointment_tomorrow`, `recall_due`, `chronic_refill_due`.
 *   **Retention Nudges (16pts):** `renewal_due`.
 *   **Performance Signals (14-15pts):** `perf_spike`, `perf_dip`, `seasonal_perf_dip`, `competitor_opened`.
-*   **Engagement Cycles (10-13pts):** `customer_lapsed_hard`, `ipl_match_today`, `winback_eligible`, `bridal_followup`, `wedding_package_followup`, `festival_upcoming`, `trial_followup`, `customer_lapsed_soft`, `category_seasonal`.
+*   **Warmup Tests & Loops (10-13pts):** `customer_lapsed_hard`, `ipl_match_today`, `winback_eligible`, `bridal_followup`, `wedding_package_followup`, `festival_upcoming`, `trial_followup`, `customer_lapsed_soft`, `category_seasonal`.
 *   **Relationship Celebrations (5-9pts):** `milestone_reached`, `review_theme_emerged`, `gbp_unverified`, `cde_opportunity`, `research_digest`, `active_planning_intent`, `dormant_with_nexora`, `curious_ask_due`.
 
 
@@ -366,8 +421,25 @@ To verify NEXORA against the Magicpin AI Challenge grading harness:
     python3 judge_simulator.py --bot-url http://localhost:8080 --groq-api-key $GROQ_API_KEY
     ```
 4.  **Inspect Score Diagnostic Log:**
-    Examine the generated audit logs on the dashboard (`http://localhost:3000/scores`) to verify URL compliance, compulsion checks, and response latency.
+    EXamine the generated audit logs on the dashboard (`http://localhost:3000/scores`) to verify URL compliance, compulsion checks, and response latency.
+
 
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](/LICENSE) for more details.
+
+
+## 👨‍💻 Author & Lead Architect
+
+**Ujjwal Saini**
+Founder, Lead Engineer & System Architect
+
+Passionate Full-Stack Engineer specializing in AI-powered systems, computer vision, real-time analytics, and scalable platform architecture. Focused on building production-grade solutions that transform raw operational data into actionable business intelligence. Hey, I'm Ujjwal — a creative full-stack developer with a deep love for design, motion, and digital storytelling. I bring bold ideas to life through stunning interfaces and seamless user experiences, always chasing clarity in every interaction.
+
+My stack is MERN-focused, but my mindset is product-first. I thrive in fast-paced environments where innovation and precision matter, constantly pushing for smarter, cleaner, and faster solutions.
+
+*   **Portfolio:** [ujjwalsaini.vercel.app](https://ujjwalsaini.vercel.app)
+*   **GitHub:** [@UjjwalSaini07](https://github.com/UjjwalSaini07)
+*   **LinkedIn:** [@ujjwalsaini07](https://linkedin.com/in/ujjwalsaini07)
+*   **Twitter/X:** [@UjjwalSx007](https://x.com/UjjwalSx007)
+*   **Email:** [ujjwalsaini0007+nexora@gmail.com](mailto:ujjwalsaini0007+nexora@gmail.com)
