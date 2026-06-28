@@ -1,4 +1,3 @@
-# backend/main.py
 import os
 from contextlib import asynccontextmanager
 
@@ -65,9 +64,6 @@ app = FastAPI(
 )
 
 # CORS: the dashboard (Next.js, typically on a different origin/port) needs
-# to call this API directly from the browser. The judge harness calls
-# server-to-server and is unaffected by CORS. Restrict via env var in
-# production rather than leaving this wide open.
 _cors_origins = os.getenv("CORS_ALLOW_ORIGINS", "*")
 allow_origins = ["*"] if _cors_origins == "*" else [o.strip() for o in _cors_origins.split(",")]
 
@@ -84,12 +80,6 @@ app.add_middleware(PayloadSizeMiddleware)
 
 
 def _sanitize_validation_errors(errors: list) -> list:
-    """
-    Pydantic's exc.errors() can include a 'ctx' dict containing the raw
-    exception object that triggered a custom @field_validator ValueError
-    (e.g. ctx={'error': ValueError(...)}). That's not JSON-serializable and
-    will crash json.dumps()/JSONResponse. Strip it down to plain strings.
-    """
     sanitized = []
     for err in errors:
         clean = {k: v for k, v in err.items() if k != "ctx"}

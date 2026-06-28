@@ -1,11 +1,4 @@
-﻿# backend/logging_config.py
-"""
-Structured logging configuration for NEXORA.
-
-Logs as single-line JSON in production (easy to ship to a log aggregator),
-and as readable colored text in development.
-"""
-import json
+﻿import json
 import logging
 import sys
 from datetime import datetime, timezone

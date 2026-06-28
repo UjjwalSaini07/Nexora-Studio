@@ -49,7 +49,7 @@ ENABLE_AUTH = _get_bool("ENABLE_AUTH", False)
 RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "1200"))
 
 # ── Demo Mode / Ignore Suppression ───────────────────────────────────────────
-DEMO_MODE = _get_bool("DEMO_MODE", True) or _get_bool("IGNORE_SUPPRESSION", True)  # For backwards compatibility with old env var name
+DEMO_MODE = _get_bool("DEMO_MODE", True) or _get_bool("IGNORE_SUPPRESSION", True)
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

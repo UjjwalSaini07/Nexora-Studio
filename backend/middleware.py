@@ -1,9 +1,3 @@
-# backend/middleware.py
-"""
-Lightweight rate-limiting middleware backed by Redis fixed-window counters,
-keyed by client IP. Applied globally in main.py. Exempts /v1/healthz so
-liveness probes are never throttled.
-"""
 import time
 
 from fastapi import Request
