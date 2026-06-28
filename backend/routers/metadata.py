@@ -23,4 +23,7 @@ async def metadata():
         contact_email=CONTACT_EMAIL,
         version=BOT_VERSION,
         submitted_at=SUBMITTED_AT,
+        author_portfolio="https://ujjwalsaini.vercel.app",
+        author_github="https://github.com/UjjwalSaini07",
+        project_description="NEXORA: A production-grade merchant engagement engine designed for the magicpin AI Challenge. Automatically translates raw business database signals (categories, merchants, customers, triggers) into hyper-personalized, context-grounded, multi-turn conversational actions.",
     )

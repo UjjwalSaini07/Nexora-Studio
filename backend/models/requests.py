@@ -28,6 +28,9 @@ class MetadataResponse(BaseModel):
     contact_email: str
     version: str
     submitted_at: str
+    author_portfolio: Optional[str] = None
+    author_github: Optional[str] = None
+    project_description: Optional[str] = None
 
 
 # ── /v1/context ──────────────────────────────────────────────────────────────

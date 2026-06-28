@@ -31,7 +31,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 # ── Team / submission metadata (exposed via /v1/metadata) ─────────────────
 TEAM_NAME = os.getenv("TEAM_NAME", "NEXORA Engine")
 TEAM_MEMBERS = [m.strip() for m in os.getenv("TEAM_MEMBERS", "Ujjwal Saini").split(",") if m.strip()]
-CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "you@example.com")
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "ujjwalsaini0007@gmail.com")
 BOT_VERSION = os.getenv("BOT_VERSION", "1.0.0")
 SUBMITTED_AT = os.getenv("SUBMITTED_AT", "2026-04-26T08:00:00Z")
 

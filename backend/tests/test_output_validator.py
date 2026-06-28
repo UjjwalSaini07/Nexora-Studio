@@ -127,12 +127,14 @@ class TestOutputValidator:
         assert "guaranteed" in result["taboo_hits"]
 
     def test_repeated_body_in_conversation_is_rejected(self):
+        from unittest.mock import patch
         raw = {"body": "We already sent this exact message before.", "cta": "open_ended",
                "send_as": "nexora", "rationale": "x"}
-        result = self.validator.validate(
-            raw, self.trigger, self.merchant, self.category,
-            previously_sent_bodies=["We already sent this exact message before."],
-        )
+        with patch("composer.output_validator.DEMO_MODE", False):
+            result = self.validator.validate(
+                raw, self.trigger, self.merchant, self.category,
+                previously_sent_bodies=["We already sent this exact message before."],
+            )
         assert result is None
 
     def test_non_dict_output_rejected(self):

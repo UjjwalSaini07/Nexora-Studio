@@ -258,7 +258,10 @@ class TestTickEndpoint:
             "cta": "open_ended", "send_as": "nexora",
             "template_params": [], "rationale": "x",
         }
-        with patch("composer.llm_client.LLMClient.complete", new=AsyncMock(return_value=mock_llm_response)):
+        with patch("composer.llm_client.LLMClient.complete", new=AsyncMock(return_value=mock_llm_response)), \
+             patch("composer.engine.DEMO_MODE", False), \
+             patch("composer.output_validator.DEMO_MODE", False), \
+             patch("routers.tick.DEMO_MODE", False):
             resp1 = await client.post("/v1/tick", json={
                 "now": "2026-04-26T10:35:00Z", "available_triggers": [trigger_payload["id"]],
             })
