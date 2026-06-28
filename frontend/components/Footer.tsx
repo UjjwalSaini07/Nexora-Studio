@@ -12,6 +12,7 @@ interface HealthStatus {
 export function Footer() {
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [statusState, setStatusState] = useState<"loading" | "online" | "degraded" | "offline">("loading");
+  const [localUptime, setLocalUptime] = useState<number>(0);
 
   useEffect(() => {
     const checkHealth = async () => {
@@ -41,10 +42,26 @@ export function Footer() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    let start = sessionStorage.getItem("nexora_session_start");
+    if (!start) {
+      start = String(Date.now());
+      sessionStorage.setItem("nexora_session_start", start);
+    }
+    const startMs = Number(start);
+
+    const updateTimer = () => {
+      setLocalUptime(Math.floor((Date.now() - startMs) / 1000));
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const formatUptime = (seconds: number) => {
     if (seconds < 60) return `${seconds}s`;
     const mins = Math.floor(seconds / 60);
-    if (mins < 60) return `${mins}m`;
+    if (mins < 60) return `${mins}m ${seconds % 60}s`;
     const hrs = Math.floor(mins / 60);
     const remainingMins = mins % 60;
     return `${hrs}h ${remainingMins}m`;
@@ -118,9 +135,9 @@ export function Footer() {
                 <span className={`h-1.5 w-1.5 rounded-full ${health?.redis_connected ? "bg-emerald-500" : "bg-rose-500"}`} />
                 <span className="text-slate-300">Redis</span>
               </div>
-              {health?.uptime_seconds !== undefined && (
+              {localUptime !== undefined && (
                 <div className="text-slate-500 ml-1">
-                  Uptime: <span className="text-indigo-400">{formatUptime(health.uptime_seconds)}</span>
+                  Uptime: <span className="text-indigo-400">{formatUptime(localUptime)}</span>
                 </div>
               )}
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { usePolling } from "@/lib/usePolling";
 import { PulseMonitor } from "@/components/PulseMonitor";
@@ -27,6 +28,24 @@ export default function OverviewPage() {
   const metadata = usePolling(() => api.metadata(), 30000);
   const stats = usePolling(() => api.stats(), 5000);
 
+  const [localUptime, setLocalUptime] = useState<number>(0);
+
+  useEffect(() => {
+    let start = sessionStorage.getItem("nexora_session_start");
+    if (!start) {
+      start = String(Date.now());
+      sessionStorage.setItem("nexora_session_start", start);
+    }
+    const startMs = Number(start);
+
+    const updateTimer = () => {
+      setLocalUptime(Math.floor((Date.now() - startMs) / 1000));
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const status = stats.data?.bot_status ?? healthz.data?.status ?? (healthz.error ? "down" : "degraded");
 
   return (
@@ -40,7 +59,7 @@ export default function OverviewPage() {
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-nexora-muted uppercase font-bold tracking-wider">Uptime</span>
               <span className="text-xs font-mono font-bold text-nexora-text-bright">
-                {healthz.data ? formatUptime(healthz.data.uptime_seconds) : "..."}
+                {localUptime !== undefined ? formatUptime(localUptime) : "..."}
               </span>
             </div>
           </div>
