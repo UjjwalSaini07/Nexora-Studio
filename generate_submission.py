@@ -131,9 +131,18 @@ def main():
             push_context(client, "trigger", pair["trigger_id"], trigger_payload)
 
             now_iso = safe_now_before_expiry(trigger_payload)
-            resp = client.post("/v1/tick", json={"now": now_iso, "available_triggers": [pair["trigger_id"]]})
-            resp.raise_for_status()
-            actions = resp.json().get("actions", [])
+            
+            # Retry loop to handle transient Groq 429 TPM/RPM rate limits
+            actions = []
+            for attempt in range(4):
+                resp = client.post("/v1/tick", json={"now": now_iso, "available_triggers": [pair["trigger_id"]]})
+                resp.raise_for_status()
+                actions = resp.json().get("actions", [])
+                if actions:
+                    break
+                if attempt < 3:
+                    print(f"[{test_id}] Got no action (likely Groq 429 rate limit). Retrying in 12s... (attempt {attempt+1}/3)")
+                    time.sleep(12.0)
 
             if not actions:
                 failures.append((test_id, "bot returned no action for this trigger"))

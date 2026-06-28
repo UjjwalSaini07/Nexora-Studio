@@ -13,8 +13,8 @@ async def main():
     
     composer = EngagementComposer(redis, mongo)
     
-    # Let's test T05 (trg_020_summer_demand_shift)
-    trigger_id = "trg_020_summer_demand_shift"
+    # Let's test T07 (trg_019_chronic_refill_grandfather)
+    trigger_id = "trg_019_chronic_refill_grandfather"
     print(f"\n--- Testing trigger: {trigger_id} ---")
     doc = await mongo.get_context("trigger", trigger_id)
     if not doc:
@@ -48,7 +48,7 @@ async def main():
         merchant=merchant,
         trigger=trigger,
         customer=customer,
-        now_iso="2026-06-29T23:00:00Z"
+        now_iso="2026-04-27T23:00:00Z"
     )
     print("Built prompt successfully.")
     
