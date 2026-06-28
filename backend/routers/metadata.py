@@ -1,4 +1,3 @@
-# backend/routers/metadata.py
 from fastapi import APIRouter
 
 from config import TEAM_NAME, TEAM_MEMBERS, CONTACT_EMAIL, BOT_VERSION, SUBMITTED_AT, LLM_MODEL

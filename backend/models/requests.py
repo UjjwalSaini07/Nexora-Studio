@@ -1,4 +1,3 @@
-# backend/models/requests.py
 """
 Request/response schemas for the 5 judge-facing endpoints.
 

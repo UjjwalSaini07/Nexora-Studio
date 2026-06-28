@@ -1,5 +1,4 @@
-﻿# backend/models/conversation.py
-"""
+﻿"""
 Typed representations of a conversation's turn-by-turn state.
 
 RedisStore persists conversations as plain JSON lists of dicts (cheap, fast,

@@ -1,5 +1,4 @@
-﻿# backend/reply/language_detector.py
-"""
+﻿"""
 LanguageDetector: lightweight heuristic detector for mid-conversation
 language switches between English and Hindi/Hinglish (code-mixed).
 

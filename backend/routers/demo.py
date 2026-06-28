@@ -1,5 +1,4 @@
-﻿# backend/routers/demo.py
-from fastapi import APIRouter, Depends
+﻿from fastapi import APIRouter, Depends
 from dependencies import get_redis, get_mongo, verify_auth
 from storage.redis_store import RedisStore
 from storage.mongo_store import MongoStore

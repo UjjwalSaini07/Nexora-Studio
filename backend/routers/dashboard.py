@@ -1,9 +1,3 @@
-# backend/routers/dashboard.py
-"""
-Read-only endpoints that exist solely to back the Next.js operations
-dashboard: live context inspector, recent actions/replies feed, and basic
-score-analytics placeholders.
-"""
 from typing import Optional, List
 from datetime import datetime, timezone, timedelta
 import asyncio

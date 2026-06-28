@@ -1,5 +1,4 @@
-﻿# backend/dev_tools/run_sandbox_demo.py
-"""
+﻿"""
 DEV-ONLY TOOL — not part of the production deliverable.
 
 Used to smoke-test the real FastAPI app end-to-end in environments where a

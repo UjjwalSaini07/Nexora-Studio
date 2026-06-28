@@ -1,4 +1,3 @@
-# backend/reply/auto_reply_detector.py
 from config import AUTO_REPLY_PATTERNS
 
 

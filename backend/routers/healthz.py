@@ -1,5 +1,4 @@
-﻿# backend/routers/healthz.py
-import time
+﻿import time
 
 from fastapi import APIRouter, Depends
 

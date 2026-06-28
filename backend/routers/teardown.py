@@ -1,5 +1,4 @@
-﻿# backend/routers/teardown.py
-"""
+﻿"""
 POST /v1/teardown (optional, per challenge-testing-brief.md §11) —
 magicpin's judge harness may call this at the end of a test window. On
 receiving it, the bot must wipe all persisted context/conversation state

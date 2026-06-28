@@ -1,4 +1,3 @@
-# backend/routers/context.py
 """
 POST /v1/context — push category/merchant/customer/trigger data.
 

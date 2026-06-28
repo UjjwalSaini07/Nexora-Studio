@@ -1,4 +1,3 @@
-# backend/reply/intent_router.py
 COMMIT_SIGNALS = [
     "ok let's do it", "ok lets do it", "yes let's go", "yes go ahead",
     "yes please", "haan", "haan karo", "kar do", "go", "yes, do it",

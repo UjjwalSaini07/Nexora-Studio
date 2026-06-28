@@ -1,5 +1,4 @@
-﻿# backend/dev_tools/mock_groq_server.py
-"""
+﻿"""
 DEV-ONLY TOOL — not part of the production deliverable.
 
 A minimal FastAPI app that mimics Groq's OpenAI-compatible chat completions
