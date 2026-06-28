@@ -1,5 +1,6 @@
 import json
 import os
+import asyncio
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -30,26 +31,31 @@ async def _load_scope(mongo, redis, scope: str, dir_path: Path, id_field: str):
         return 0
 
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    loaded = 0
-    for f in sorted(dir_path.glob("*.json")):
-        try:
-            data = json.loads(f.read_text(encoding="utf-8-sig"))
-        except json.JSONDecodeError as exc:
-            logger.error(f"Failed to parse {f}: {exc}")
-            continue
+    sem = asyncio.Semaphore(30)
 
-        context_id = data.get(id_field, f.stem)
-        existing = await mongo.get_context(scope, context_id)
-        if existing:
-            # Re-sync context version to Redis if missing from cache
-            await redis.set_context_version_if_new(scope, context_id, existing.get("version", 1))
-            continue
+    async def process_file(f):
+        async with sem:
+            try:
+                data = json.loads(f.read_text(encoding="utf-8-sig"))
+            except json.JSONDecodeError as exc:
+                logger.error(f"Failed to parse {f}: {exc}")
+                return 0
 
-        await mongo.upsert_context(scope, context_id, 1, data, now)
-        await redis.set_context_version_if_new(scope, context_id, 1)
-        loaded += 1
+            context_id = data.get(id_field, f.stem)
+            existing = await mongo.get_context(scope, context_id)
+            if existing:
+                # Re-sync context version to Redis if missing from cache
+                await redis.set_context_version_if_new(scope, context_id, existing.get("version", 1))
+                return 0
 
-    return loaded
+            await mongo.upsert_context(scope, context_id, 1, data, now)
+            await redis.set_context_version_if_new(scope, context_id, 1)
+            return 1
+
+    tasks = [process_file(f) for f in sorted(dir_path.glob("*.json"))]
+    results = await asyncio.gather(*tasks)
+    return sum(results)
+
 
 
 async def load_dataset_to_mongo(mongo, redis):
