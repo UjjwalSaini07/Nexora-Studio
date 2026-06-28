@@ -2,6 +2,17 @@
 
 This document provides a comprehensive reference of all public endpoints exposed by the NEXORA backend, including step-by-step Postman testing guidelines.
 
+> [!IMPORTANT]
+> ### 🌐 NEXORA Deployed Production Links
+> 
+> * **⚡ Deployed Backend Engine (API):** [https://nexora-studio-0aaz.onrender.com/](https://nexora-studio-0aaz.onrender.com/) *(Health Endpoint: `/v1/healthz`)*
+> * **🖥️ Live Operations Dashboard (UI):** [https://nexorabot-ai.vercel.app/](https://nexorabot-ai.vercel.app/)
+> 
+> | Environment | Backend Endpoint | Frontend Dashboard |
+> | :--- | :--- | :--- |
+> | **☁️ Live Production** | `https://nexora-studio-0aaz.onrender.com/` | `https://nexorabot-ai.vercel.app/` |
+> | **💻 Local Development** | `http://localhost:8080` | `http://localhost:3000` |
+
 ## 📋 Endpoints Overview
 
 | Method | Path | Auth Required | Purpose |
@@ -73,7 +84,8 @@ Every endpoint returns a structured JSON payload in case of validation failures,
 
 ### 🚀 Setup Postman Environment
 Before testing, add these variables to your Postman Environment:
-*   `base_url`: `http://localhost:8080`
+*   `base_url`: `http://localhost:8080` (Local Dev)
+*   `base_url`: `https://nexora-studio-0aaz.onrender.com` (Deployed Live Production)
 *   `auth_token`: `your_configured_bearer_token` (only required if `ENABLE_AUTH=true`)
 
 ### 1. `GET /v1/healthz`

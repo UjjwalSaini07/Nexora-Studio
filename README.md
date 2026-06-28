@@ -461,6 +461,9 @@ Nexora-Studio/
 
 To verify NEXORA against the Magicpin AI Challenge grading harness:
 
+> [!TIP]
+> **Testing Target URL:** By default, the commands below target the local endpoint (`http://localhost:8080`). To test the live deployed server, replace `http://localhost:8080` with the production API URL: `https://nexora-studio-0aaz.onrender.com`.
+
 1.  **Launch Stack:**
     ```bash
     docker compose up --build
@@ -471,11 +474,16 @@ To verify NEXORA against the Magicpin AI Challenge grading harness:
     # Ensure all contexts are preloaded (category: 5, merchant: 50, customer: 200, trigger: 100)
     ```
 3.  **Run Grading Simulator:**
-    ```bash
-    python3 judge_simulator.py --bot-url http://localhost:8080 --groq-api-key $GROQ_API_KEY
-    ```
+    *   **Local Backend:**
+        ```bash
+        python3 judge_simulator.py --bot-url http://localhost:8080 --groq-api-key $GROQ_API_KEY
+        ```
+    *   **Live Deployed Production Backend:**
+        ```bash
+        python3 judge_simulator.py --bot-url https://nexora-studio-0aaz.onrender.com --groq-api-key $GROQ_API_KEY
+        ```
 4.  **Inspect Score Diagnostic Log:**
-    EXamine the generated audit logs on the dashboard (`http://localhost:3000/scores`) to verify URL compliance, compulsion checks, and response latency.
+    Examine the generated audit logs on the dashboard (`http://localhost:3000/scores` or `https://nexorabot-ai.vercel.app/scores`) to verify URL compliance, compulsion checks, and response latency.
 
 
 ## 📤 Generating Submission File
@@ -491,10 +499,14 @@ To generate the submission file from the `backend/` directory:
     uvicorn main:app --host 0.0.0.0 --port 8080
     ```
 
-2.  **Run the Generator Script:** Open a second PowerShell window, change directory to `backend/`, configure the `BOT_URL` environment variable, and execute the generator:
+2.  **Run the Generator Script:** Open a second PowerShell window, change directory to `backend/`, configure the `BOT_URL` environment variable (either local or live deployed), and execute the generator:
     ```powershell
     cd backend
+    # For Local Dev:
     $env:BOT_URL="http://localhost:8080"
+    
+    # Or for Live Deployed Production:
+    # $env:BOT_URL="https://nexora-studio-0aaz.onrender.com"
     ```
     ```bash
     python ../generate_submission.py --expanded-dir ../expanded --out ../submission.jsonl
@@ -503,7 +515,12 @@ To generate the submission file from the `backend/` directory:
 *If using standard Windows Command Prompt (CMD), run:*
 ```cmd
 cd backend
+:: For Local Dev:
 set BOT_URL=http://localhost:8080
+
+:: Or for Live Deployed Production:
+:: set BOT_URL=https://nexora-studio-0aaz.onrender.com
+
 python ..\generate_submission.py --expanded-dir ..\expanded --out ..\submission.jsonl
 ```
 

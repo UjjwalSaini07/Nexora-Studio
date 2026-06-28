@@ -2,6 +2,17 @@
 
 This guide is designed for judges of the **magicpin AI Challenge** to evaluate the **NEXORA** engine. It outlines step-by-step procedures to run, verify, and grade NEXORA's endpoints, robustness, and conversational compliance, based on the official challenge testing briefs.
 
+> [!IMPORTANT]
+> ### 🌐 NEXORA Deployed Production Links
+> 
+> * **⚡ Deployed Backend Engine (API):** [https://nexora-studio-0aaz.onrender.com/](https://nexora-studio-0aaz.onrender.com/) *(Health Endpoint: `/v1/healthz`)*
+> * **🖥️ Live Operations Dashboard (UI):** [https://nexorabot-ai.vercel.app/](https://nexorabot-ai.vercel.app/)
+> 
+> | Environment | Backend Endpoint | Frontend Dashboard |
+> | :--- | :--- | :--- |
+> | **☁️ Live Production** | `https://nexora-studio-0aaz.onrender.com/` | `https://nexorabot-ai.vercel.app/` |
+> | **💻 Local Development** | `http://localhost:8080` | `http://localhost:3000` |
+
 ## 📋 Prerequisites & Local Setup
 
 Ensure the following tools are installed on your host system:
@@ -26,6 +37,17 @@ docker compose up --build
 ```
 *Wait approximately 15 seconds for datastore health checks to pass and pre-seeding pipelines to complete.*
 
+### Set target BOT_URL Endpoint
+Before running the curl examples below, set the target bot endpoint based on the testing environment:
+
+*   **Live Deployed Production Engine:**
+    *   **Bash/zsh (Linux/macOS):** `export BOT_URL=https://nexora-studio-0aaz.onrender.com`
+    *   **PowerShell (Windows):** `$BOT_URL="https://nexora-studio-0aaz.onrender.com"`
+*   **Local Development Server:**
+    *   **Bash/zsh (Linux/macOS):** `export BOT_URL=http://localhost:8080`
+    *   **PowerShell (Windows):** `$BOT_URL="http://localhost:8080"`
+
+
 ## ⚡ Quick Evaluation Checklist
 
 1.  [ ] **Run System:** Start the containers via `docker compose up --build`.
@@ -45,7 +67,7 @@ The judge harness sends context updates to ingest category vertical rules, merch
 #### Test Context Ingestion
 Submit a custom category context to the system:
 ```bash
-curl -s -X POST http://localhost:8080/v1/context \
+curl -s -X POST $BOT_URL/v1/context \
   -H "Content-Type: application/json" \
   -d '{
     "scope": "category",
@@ -84,7 +106,7 @@ curl -s -X POST http://localhost:8080/v1/context \
 #### Test Version Control (Idempotency)
 Re-submit the exact same context request. The server must reject it since version `1` is already saved:
 ```bash
-curl -s -X POST http://localhost:8080/v1/context \
+curl -s -X POST $BOT_URL/v1/context \
   -H "Content-Type: application/json" \
   -d '{
     "scope": "category",
@@ -112,7 +134,7 @@ The judge harness triggers periodic tick events, providing active trigger IDs. T
 #### Test Tick Evaluation
 Send a tick payload evaluating preloaded trigger `trg_001` (a `research_digest` trigger for merchant `m_001`):
 ```bash
-curl -s -X POST http://localhost:8080/v1/tick \
+curl -s -X POST $BOT_URL/v1/tick \
   -H "Content-Type: application/json" \
   -d '{
     "now": "2026-06-27T12:00:00Z",
@@ -160,7 +182,7 @@ Handles conversation replies from merchants/customers, evaluating auto-replies, 
 #### Test Intent Transition to Action Mode
 Send a reply containing a positive commitment signal ("Yes"):
 ```bash
-curl -s -X POST http://localhost:8080/v1/reply \
+curl -s -X POST $BOT_URL/v1/reply \
   -H "Content-Type: application/json" \
   -d '{
     "conversation_id": "conv_m_001_trg_001",
@@ -188,7 +210,7 @@ The system transitions the prompt from discovery mode to action mode, returning 
 #### Test Hostile Opt-Out (Stop Keyword)
 Verify that the bot politely handles stop requests and immediately terminates conversation threads:
 ```bash
-curl -s -X POST http://localhost:8080/v1/reply \
+curl -s -X POST $BOT_URL/v1/reply \
   -H "Content-Type: application/json" \
   -d '{
     "conversation_id": "conv_m_001_trg_001",
@@ -222,19 +244,19 @@ Send consecutive canned auto-replies (e.g. "Thank you for contacting us..."):
 ### Audit AI Decision Rationale
 Explain why a specific action was chosen, which metrics were extracted from context, and what compulsion levers were used:
 ```bash
-curl -s http://localhost:8080/v1/action/conv_m_001_trg_001/explain
+curl -s $BOT_URL/v1/action/conv_m_001_trg_001/explain
 ```
 
 ### Reset Demo Suppressions
 To wipe suppressions and wait states during testing without deleting database contexts:
 ```bash
-curl -s -X POST http://localhost:8080/v1/demo/reset
+curl -s -X POST $BOT_URL/v1/demo/reset
 ```
 
 ### Full Teardown
 To wipe all contexts, conversations, and logs from the datastores (called between grading windows):
 ```bash
-curl -s -X POST http://localhost:8080/v1/teardown
+curl -s -X POST $BOT_URL/v1/teardown
 ```
 
 ## 🛡️ Robustness & Error Testing
@@ -243,7 +265,7 @@ Verify the FastAPI exception handlers return structured JSON envelopes under cra
 
 ### Test Malformed JSON (returns HTTP 400)
 ```bash
-curl -s -X POST http://localhost:8080/v1/tick \
+curl -s -X POST $BOT_URL/v1/tick \
   -H "Content-Type: application/json" \
   -d '{"now": "2026-06-27T12:00:00Z", "available_triggers": ["trg_001"'
 ```
@@ -263,7 +285,7 @@ curl -s -X POST http://localhost:8080/v1/tick \
 
 ### Test Invalid Scope Parameter (returns HTTP 400)
 ```bash
-curl -s -X POST http://localhost:8080/v1/context \
+curl -s -X POST $BOT_URL/v1/context \
   -H "Content-Type: application/json" \
   -d '{
     "scope": "invalid_scope_name",
@@ -290,7 +312,7 @@ curl -s -X POST http://localhost:8080/v1/context \
 
 ### Test Missing Trigger Context (returns HTTP 404)
 ```bash
-curl -s -X POST http://localhost:8080/v1/tick \
+curl -s -X POST $BOT_URL/v1/tick \
   -H "Content-Type: application/json" \
   -d '{
     "now": "2026-06-27T12:00:00Z",
@@ -316,9 +338,14 @@ curl -s -X POST http://localhost:8080/v1/tick \
 To run the local grading simulator which mimics magicpin's official judge harness:
 
 *   **From the Project Root:**
-    ```bash
-    python3 judge_simulator.py --bot-url http://localhost:8080 --groq-api-key $GROQ_API_KEY
-    ```
+    *   **Local Backend:**
+        ```bash
+        python3 judge_simulator.py --bot-url http://localhost:8080 --groq-api-key $GROQ_API_KEY
+        ```
+    *   **Live Deployed Production Backend:**
+        ```bash
+        python3 judge_simulator.py --bot-url https://nexora-studio-0aaz.onrender.com --groq-api-key $GROQ_API_KEY
+        ```
 
 To expand the seed dataset files and generate the `expanded` data directory:
 
