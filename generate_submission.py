@@ -33,7 +33,7 @@ DEFAULT_BOT_URL = os.getenv("BOT_URL", "http://localhost:8080")
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def push_context(client: httpx.Client, scope: str, context_id: str, payload: dict, version: int = 1) -> None:
@@ -85,6 +85,15 @@ def main():
     except Exception as exc:
         print(f"ERROR: bot not reachable at {args.bot_url}: {exc}", file=sys.stderr)
         sys.exit(1)
+
+    # Reset state to clean out any previous test suppressions/wait-states
+    try:
+        print("Resetting server state via /v1/teardown...")
+        resp = client.post("/v1/teardown")
+        resp.raise_for_status()
+        print(f"Teardown response: {resp.json()}")
+    except Exception as exc:
+        print(f"WARNING: teardown reset failed: {exc}", file=sys.stderr)
 
     pushed_categories, pushed_merchants, pushed_customers = set(), set(), set()
     output_lines = []
@@ -145,10 +154,10 @@ def main():
             failures.append((test_id, str(exc)))
             print(f"[{test_id}] FAILED: {exc}", file=sys.stderr)
 
-        time.sleep(0.05)  # gentle pacing, well under the judge's own rate cap
+        time.sleep(8.0)  # paced to respect Groq API rate limits (TPM/RPM)
 
     out_path = Path(args.out)
-    with out_path.open("w") as f:
+    with out_path.open("w", encoding="utf-8") as f:
         for line in output_lines:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
 
