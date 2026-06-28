@@ -1,4 +1,3 @@
-// frontend/components/ui.tsx
 import type { ReactNode } from "react";
 
 export function Card({

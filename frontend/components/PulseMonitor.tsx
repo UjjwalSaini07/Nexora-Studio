@@ -1,4 +1,3 @@
-// frontend/components/PulseMonitor.tsx
 "use client";
 
 export function PulseMonitor({
