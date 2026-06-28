@@ -2,36 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-// Kind weights lookup table matching the Priority Engine
-const KIND_WEIGHTS: Record<string, number> = {
-  "supply_alert": 20,
-  "regulation_change": 20,
-  "appointment_tomorrow": 18,
-  "recall_due": 18,
-  "chronic_refill_due": 18,
-  "renewal_due": 16,
-  "perf_spike": 15,
-  "perf_dip": 14,
-  "seasonal_perf_dip": 14,
-  "competitor_opened": 14,
-  "customer_lapsed_hard": 13,
-  "winback_eligible": 12,
-  "bridal_followup": 12,
-  "wedding_package_followup": 12,
-  "trial_followup": 11,
-  "customer_lapsed_soft": 10,
-  "ipl_match_today": 13,
-  "festival_upcoming": 12,
-  "category_seasonal": 10,
-  "milestone_reached": 9,
-  "review_theme_emerged": 9,
-  "gbp_unverified": 9,
-  "cde_opportunity": 9,
-  "research_digest": 8,
-  "active_planning_intent": 8,
-  "dormant_with_nexora": 6,
-  "curious_ask_due": 5,
-};
+
+
 
 interface InterviewTurn {
   question: string;
@@ -73,33 +45,6 @@ export default function ArchitecturePage() {
     return () => clearTimeout(timer);
   }, [selectedTopic]);
 
-  // --- Priority Calculator State ---
-  const [urgency, setUrgency] = useState<number>(3);
-  const [expiryHours, setExpiryHours] = useState<number>(48);
-  const [triggerKind, setTriggerKind] = useState<string>("appointment_tomorrow");
-  const [source, setSource] = useState<"internal" | "external">("external");
-  const [scope, setScope] = useState<"customer" | "merchant">("customer");
-  const [payloadKeys, setPayloadKeys] = useState<number>(4);
-
-  // --- Calculate Priority Math ---
-  const urgencyPts = urgency * 5;
-  
-  let expiryPts = 12; // default neutral
-  if (expiryHours <= 24) {
-    expiryPts = 25;
-  } else if (expiryHours >= 168) {
-    expiryPts = 0;
-  } else {
-    const ratio = 1 - (expiryHours - 24) / (168 - 24);
-    expiryPts = Math.floor(ratio * 25);
-  }
-
-  const kindPts = KIND_WEIGHTS[triggerKind] || 7;
-  const sourcePts = source === "external" ? 10 : 6;
-  const scopePts = scope === "customer" ? 10 : 7;
-  const payloadPts = Math.min(10, payloadKeys * 2);
-
-  const totalPriorityScore = Math.min(100, urgencyPts + expiryPts + kindPts + sourcePts + scopePts + payloadPts);
 
   return (
     <div className="space-y-12 pb-16">
@@ -273,170 +218,260 @@ export default function ArchitecturePage() {
         </div>
       </div>
 
-      {/* Interactive Engine A: Priority Score Calculator */}
-      <div className="rounded-2xl border border-indigo-500/10 bg-slate-950/20 backdrop-blur-md p-6 md:p-8 space-y-8 shadow-xl">
-        <div>
-          <span className="text-xs font-mono tracking-wider text-indigo-400 uppercase">ENGINE SIMULATOR</span>
-          <h2 className="text-xl font-bold text-white mt-1">Interactive Priority Score Calculator</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Prioritizes active triggers deterministically using a 0-100 scoring model before invoking LLM pipelines.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Controls */}
-          <div className="lg:col-span-3 space-y-5">
-            {/* Urgency */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <label className="text-slate-300 font-medium">Urgency Rating (1-5)</label>
-                <span className="font-mono text-indigo-400 font-bold">{urgency}</span>
-              </div>
-              <input 
-                type="range" min="1" max="5" value={urgency} 
-                onChange={(e) => setUrgency(parseInt(e.target.value))}
-                className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-            </div>
-
-            {/* Expiry Hours */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <label className="text-slate-300 font-medium">Hours Until Expiration</label>
-                <span className="font-mono text-indigo-400 font-bold">{expiryHours}h</span>
-              </div>
-              <input 
-                type="range" min="1" max="200" value={expiryHours} 
-                onChange={(e) => setExpiryHours(parseInt(e.target.value))}
-                className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-            </div>
-
-            {/* Trigger Kind dropdown */}
-            <div className="space-y-2">
-              <label className="text-xs text-slate-300 font-medium block">Trigger Kind / Business Value</label>
-              <select 
-                value={triggerKind}
-                onChange={(e) => setTriggerKind(e.target.value)}
-                className="w-full rounded-lg border border-white/5 bg-slate-950 p-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
-              >
-                {Object.keys(KIND_WEIGHTS).map((kind) => (
-                  <option key={kind} value={kind}>{kind} (Weight: {KIND_WEIGHTS[kind]})</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Source & Scope Row */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <span className="text-xs text-slate-300 font-medium block">Trigger Source</span>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setSource("internal")}
-                    className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                      source === "internal" ? "bg-indigo-500/15 border-indigo-500/40 text-indigo-400" : "bg-slate-950 border-white/5 text-slate-400"
-                    }`}
-                  >
-                    Internal
-                  </button>
-                  <button 
-                    onClick={() => setSource("external")}
-                    className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                      source === "external" ? "bg-indigo-500/15 border-indigo-500/40 text-indigo-400" : "bg-slate-950 border-white/5 text-slate-400"
-                    }`}
-                  >
-                    External
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-xs text-slate-300 font-medium block">Target Scope</span>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setScope("merchant")}
-                    className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                      scope === "merchant" ? "bg-indigo-500/15 border-indigo-500/40 text-indigo-400" : "bg-slate-950 border-white/5 text-slate-400"
-                    }`}
-                  >
-                    Merchant
-                  </button>
-                  <button 
-                    onClick={() => setScope("customer")}
-                    className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                      scope === "customer" ? "bg-indigo-500/15 border-indigo-500/40 text-indigo-400" : "bg-slate-950 border-white/5 text-slate-400"
-                    }`}
-                  >
-                    Customer
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Payload Keys */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <label className="text-slate-300 font-medium">Payload Keys count</label>
-                <span className="font-mono text-indigo-400 font-bold">{payloadKeys}</span>
-              </div>
-              <input 
-                type="range" min="0" max="10" value={payloadKeys} 
-                onChange={(e) => setPayloadKeys(parseInt(e.target.value))}
-                className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-            </div>
-          </div>
-
-          {/* Real-time Math Score Box */}
-          <div className="lg:col-span-2 rounded-xl border border-indigo-500/10 bg-slate-950/60 p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
-            
-            <div className="space-y-4 relative z-10">
-              <span className="text-[10px] font-mono tracking-widest text-slate-500 uppercase">PRIORITY RATING</span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold text-white tracking-tight">{totalPriorityScore}</span>
-                <span className="text-sm text-slate-500">/ 100</span>
-              </div>
-              
-              {/* Score bar */}
-              <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
-                <div 
-                  className="bg-indigo-500 h-2 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(99,102,241,0.5)]" 
-                  style={{ width: `${totalPriorityScore}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Scoring breakdown parameters */}
-            <div className="space-y-3 pt-6 border-t border-white/5 text-xs relative z-10">
-              <div className="flex justify-between">
-                <span className="text-slate-400">Urgency rating ({urgency} × 5):</span>
-                <span className="font-mono text-white">+{urgencyPts} pts</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Expiry proximity ({expiryHours}h left):</span>
-                <span className="font-mono text-white">+{expiryPts} pts</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Kind weight ({triggerKind}):</span>
-                <span className="font-mono text-white">+{kindPts} pts</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Source weight ({source}):</span>
-                <span className="font-mono text-white">+{sourcePts} pts</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Scope weight ({scope}):</span>
-                <span className="font-mono text-white">+{scopePts} pts</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Payload richness ({payloadKeys} keys):</span>
-                <span className="font-mono text-white">+{payloadPts} pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Live Priority Score Engine — Fetches real triggers from backend */}
+      <LivePriorityEngine />
     </div>
   );
 }
+
+// ── Separated client component for real backend data fetching ─────────────────
+
+const KIND_WEIGHTS_ENGINE: Record<string, number> = {
+  "supply_alert": 20, "regulation_change": 20, "appointment_tomorrow": 18,
+  "recall_due": 18, "chronic_refill_due": 18, "renewal_due": 16,
+  "perf_spike": 15, "perf_dip": 14, "seasonal_perf_dip": 14,
+  "competitor_opened": 14, "customer_lapsed_hard": 13, "winback_eligible": 12,
+  "bridal_followup": 12, "wedding_package_followup": 12, "trial_followup": 11,
+  "customer_lapsed_soft": 10, "ipl_match_today": 13, "festival_upcoming": 12,
+  "category_seasonal": 10, "milestone_reached": 9, "review_theme_emerged": 9,
+  "gbp_unverified": 9, "cde_opportunity": 9, "research_digest": 8,
+  "active_planning_intent": 8, "dormant_with_nexora": 6, "curious_ask_due": 5,
+};
+
+interface TriggerDoc {
+  context_id: string;
+  payload: {
+    kind?: string;
+    urgency?: number;
+    expires_at?: string;
+    source?: string;
+    scope?: string;
+    [key: string]: unknown;
+  };
+  _priority_score?: number;
+  _priority_rank?: number;
+}
+
+function computeScore(payload: TriggerDoc["payload"]): {
+  total: number; urgencyPts: number; expiryPts: number;
+  kindPts: number; sourcePts: number; scopePts: number; payloadPts: number;
+} {
+  const urgency = Math.max(1, Math.min(5, payload.urgency ?? 3));
+  const urgencyPts = urgency * 5;
+
+  let expiryPts = 12;
+  if (payload.expires_at) {
+    try {
+      const hoursLeft = (new Date(payload.expires_at).getTime() - Date.now()) / 3_600_000;
+      if (hoursLeft < 0) expiryPts = 0;
+      else if (hoursLeft <= 24) expiryPts = 25;
+      else if (hoursLeft >= 168) expiryPts = 0;
+      else expiryPts = Math.floor((1 - (hoursLeft - 24) / 144) * 25);
+    } catch { /* keep neutral */ }
+  }
+
+  const kindPts = KIND_WEIGHTS_ENGINE[payload.kind ?? ""] ?? 7;
+  const sourcePts = payload.source === "external" ? 10 : 6;
+  const scopePts = payload.scope === "customer" ? 10 : 7;
+  const payloadPts = Math.min(10, Object.keys(payload).length * 2);
+  const total = Math.min(100, urgencyPts + expiryPts + kindPts + sourcePts + scopePts + payloadPts);
+  return { total, urgencyPts, expiryPts, kindPts, sourcePts, scopePts, payloadPts };
+}
+
+function LivePriorityEngine() {
+  const [status, setStatus] = useState<"loading" | "online" | "offline">("loading");
+  const [triggers, setTriggers] = useState<TriggerDoc[]>([]);
+  const [selected, setSelected] = useState<TriggerDoc | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState<string>("");
+
+  const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL || "http://localhost:8080";
+
+  const fetchData = async () => {
+    try {
+      const healthRes = await fetch(`${BOT_URL}/v1/healthz`, { signal: AbortSignal.timeout(4000) });
+      if (!healthRes.ok) throw new Error(`Health check failed: HTTP ${healthRes.status}`);
+
+      const ctxRes = await fetch(`${BOT_URL}/v1/dashboard/contexts?scope=trigger&limit=50`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!ctxRes.ok) throw new Error(`Contexts fetch failed: HTTP ${ctxRes.status}`);
+
+      const data = await ctxRes.json();
+      const docs: TriggerDoc[] = (data.contexts ?? []);
+      setTriggers(docs);
+      setSelected(docs[0] ?? null);
+      setStatus("online");
+      setFetchError(null);
+      setLastRefresh(new Date().toLocaleTimeString());
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setStatus("offline");
+      setFetchError(msg);
+      setTriggers([]);
+      setSelected(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const score = selected ? computeScore(selected.payload) : null;
+
+  return (
+    <div className="rounded-2xl border border-indigo-500/10 bg-slate-950/20 backdrop-blur-md p-6 md:p-8 space-y-6 shadow-xl">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <span className="text-xs font-mono tracking-wider text-indigo-400 uppercase">ENGINE SIMULATOR</span>
+          <h2 className="text-xl font-bold text-white mt-1">Live Priority Score Calculator</h2>
+          <p className="text-xs text-slate-400 mt-1">
+            Scores fetched in real-time from the backend trigger registry. Select any live trigger to inspect its scoring breakdown.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Connection badge */}
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-mono font-bold uppercase tracking-wider ${
+            status === "online"
+              ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
+              : status === "offline"
+              ? "bg-rose-500/5 border-rose-500/20 text-rose-400"
+              : "bg-slate-500/5 border-slate-500/20 text-slate-400"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${
+              status === "online" ? "bg-emerald-500 animate-pulse" :
+              status === "offline" ? "bg-rose-500" : "bg-slate-500 animate-pulse"
+            }`} />
+            {status === "online" ? "Backend Live" : status === "offline" ? "Backend Offline" : "Connecting…"}
+          </div>
+          <button
+            onClick={fetchData}
+            className="px-3 py-1.5 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 text-xs text-slate-400 font-mono transition-all duration-200"
+          >
+            ↻ Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Offline / Error Warning */}
+      {status === "offline" && (
+        <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 space-y-1">
+          <div className="flex items-center gap-2 text-rose-400 font-semibold text-xs">
+            <span>⚠ Backend unreachable — priority data unavailable</span>
+          </div>
+          <p className="text-[11px] text-rose-300/60 font-mono leading-relaxed">
+            {fetchError}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">
+            Start the backend with <code className="bg-slate-900 px-1 py-0.5 rounded text-indigo-400">uvicorn main:app --host 0.0.0.0 --port 8080</code> and click Refresh.
+          </p>
+        </div>
+      )}
+
+      {/* Loading skeleton */}
+      {status === "loading" && (
+        <div className="flex items-center gap-3 text-slate-500 text-xs font-mono py-8 justify-center">
+          <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          <span className="ml-2">Connecting to backend…</span>
+        </div>
+      )}
+
+      {/* Online — Trigger selector & score panel */}
+      {status === "online" && (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left: trigger list */}
+          <div className="lg:col-span-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                {triggers.length} Live Triggers from MongoDB
+              </span>
+              {lastRefresh && (
+                <span className="text-[9px] font-mono text-slate-600">Last synced: {lastRefresh}</span>
+              )}
+            </div>
+
+            {triggers.length === 0 ? (
+              <p className="text-xs text-slate-500 font-mono py-4 text-center">No trigger contexts found in database.</p>
+            ) : (
+              <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+                {triggers.map((t) => {
+                  const s = computeScore(t.payload);
+                  const isSelected = selected?.context_id === t.context_id;
+                  return (
+                    <button
+                      key={t.context_id}
+                      onClick={() => setSelected(t)}
+                      className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-200 flex items-center justify-between gap-4 ${
+                        isSelected
+                          ? "bg-indigo-500/10 border-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.12)]"
+                          : "bg-slate-950/40 border-white/5 hover:border-white/10 hover:bg-slate-950/60"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <span className={`text-xs font-bold block truncate ${isSelected ? "text-indigo-300" : "text-slate-300"}`}>
+                          {t.payload.kind ?? "unknown_kind"}
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-500 truncate block">{t.context_id}</span>
+                      </div>
+                      {/* Mini score badge */}
+                      <div className={`shrink-0 text-right ${isSelected ? "text-indigo-400" : "text-slate-500"}`}>
+                        <span className="text-sm font-extrabold font-mono">{s.total}</span>
+                        <span className="text-[9px] block font-mono">/ 100</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Right: Score breakdown for selected trigger */}
+          {selected && score && (
+            <div className="lg:col-span-2 rounded-xl border border-indigo-500/10 bg-slate-950/60 p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+
+              <div className="space-y-4 relative z-10">
+                <div>
+                  <span className="text-[10px] font-mono tracking-widest text-slate-500 uppercase">PRIORITY RATING</span>
+                  <p className="text-[9px] font-mono text-slate-600 mt-0.5 truncate">{selected.context_id}</p>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-extrabold text-white tracking-tight">{score.total}</span>
+                  <span className="text-sm text-slate-500">/ 100</span>
+                </div>
+                <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-indigo-500 h-2 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+                    style={{ width: `${score.total}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2.5 pt-5 border-t border-white/5 text-xs relative z-10 mt-4">
+                {[
+                  { label: `Urgency (${selected.payload.urgency ?? 3} × 5)`, pts: score.urgencyPts },
+                  { label: `Expiry proximity`, pts: score.expiryPts },
+                  { label: `Kind: ${selected.payload.kind ?? "—"}`, pts: score.kindPts },
+                  { label: `Source: ${selected.payload.source ?? "internal"}`, pts: score.sourcePts },
+                  { label: `Scope: ${selected.payload.scope ?? "merchant"}`, pts: score.scopePts },
+                  { label: `Payload richness`, pts: score.payloadPts },
+                ].map(({ label, pts }) => (
+                  <div key={label} className="flex justify-between items-center">
+                    <span className="text-slate-400 truncate pr-2">{label}:</span>
+                    <span className="font-mono text-white shrink-0">+{pts} pts</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
