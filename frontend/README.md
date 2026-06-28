@@ -4,6 +4,18 @@ Next.js (App Router) + TypeScript + Tailwind CSS dashboard designed for monitori
 
 See the [repo-level README](../README.md) for full project context, architecture, and the FastAPI backend specifications it interacts with.
 
+> [!IMPORTANT]
+> ### 🌐 NEXORA Deployed Production Links
+> 
+> * **🖥️ Live Operations Dashboard (UI):** [https://nexorabot-ai.vercel.app/](https://nexorabot-ai.vercel.app/)
+> * **⚡ Deployed Backend Engine (API):** [https://nexora-studio-0aaz.onrender.com/](https://nexora-studio-0aaz.onrender.com/) *(Health Endpoint: `/v1/healthz`)*
+> 
+> | Environment | Backend Endpoint | Frontend Dashboard |
+> | :--- | :--- | :--- |
+> | **☁️ Live Production** | `https://nexora-studio-0aaz.onrender.com/` | `https://nexorabot-ai.vercel.app/` |
+> | **💻 Local Development** | `http://localhost:8080` | `http://localhost:3000` |
+
+
 ## 🗺️ Frontend-Backend Interaction Pipeline
 
 The Next.js operational dashboard acts as a real-time monitor and debugger, communicating directly with FastAPI's analytics endpoints:

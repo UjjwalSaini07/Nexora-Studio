@@ -4,6 +4,18 @@ Welcome to the official documentation for **NEXORA**, a production-grade merchan
 
 NEXORA acts as a hyper-personalized, context-aware bridge between real-time business signals (triggers) and conversational channels (primarily WhatsApp Business). By combining a high-performance FastAPI backend with MongoDB, Redis, and low-latency LLM inference via Groq, NEXORA enables merchants to automatically run highly targeted campaigns, follow ups, and compliance processes.
 
+> [!IMPORTANT]
+> ### 🌐 NEXORA Deployed Production Links
+> 
+> * **🖥️ Live Operations Dashboard (UI):** [https://nexorabot-ai.vercel.app/](https://nexorabot-ai.vercel.app/)
+> * **⚡ Deployed Backend Engine (API):** [https://nexora-studio-0aaz.onrender.com/](https://nexora-studio-0aaz.onrender.com/) *(Health Endpoint: `/v1/healthz`)*
+> 
+> | Environment | Backend Endpoint | Frontend Dashboard |
+> | :--- | :--- | :--- |
+> | **☁️ Live Production** | `https://nexora-studio-0aaz.onrender.com/` | `https://nexorabot-ai.vercel.app/` |
+> | **💻 Local Development** | `http://localhost:8080` | `http://localhost:3000` |
+
+
 
 ## 📖 The Problem Statement
 

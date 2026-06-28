@@ -45,6 +45,18 @@ Unlike basic templated bots, NEXORA enforces a strict **4-context resolution** (
 
 By combining low-latency inference on Groq's Llama 3.3 with local cache controls via Redis and persistent audit logging in MongoDB, NEXORA satisfies the challenge's strict 30-second response budget while guaranteeing production safety, conversation state tracking, and rate limiting.
 
+
+> [!IMPORTANT]
+> ### 🌐 NEXORA Deployed Production Links
+> 
+> * **🖥️ Live Operations Dashboard (UI):** [https://nexorabot-ai.vercel.app/](https://nexorabot-ai.vercel.app/)
+> * **⚡ Deployed Backend Engine (API):** [https://nexora-studio-0aaz.onrender.com/](https://nexora-studio-0aaz.onrender.com/) *(Health Endpoint: `/v1/healthz`)*
+> 
+> | Environment | Backend Endpoint | Frontend Dashboard |
+> | :--- | :--- | :--- |
+> | **☁️ Live Production** | `https://nexora-studio-0aaz.onrender.com/` | `https://nexorabot-ai.vercel.app/` |
+> | **💻 Local Development** | `http://localhost:8080` | `http://localhost:3000` |
+
 ### 4-Context Assembler Architecture
 
 ```mermaid

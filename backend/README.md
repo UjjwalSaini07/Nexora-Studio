@@ -4,6 +4,18 @@ FastAPI application implementing the full magicpin AI Challenge HTTP contract. T
 
 See the [repo-level README](../README.md) for full system architecture, docker orchestration, and requirements checklists.
 
+> [!IMPORTANT]
+> ### 🌐 NEXORA Deployed Production Links
+> 
+> * **⚡ Deployed Backend Engine (API):** [https://nexora-studio-0aaz.onrender.com/](https://nexora-studio-0aaz.onrender.com/) *(Health Endpoint: `/v1/healthz`)*
+> * **🖥️ Live Operations Dashboard (UI):** [https://nexorabot-ai.vercel.app/](https://nexorabot-ai.vercel.app/)
+> 
+> | Environment | Backend Endpoint | Frontend Dashboard |
+> | :--- | :--- | :--- |
+> | **☁️ Live Production** | `https://nexora-studio-0aaz.onrender.com/` | `https://nexorabot-ai.vercel.app/` |
+> | **💻 Local Development** | `http://localhost:8080` | `http://localhost:3000` |
+
+
 ## 🧱 Backend Architecture Pipeline
 
 The diagram below details the operational pipelines inside the FastAPI backend, showing how middleware, routers, datastores, and the composer/reply pipelines interact:
