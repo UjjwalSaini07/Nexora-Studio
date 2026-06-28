@@ -1,16 +1,3 @@
-# backend/tests/test_api_integration.py
-"""
-End-to-end integration tests against the real FastAPI app, using:
-- fakeredis / mongomock-motor in place of real Redis/Mongo (via dependency
-  overrides on app.state, set up in the `client` fixture below)
-- the REAL official challenge dataset (expanded/) as fixture data
-- a mocked LLMClient.complete() so the test suite is fully offline and
-  deterministic (no live Groq key required to validate correctness of the
-  HTTP contract, idempotency, suppression, and reply state machine)
-
-This exercises exactly the request/response shapes documented in
-challenge-testing-brief.md and examples/api-call-examples.md.
-"""
 import json
 import sys
 from pathlib import Path

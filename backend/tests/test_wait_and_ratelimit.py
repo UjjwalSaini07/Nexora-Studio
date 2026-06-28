@@ -1,4 +1,3 @@
-# backend/tests/test_wait_and_ratelimit.py
 import pytest
 from unittest.mock import AsyncMock, patch
 from fastapi import HTTPException

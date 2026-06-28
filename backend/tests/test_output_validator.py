@@ -1,4 +1,3 @@
-# backend/tests/test_output_validator.py
 import sys
 from pathlib import Path
 

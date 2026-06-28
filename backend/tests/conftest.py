@@ -1,10 +1,3 @@
-# backend/tests/conftest.py
-"""
-Pytest fixtures that swap real Mongo/Redis for in-memory equivalents so the
-full test suite runs anywhere (CI, this sandbox, a laptop) with zero
-external services. Production code is untouched — these doubles satisfy the
-exact same method surface as RedisStore/MongoStore.
-"""
 import sys
 from pathlib import Path
 

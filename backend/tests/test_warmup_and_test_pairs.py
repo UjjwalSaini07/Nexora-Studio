@@ -1,18 +1,3 @@
-# backend/tests/test_warmup_and_test_pairs.py
-"""
-Validates two specific contractual requirements from the official briefs:
-
-1. challenge-testing-brief.md §4 Phase 1: after the judge pushes the full
-   base dataset (5 categories + 50 merchants + 200 customers, 0 triggers),
-   GET /v1/healthz must report contexts_loaded reflecting all 255 base
-   contexts.
-
-2. The official generate_dataset.py produces expanded/test_pairs.json — 30
-   canonical (merchant, trigger[, customer]) pairs every candidate is
-   scored against. This test proves every pair resolves to a valid,
-   loadable (category, merchant, trigger[, customer]) tuple and that the
-   bot can produce a tick action for each one (with the LLM call mocked).
-"""
 import json
 import sys
 from pathlib import Path

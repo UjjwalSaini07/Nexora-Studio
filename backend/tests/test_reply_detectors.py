@@ -1,4 +1,3 @@
-# backend/tests/test_reply_detectors.py
 import sys
 from pathlib import Path
 

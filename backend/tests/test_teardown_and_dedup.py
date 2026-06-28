@@ -1,11 +1,3 @@
-# backend/tests/test_teardown_and_dedup.py
-"""
-Tests for two contract requirements from challenge-testing-brief.md:
-
-1. §11 (privacy): bots must not persist context data after the test ends.
-   POST /v1/teardown wipes all state.
-2. FAQ: only one action per (merchant_id, conversation_id) pair per tick.
-"""
 import json
 import sys
 from pathlib import Path

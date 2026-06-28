@@ -1,5 +1,4 @@
-﻿# backend/tests/test_new_features.py
-import json
+﻿import json
 import sys
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
