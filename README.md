@@ -43,6 +43,22 @@ Unlike basic templated bots, NEXORA enforces a strict **4-context resolution** (
 
 By combining low-latency inference on Groq's Llama 3.3 with local cache controls via Redis and persistent audit logging in MongoDB, NEXORA satisfies the challenge's strict 30-second response budget while guaranteeing production safety, conversation state tracking, and rate limiting.
 
+### 4-Context Assembler Architecture
+
+```mermaid
+graph TD
+    subgraph Context Ingestion Sources
+        Cat[Category Context: Voice, Tone, Seasonal Beats]
+        Mer[Merchant Context: Metrics, Identity, Language]
+        Cust[Customer Context: Interaction History, Preferences]
+        Trg[Trigger Context: Event Kind, Urgency, Expiry, Payload]
+    end
+    
+    Cat & Mer & Cust & Trg -->|Extracted Concurrently| Assembler[Context Assembler Subsystem]
+    Assembler -->|Unified Payload Structure| Prompter[Context-Aware Prompt Builder]
+    Prompter -->|Bilingual Strategy Prompt| LLM[Groq Llama 3.3 Engine]
+```
+
 ### 🎭 Category Verticals & Voice Registers
 
 NEXORA adapts its conversational register dynamically to match the expected tone of different local business categories:
@@ -76,6 +92,29 @@ When an inbound reply turn is received via `POST /v1/reply`, NEXORA executes a p
 *   **Commit Router:** Scans for affirmative signals. If matched, it transitions the LLM prompt to Action Mode.
 *   **Language Check:** Analyzes characters and Hinglish code-mix markers to adjust translation directives.
 *   **LLM Compilation:** Submits the compiled turn history and category constraints to the LLM.
+
+### Inbound Reply Classifier & Intent Flow
+
+```mermaid
+graph TD
+    Inbound[Inbound Message] --> Limit{Rate Limit Check?}
+    Limit -->|Exceeded| Block[HTTP 429 Block]
+    Limit -->|Allowed| AutoCheck{Is Auto-Reply?}
+    
+    AutoCheck -->|Yes| Strike{Increment Strike: Strike count?}
+    Strike -->|Strike 1| Nudge[Generate Canned Nudge]
+    Strike -->|Strike 2| Wait[24-Hour Wait State Lock]
+    Strike -->|Strike 3| End[Mark Ended & Stop]
+    
+    AutoCheck -->|No| IntentCheck{Opt-Out or Stop Keyword?}
+    IntentCheck -->|Yes| OptOut[Mark Ended & Send Exit msg]
+    IntentCheck -->|No| CommitCheck{Explicit Commit Keyword?}
+    
+    CommitCheck -->|Yes| ActionPrompt[LLM Strategy: Action Mode]
+    CommitCheck -->|No| ChatPrompt[LLM Strategy: Discovery Mode]
+    
+    ActionPrompt & ChatPrompt --> LLM[Llama 3.3 Inference]
+```
 
 
 ## 🏗️ System Architecture
