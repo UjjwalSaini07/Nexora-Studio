@@ -1,12 +1,3 @@
-# backend/storage/redis_store.py
-"""
-RedisStore: versioned context index, suppression (dedup) keys, conversation
-state, and auto-reply streak tracking.
-
-All writes that must be atomic (context version bump + first-seen count) use
-a Redis transaction (MULTI/EXEC via pipeline) to avoid race conditions if the
-judge harness fires concurrent /v1/context calls for the same context_id.
-"""
 import json
 import time
 from typing import Optional

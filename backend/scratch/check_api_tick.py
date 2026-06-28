@@ -1,4 +1,3 @@
-# backend/scratch/check_api_tick.py
 import requests
 import json
 

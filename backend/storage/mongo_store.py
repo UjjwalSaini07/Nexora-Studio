@@ -1,9 +1,3 @@
-# backend/storage/mongo_store.py
-"""
-MongoStore: durable persistence for full context payloads and the
-actions/conversation audit trail. Redis is the hot path (versions,
-suppression, live conversation state); Mongo is the system of record.
-"""
 from datetime import datetime, timezone
 from typing import Optional
 

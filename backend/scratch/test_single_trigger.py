@@ -1,4 +1,3 @@
-# backend/scratch/test_single_trigger.py
 import asyncio
 from composer.engine import EngagementComposer
 from storage.redis_store import RedisStore

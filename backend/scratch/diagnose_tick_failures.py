@@ -1,4 +1,3 @@
-# backend/scratch/diagnose_tick_failures.py
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 from redis.asyncio import Redis
