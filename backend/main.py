@@ -206,7 +206,26 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.get("/")
 async def root():
-    return {"service": "NEXORA Bot", "status": "running", "docs": "/docs"}
+    from config import BOT_VERSION
+    return {
+        "service": "NEXORA Bot Engine",
+        "status": "active",
+        "version": BOT_VERSION,
+        "environment": os.getenv("ENVIRONMENT", "production"),
+        "documentation": "/docs",
+        "endpoints": {
+            "health": "/v1/healthz",
+            "metadata": "/v1/metadata",
+            "context_ingestion": "/v1/context",
+            "proactive_tick": "/v1/tick",
+            "conversational_reply": "/v1/reply",
+        },
+        "developer": {
+            "name": "Ujjwal Saini",
+            "role": "Lead Architect",
+            "portfolio": "https://ujjwalsaini.vercel.app",
+        }
+    }
 
 
 for r in [healthz.router, metadata.router, context.router, tick.router, reply.router, dashboard.router, teardown.router, demo.router, explain.router]:

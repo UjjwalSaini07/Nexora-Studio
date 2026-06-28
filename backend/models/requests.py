@@ -16,6 +16,12 @@ class HealthzResponse(BaseModel):
     contexts_loaded: dict[str, int]
     mongo_connected: bool = True
     redis_connected: bool = True
+    total_actions_logged: Optional[int] = None
+    total_replies_logged: Optional[int] = None
+    active_suppression_keys: Optional[int] = None
+    system_start_time: Optional[str] = None
+    environment: Optional[str] = None
+    memory_usage_mb: Optional[float] = None
 
 
 # ── /v1/metadata ─────────────────────────────────────────────────────────────
@@ -30,6 +36,12 @@ class MetadataResponse(BaseModel):
     author_portfolio: Optional[str] = None
     author_github: Optional[str] = None
     project_description: Optional[str] = None
+    llm_fallback_model: Optional[str] = None
+    sla_time_budget: Optional[str] = None
+    hot_cache_type: Optional[str] = None
+    durable_store_type: Optional[str] = None
+    production_link: Optional[str] = None
+    frontend_dashboard_link: Optional[str] = None
 
 
 # ── /v1/context ──────────────────────────────────────────────────────────────
