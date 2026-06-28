@@ -104,6 +104,12 @@ Returns the operational status of the service, uptime, and database connectivity
 *   `contexts_loaded`: Object displaying context document counts in cache by scope.
 *   `mongo_connected`: Boolean indicating MongoDB connectivity.
 *   `redis_connected`: Boolean indicating Redis connectivity.
+*   `total_actions_logged`: Total proactive merchant engagement actions stored in MongoDB.
+*   `total_replies_logged`: Total multi-turn replies logged in MongoDB.
+*   `active_suppression_keys`: Total active suppression keys in the database.
+*   `system_start_time`: ISO UTC timestamp indicating when the bot engine booted.
+*   `environment`: Active running environment (`"production"` or `"development"`).
+*   `memory_usage_mb`: Current container memory utilization in MB (Linux only, returns null on Windows).
 
 #### Example Success Response
 ```json
@@ -117,7 +123,13 @@ Returns the operational status of the service, uptime, and database connectivity
     "trigger": 100
   },
   "mongo_connected": true,
-  "redis_connected": true
+  "redis_connected": true,
+  "total_actions_logged": 42,
+  "total_replies_logged": 18,
+  "active_suppression_keys": 4,
+  "system_start_time": "2026-06-28T16:55:00Z",
+  "environment": "production",
+  "memory_usage_mb": 42.12
 }
 ```
 
@@ -134,7 +146,13 @@ If Redis or MongoDB experiences a transient outage, the endpoint returns a `200 
     "trigger": 0
   },
   "mongo_connected": false,
-  "redis_connected": true
+  "redis_connected": true,
+  "total_actions_logged": 0,
+  "total_replies_logged": 0,
+  "active_suppression_keys": 0,
+  "system_start_time": "2026-06-28T16:55:00Z",
+  "environment": "production",
+  "memory_usage_mb": null
 }
 ```
 
@@ -164,7 +182,13 @@ Provides metadata about the submission, team structure, and system approach.
   "submitted_at": "2026-06-25T08:00:00Z",
   "author_portfolio": "https://ujjwalsaini.vercel.app",
   "author_github": "https://github.com/UjjwalSaini07",
-  "project_description": "NEXORA: A production-grade merchant engagement engine designed for the magicpin AI Challenge. Automatically translates raw business database signals (categories, merchants, customers, triggers) into hyper-personalized, context-grounded, multi-turn conversational actions."
+  "project_description": "NEXORA: A production-grade merchant engagement engine designed for the magicpin AI Challenge. Automatically translates raw business database signals (categories, merchants, customers, triggers) into hyper-personalized, context-grounded, multi-turn conversational actions.",
+  "llm_fallback_model": "llama-3.1-8b-instant",
+  "sla_time_budget": "30s SLA (with a 22s LLM hard timeout)",
+  "hot_cache_type": "Redis hot cache (supressions, wait-states, turn counters)",
+  "durable_store_type": "MongoDB (context registry, action audit logs, reply history)",
+  "production_link": "https://nexora-studio-0aaz.onrender.com/",
+  "frontend_dashboard_link": "https://nexorabot-ai.vercel.app/"
 }
 ```
 
