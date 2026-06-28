@@ -600,15 +600,7 @@ async def simulate_tick_stream(
                 actions_logged = False
 
             actions_returned += 1
-            yield f"data: {json.dumps({
-                'event': 'action',
-                'trigger_id': trg_id,
-                'action': action_result,
-                'actions_logged': actions_logged,
-                'confidence': confidence,
-                'latency': latency,
-                'token_usage': usage
-            })}\n\n"
+            yield f"data: {json.dumps({'event': 'action', 'trigger_id': trg_id, 'action': action_result, 'actions_logged': actions_logged, 'confidence': confidence, 'latency': latency, 'token_usage': usage})}\n\n"
             await asyncio.sleep(0.1)
 
         # Yield end event
