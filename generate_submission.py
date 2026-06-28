@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 generate_submission.py — produces submission.jsonl (30 lines, one per
 canonical test pair) per challenge-brief.md §7.2, by driving the ACTUAL

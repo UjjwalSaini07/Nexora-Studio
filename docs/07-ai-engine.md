@@ -166,4 +166,4 @@ NEXORA supports 27 trigger kinds with distinct configurations:
 | `dormant_with_nexora` | 6 | `nexora` | `binary_yes_no` |
 | `curious_ask_due` | 5 | `nexora` | `open_ended` |
 
-👉 **Next Steps:** Review the [Deployment Guide](/docs/08-deployment.md) to initialize the service locally.
+👉 **Next Steps:** Review the [Data Model Guide](/docs/08-data-models.md) to initialize the service locally.
