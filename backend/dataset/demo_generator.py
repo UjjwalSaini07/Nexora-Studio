@@ -172,13 +172,27 @@ TEMPLATES = {
     }
 }
 
+_demo_data_ensured = False
+
+
+def reset_demo_data_ensured():
+    global _demo_data_ensured
+    _demo_data_ensured = False
+
+
 async def ensure_demo_data(mongo: MongoStore, redis: RedisStore):
     """If actions_log is empty in MongoDB, populate it with deterministic demo analytics."""
+    global _demo_data_ensured
+    if _demo_data_ensured:
+        return
+
     actions_count = await mongo.actions_log.count_documents({})
     if actions_count > 0:
+        _demo_data_ensured = True
         return
 
     logger.info("MongoDB actions_log is empty. Seeding deterministic demo data...")
+
     
     # Load test pairs
     expanded_dir = Path(__file__).parent.parent.parent / "expanded"
@@ -445,3 +459,4 @@ async def ensure_demo_data(mongo: MongoStore, redis: RedisStore):
         await mongo.ticks_log.insert_one(tick_doc)
 
     logger.info(f"Demo seeding complete: {len(actions_to_log)} actions, {len(replies_to_log)} replies generated.")
+    _demo_data_ensured = True

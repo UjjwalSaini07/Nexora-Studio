@@ -1,4 +1,4 @@
-﻿"""
+"""
 POST /v1/teardown (optional, per challenge-testing-brief.md §11) —
 magicpin's judge harness may call this at the end of a test window. On
 receiving it, the bot must wipe all persisted context/conversation state
@@ -27,6 +27,13 @@ async def teardown(
 ):
     redis_deleted = 0
     mongo_deleted = {}
+
+    try:
+        from dataset.demo_generator import reset_demo_data_ensured
+        reset_demo_data_ensured()
+    except Exception as exc:
+        logger.error("Failed to reset demo data state during teardown", extra={"ctx": {"error": str(exc)}})
+
 
     try:
         redis_deleted = await redis.wipe_all_nexora_keys()
