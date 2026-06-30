@@ -543,6 +543,10 @@ Successfully completed all 30 test pairs.
 Submission file saved at: F:\_Code\Nexora-Studio\submission.jsonl
 ```
 
+## 🎥 Video Demonstration
+
+[![Watch the demo](https://github.com/user-attachments/assets/8335adab-e481-4805-b46b-c612c961ad27)](https://www.loom.com/share/3d3bf8f0b784498490d9d6d98b218268)
+
 ## 📸 Screenshots
 
 <table>
